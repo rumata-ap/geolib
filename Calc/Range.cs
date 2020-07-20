@@ -85,7 +85,7 @@ namespace Geo.Calc
          double diff = e - s;
          double step = diff * stepParam;
          int ndiv = (int)Math.Floor(1.0 / stepParam);
-         double balance = (1.0 % stepParam) * diff;
+         double balance = (1.0 % stepParam);// * diff;
 
          if (first && last)
          {
@@ -96,13 +96,13 @@ namespace Geo.Calc
          }
          else if (!first && last)
          {
-            res = new Vector(ndiv + 2);
+            res = new Vector(ndiv + 1);
             for (int i = 0; i < ndiv + 1; i++) res[i] = s + balance + step * i;
-            res[ndiv + 1] = e;
+            res[ndiv] = e;
          }
          else if (first && !last)
          {
-            res = new Vector(ndiv + 2);
+            res = new Vector(ndiv + 1);
             for (int i = 0; i < ndiv + 1; i++) res[i] = s + step * i;           
          }
          else

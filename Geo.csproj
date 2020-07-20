@@ -39,6 +39,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Arc2d.cs" />
     <Compile Include="BoundingBox2d.cs" />
     <Compile Include="Calc\Range.cs" />
     <Compile Include="Contour2d.cs" />

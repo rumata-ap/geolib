@@ -7,6 +7,7 @@ using Geo.Calc;
 
 namespace Geo
 {
+   [Serializable]
    public class Arc2d
    {
       public Point3d StartPoint { get; private set; }

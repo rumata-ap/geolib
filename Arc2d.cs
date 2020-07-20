@@ -47,14 +47,27 @@ namespace Geo
          Bulge = Math.Atan(0.25 * Angle);
       }
 
-      public Point3d GetPoint(double param)
+      /// <summary>
+      /// Получение точки на дуге по заданнамо параметру (на основе параметрического уравнения дуги)
+      /// </summary>
+      /// <param name="param">Параметр в долях единицы или абсолютное значение в диапазоне от 0 до величины угла дуги</param>
+      /// <param name="paramType">Тип параметра (относительный или абсолютный)</param>
+      /// <returns>Возвращает вычисленную точку</returns>
+      public Point3d GetPoint(double param, ParamType paramType = ParamType.rel)
       {
-         if (param < 0 || param > 1) return null;
+         if ((param < 0 || param > 1) && paramType == ParamType.rel) return null;
+         if ((param < 0 || param > Angle) && paramType == ParamType.abs) return null;
          Vector3d p = EndPoint - StartPoint;
          double l = Math.Sqrt(p[0] * p[0] + p[1] * p[1]);
-         Matrix C = new Matrix(3, 3);
-         C[0, 0] = p[0] / l;
-         C[0, 1] = p[1] / l;
+         p[0] = p[0] / l;
+         p[1] = p[1] / l;
+         Vector3d n = new Vector3d(new double[] { p[1], -p[0], 0 });
+
+         if (paramType == ParamType.rel) param = Angle * param;
+         Point3d res = Center + Sign * Radius * Math.Cos(Angle0 + param) * p + Sign * Radius * Math.Sin(Angle0 + param) * n;
+         return res;
       }
    }
+
+   public enum ParamType { rel, abs}
 }

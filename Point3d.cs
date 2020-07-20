@@ -52,6 +52,11 @@ namespace Geo
          else { arr[0] = source[0]; }
       }
 
+      public Point3d(Vector3d source)
+      {
+         arr = source.ToArray();
+      }
+
       public double[] ToArray()
       {
          return new double[] { X, Y, Z };
@@ -120,6 +125,15 @@ namespace Geo
          res[0] = pt1.X - pt2.X;
          res[1] = pt1.Y - pt2.Y;
          res[3] = pt1.Z - pt2.Z;
+         return res;
+      }
+
+      public static Point3d operator +(Point3d pt1, Vector3d v2)
+      {
+         Point3d res = new Point3d();
+         res[0] = pt1.X + v2[0];
+         res[1] = pt1.Y + v2[1];
+         res[3] = pt1.Z + v2[2];
          return res;
       }
 

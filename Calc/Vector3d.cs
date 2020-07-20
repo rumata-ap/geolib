@@ -107,5 +107,38 @@ namespace Geo.Calc
             Vz = v1.Vz * v2.Vz
          };
       }
+
+      public static Vector3d operator *(Vector3d v1, double prime)
+      {
+         double[] res = new double[v1.n];
+         for (int i = 0; i < v1.n; i++)
+         {
+            res[i] = v1[i] * prime;
+         }
+
+         return new Vector3d(res);
+      }
+
+      public static Vector3d operator *(double prime, Vector3d v1)
+      {
+         double[] res = new double[v1.n];
+         for (int i = 0; i < v1.n; i++)
+         {
+            res[i] = v1[i] * prime;
+         }
+
+         return new Vector3d(res);
+      }
+
+      public static Vector3d operator +(Vector3d v1, Vector3d v2)
+      {
+         double[] res = new double[v1.n];
+         for (int i = 0; i < v1.n; i++)
+         {
+            res[i] = v1[i] + v2[i];
+         }
+
+         return new Vector3d(res);
+      }
    }
 }

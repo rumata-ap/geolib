@@ -85,31 +85,61 @@ namespace Geo.Calc
          double diff = e - s;
          double step = diff * stepParam;
          int ndiv = (int)Math.Floor(1.0 / stepParam);
-         double balance = (1.0 % stepParam);// * diff;
+         double balance = diff - ndiv * step;
 
-         if (first && last)
+         if (Math.Round(balance, 4) != 0)
          {
-            res = new Vector(ndiv + 3);
-            res[0] = s;
-            res[ndiv + 2] = e;
-            for (int i = 1; i < ndiv + 2; i++) res[i] = s + 0.5 * balance + step * (i - 1);
-         }
-         else if (!first && last)
-         {
-            res = new Vector(ndiv + 1);
-            for (int i = 0; i < ndiv + 1; i++) res[i] = s + balance + step * i;
-            res[ndiv] = e;
-         }
-         else if (first && !last)
-         {
-            res = new Vector(ndiv + 1);
-            for (int i = 0; i < ndiv + 1; i++) res[i] = s + step * i;           
+            if (first && last)
+            {
+               res = new Vector(ndiv + 3);
+               res[0] = s;
+               res[ndiv + 2] = e;
+               for (int i = 1; i < ndiv + 2; i++) res[i] = s + 0.5 * balance + step * (i - 1);
+            }
+            else if (!first && last)
+            {
+               res = new Vector(ndiv + 1);
+               for (int i = 0; i < ndiv + 1; i++) res[i] = s + balance + step * i;
+               res[ndiv] = e;
+            }
+            else if (first && !last)
+            {
+               res = new Vector(ndiv + 1);
+               for (int i = 0; i < ndiv + 1; i++) res[i] = s + step * i;
+            }
+            else
+            {
+               res = new Vector(ndiv + 1);
+               for (int i = 0; i < ndiv + 1; i++) res[i] = s + 0.5 * balance + step * i;
+            }
          }
          else
          {
-            res = new Vector(ndiv + 1);
-            for (int i = 0; i < ndiv + 1; i++) res[i] = s + 0.5 * balance + step * i;
+            if (first && last)
+            {
+               res = new Vector(ndiv + 1);
+               res[0] = s;
+               res[ndiv] = e;
+               for (int i = 0; i < ndiv; i++) res[i] = s + step * i;
+            }
+            else if (!first && last)
+            {
+               res = new Vector(ndiv);
+               for (int i = 0; i < ndiv; i++) res[i] = s + step * (i+1);
+               res[ndiv-1] = e;
+            }
+            else if (first && !last)
+            {
+               res = new Vector(ndiv);
+               for (int i = 0; i < ndiv; i++) res[i] = s + step * i;
+            }
+            else
+            {
+               res = new Vector(ndiv - 1);
+               for (int i = 0; i < ndiv - 1; i++) res[i] = s + step * (i + 1);
+            }
          }
+         
          return res;
       }
 
@@ -143,7 +173,7 @@ namespace Geo.Calc
             else if (!first && last)
             {
                res = new Vector(ndiv);
-               for (int i = 1; i <= ndiv; i++) res[i] = s + step * i;
+               for (int i = 0; i < ndiv; i++) res[i] = s + step * (i+1);
             }
             else if (first && !last)
             {
@@ -153,7 +183,7 @@ namespace Geo.Calc
             else
             {
                res = new Vector(ndiv - 1);
-               for (int i = 1; i < ndiv - 1; i++) res[i] = s + step * i;
+               for (int i = 0; i < ndiv - 1; i++) res[i] = s + step * (i+1);
             }
          }
          else
@@ -163,18 +193,18 @@ namespace Geo.Calc
                res = new Vector(ndiv + 3);
                res[0] = s;
                res[ndiv + 2] = e;
-               for (int i = 1; i < ndiv + 1; i++) res[i + 1] = s + 0.5 * balance + step * (i - 1);
+               for (int i = 1; i < ndiv + 2; i++) res[i] = s + 0.5 * balance + step * (i - 1);
             }
             else if (!first && last)
             {
-               res = new Vector(ndiv + 2);
+               res = new Vector(ndiv + 1);
                for (int i = 0; i < ndiv + 1; i++) res[i] = s + balance + step * i;
-               res[ndiv + 1] = e;
+               res[ndiv] = e;
             }
             else if (first && !last)
             {
-               res = new Vector(ndiv + 2);
-               for (int i = 0; i < ndiv + 1; i++) res[i] = s + step * i;
+               res = new Vector(ndiv + 1);
+               for (int i = 0; i < ndiv+1; i++) res[i] = s + step * i;
             }
             else
             {

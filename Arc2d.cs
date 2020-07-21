@@ -40,7 +40,7 @@ namespace Geo
          C[1, 1] = -p[0] / l;
          C[2, 2] = 1;
          Vector3d cl = new Vector3d(new double[] { 0.5 * l, Math.Sqrt(Radius * Radius - (0.5 * l) * (0.5 * l)) * Sign, 0 });
-         Vector3d c = C.Inverse() * cl;
+         Vector3d c = C.Inverse() * cl + StartPoint.ToVector3d();
          Center = new Point3d(c.ToArray());
          Angle = 2 * Math.Acos(Math.Sqrt(Radius * Radius - (0.5 * l) * (0.5 * l)) / Radius);
          Angle0 = 0.5 * Math.PI - 0.5 * Angle;
@@ -65,7 +65,7 @@ namespace Geo
          Vector3d n = new Vector3d(new double[] { p[1], -p[0], 0 });
 
          if (paramType == ParamType.rel) param = Angle * param;
-         Point3d res = Center + Sign * Radius * Math.Cos(Angle0 + param) * p + Sign * Radius * Math.Sin(Angle0 + param) * n;
+         Point3d res = Center - Sign * Radius * Math.Cos(Angle0 + param) * p - Sign * Radius * Math.Sin(Angle0 + param) * n;
          return res;
       }
    }

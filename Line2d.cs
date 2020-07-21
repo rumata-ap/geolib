@@ -40,10 +40,10 @@ namespace Geo
          directive = endPoint.ToPoint2d() - startPoint.ToPoint2d();
          CalcLine();
       }
-      
+
       public Line2d(Vertex2d startPt, Vertex2d endPt)
       {
-         startPoint = startPt.Point.ToPoint3d(); endPoint = endPt.Point.ToPoint3d();
+         startPoint = startPt.ToPoint3d(); endPoint = endPt.ToPoint3d();
          directive = endPoint.ToPoint2d() - startPoint.ToPoint2d();
          CalcLine();
       }
@@ -143,6 +143,11 @@ namespace Geo
             res.pts = new List<Point2d>(1);
             res.pts[0] = respt;
          }
+      }
+
+      public Vector3d ToUnitVector3d()
+      {
+         return new Vector3d(new double[] { Directive.Vx / Length, Directive.Vy / Length, 0 });
       }
    }
 

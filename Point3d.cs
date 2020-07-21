@@ -5,7 +5,7 @@ using System.Collections.Generic;
 namespace Geo
 {
    [Serializable]
-   public class Point3d
+   public class Point3d : ICoordinates
    {
       double[] arr;
       //int n = 3;
@@ -14,7 +14,7 @@ namespace Geo
       public double X { get => arr[0]; set => arr[0] = value; }
       public double Y { get => arr[1]; set => arr[1] = value; }
       public double Z { get => arr[2]; set => arr[2] = value; }
-      public Dictionary<string,object> Attr { get; set; }
+      public Dictionary<string, object> Attr { get; set; }
 
       public int N => 3;
 
@@ -146,34 +146,44 @@ namespace Geo
          return res;
       }
 
-      public static bool operator ==(Point3d p1, Point3d p2)
+      //public static bool operator ==(Point3d p1, Point3d p2)
+      //{
+      //   bool check = false;
+      //   if (p1.X == p2.X && p1.Y == p2.Y && p1.Z == p2.Z)
+      //   {
+      //      check = true;
+      //   }
+      //   return (check);
+      //}
+
+      //public static bool operator !=(Point3d p1, Point3d p2)
+      //{
+      //   bool check = true;
+      //   if (p1.X == p2.X && p1.Y == p2.Y && p1.Z == p2.Z)
+      //   {
+      //      check = false;
+      //   }
+      //   return (check);
+      //}
+
+      public bool IsEqual(ICoordinates pt)
       {
          bool check = false;
-         if (p1.X == p2.X && p1.Y == p2.Y && p1.Z == p2.Z)
+         if (X == pt.X && Y == pt.Y && Z == pt.Z)
          {
             check = true;
          }
          return (check);
       }
 
-      public static bool operator !=(Point3d p1, Point3d p2)
+      public bool NotEqual(ICoordinates pt)
       {
-         bool check = true;
-         if (p1.X == p2.X && p1.Y == p2.Y && p1.Z == p2.Z)
+         bool check = false;
+         if (X != pt.X || Y != pt.Y || Z != pt.Z)
          {
-            check = false;
+            check = true;
          }
          return (check);
-      }
-
-      public override bool Equals(object obj)
-      {
-         return base.Equals(obj);
-      }
-
-      public override int GetHashCode()
-      {
-         return base.GetHashCode();
       }
    }
 }

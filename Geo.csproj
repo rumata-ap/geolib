@@ -43,6 +43,7 @@
     <Compile Include="BoundingBox2d.cs" />
     <Compile Include="Calc\Range.cs" />
     <Compile Include="Contour2d.cs" />
+    <Compile Include="ICoordinates.cs" />
     <Compile Include="Line2d.cs" />
     <Compile Include="Line3d.cs" />
     <Compile Include="Calc\Matrix.cs" />

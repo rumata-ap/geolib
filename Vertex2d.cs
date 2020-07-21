@@ -1,33 +1,143 @@
-﻿using System;
+﻿using Geo.Calc;
+
+using System;
 
 namespace Geo
 {
    [Serializable]
-   public class Vertex2d
+   public class Vertex2d : ICoordinates
    {
       public int Id { get; set; }
       public double Bulge { get; set; }
-      public Point2d Point { get; }
+      public Vertex2d Prev { get => prev; set { prev = value; GetAngle(); } }
+      public Vertex2d Next { get => next; set { next = value; GetAngle(); } }
+      public VertexPosition Pos { get; set; }
+      public double Angle { get; private set; }
+      public double AngleGrad { get; private set; }
+      double x;
+      private double z;
+      private double y;
+      private Vertex2d prev;
+      private Vertex2d next;
 
-      public Vertex2d(Point2d pt, int id= 0, double bulge = 0)
+      public double Y { get => y; set { y = value; GetAngle(); } }
+      public double Z { get => z; set { z = value; GetAngle(); } }
+      public double X { get => x; set { x = value; GetAngle(); } }
+
+      public Vertex2d()
       {
-         Id = id;
-         Bulge = bulge;
-         Point = pt;
+
       }
 
-      public Vertex2d(Point3d pt, int id = 0, double bulge = 0)
+      public Vertex2d(ICoordinates source)
       {
-         Id = id;
-         Bulge = bulge;
-         Point = pt.ToPoint2d();
+         X = source.X;
+         Y = source.Y;
+         Z = source.Z;
       }
 
-      public Vertex2d(double x, double y, int id = 0, double bulge = 0)
+      public Vertex2d(double x, double y)
       {
-         Id = id;
-         Bulge = bulge;
-         Point = new Point2d(x, y);
+         X = x;
+         Y = y;
+         Z = 0;
+      }
+
+      public Vertex2d(ICoordinates pt, Vertex2d prev = null, Vertex2d next = null, VertexPosition pos = VertexPosition.Middle)
+      {
+         X = pt.X;
+         Y = pt.Y;
+         Z = pt.Z;
+         Prev = prev;
+         Next = next;
+         Pos = pos;
+         //GetAngle();
+      }
+
+      void GetAngle()
+      {
+         if (Prev == null || Next == null) return;
+         Vector3d pp = Prev - this;
+         Vector3d pn = Next - this;
+         Vector3d nd = pp ^ pn;
+         double cosTo = Vector3d.CosAngleBetVectors(pp, pn);
+         Angle = Math.Acos(cosTo);
+         AngleGrad = RadToDeg(Math.Acos(cosTo));
+
+         if (nd.Unit[2] < 0)
+         {
+            Angle = 2 * Math.PI - Angle;
+            AngleGrad = 360 - AngleGrad;
+         }
+      }
+
+      private double RadToDeg(double radians)
+      {
+         return radians * 180 / System.Math.PI;
+      }
+
+      public bool IsEqual(ICoordinates pt)
+      {
+         bool check = false;
+         if (X == pt.X && Y == pt.Y && Z == pt.Z)
+         {
+            check = true;
+         }
+         return (check);
+      }
+
+      public bool NotEqual(ICoordinates pt)
+      {
+         bool check = false;
+         if (X != pt.X || Y != pt.Y || Z != pt.Z)
+         {
+            check = true;
+         }
+         return (check);
+      }
+
+      public double[] ToArray()
+      {
+         throw new NotImplementedException();
+      }
+
+      public Vector3d ToVector3d()
+      {
+         throw new NotImplementedException();
+      }
+
+      public Point3d ToPoint3d()
+      {
+         return new Point3d(x, y, z);
+      }
+
+      public static Vector3d operator -(Vertex2d pt1, Vertex2d pt2)
+      {
+         Vector3d res = new Vector3d();
+         res[0] = pt1.X - pt2.X;
+         res[1] = pt1.Y - pt2.Y;
+         res[2] = pt1.Z - pt2.Z;
+         return res;
+      }
+
+      public static Point3d operator +(Vertex2d pt1, Vector3d v2)
+      {
+         Point3d res = new Point3d();
+         res[0] = pt1.X + v2[0];
+         res[1] = pt1.Y + v2[1];
+         res[2] = pt1.Z + v2[2];
+         return res;
+      }
+
+      public static Point3d operator -(Vertex2d pt1, Vector3d v2)
+      {
+         Point3d res = new Point3d();
+         res[0] = pt1.X - v2[0];
+         res[1] = pt1.Y - v2[1];
+         res[2] = pt1.Z - v2[2];
+         return res;
       }
    }
+
+   public enum VertexPosition { First,Last,Middle}
 }

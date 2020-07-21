@@ -68,6 +68,28 @@ namespace Geo
          Point3d res = Center - Sign * Radius * Math.Cos(Angle0 + param) * p - Sign * Radius * Math.Sin(Angle0 + param) * n;
          return res;
       }
+
+
+      public Pline2d Tesselation(double step, ParamType stepType = ParamType.rel, bool start=true, bool end = true)
+      {
+         Range range;
+         Vector vector;
+         if (stepType == ParamType.abs)
+         {
+            range = new Range(0, Angle);
+            vector = range.GetVectorByStep(step, true, start, end);
+         }
+         else
+         {
+            range = new Range(0, 1);
+            vector = range.GetVectorByStepParam(step, start, end);
+         }
+
+         List<Point3d> pts = new List<Point3d>(vector.N);
+         for (int i = 0; i < vector.N; i++) pts.Add(GetPoint(vector[i], stepType));
+
+         return new Pline2d(pts);
+      }
    }
 
    public enum ParamType { rel, abs}

@@ -70,7 +70,7 @@ namespace Geo
       }
 
 
-      public Pline2d Tesselation(double step, ParamType stepType = ParamType.rel, bool start=true, bool end = true)
+      public Pline2d TesselationByStep(double step, ParamType stepType = ParamType.rel, bool start=true, bool end = true)
       {
          Range range;
          Vector vector;

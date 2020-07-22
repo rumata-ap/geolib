@@ -20,7 +20,7 @@ namespace Geo
       public double Bulge { get; private set; }
       public int Sign { get; private set; }
 
-      public Arc2d(Point3d pt1, Point3d pt2, double r, int sign)
+      public Arc2d(Point3d pt1, Point3d pt2, double r, int sign = -1)
       {
          StartPoint = pt1;
          EndPoint = pt2;
@@ -39,7 +39,7 @@ namespace Geo
          C[1, 0] = p[1] / l;
          C[1, 1] = -p[0] / l;
          C[2, 2] = 1;
-         Vector3d cl = new Vector3d(new double[] { 0.5 * l, Math.Sqrt(Radius * Radius - (0.5 * l) * (0.5 * l)) * Sign, 0 });
+         Vector3d cl = new Vector3d(new double[] { 0.5 * l, Math.Sqrt(Radius * Radius - (0.5 * l) * (0.5 * l)) * -Sign, 0 });
          Vector3d c = C.Inverse() * cl + StartPoint.ToVector3d();
          Center = new Point3d(c.ToArray());
          Angle = 2 * Math.Acos(Math.Sqrt(Radius * Radius - (0.5 * l) * (0.5 * l)) / Radius);
@@ -65,17 +65,26 @@ namespace Geo
          Vector3d n = new Vector3d(new double[] { p[1], -p[0], 0 });
 
          if (paramType == ParamType.rel) param = Angle * param;
-         Point3d res = Center - Sign * Radius * Math.Cos(Angle0 + param) * p - Sign * Radius * Math.Sin(Angle0 + param) * n;
+         Point3d res = Center + Sign * Radius * Math.Cos(Angle0 + param) * p + Sign * Radius * Math.Sin(Angle0 + param) * n;
          return res;
       }
 
-
+      /// <summary>
+      /// 
+      /// </summary>
+      /// <param name="step"></param>
+      /// <param name="stepType"></param>
+      /// <param name="start"></param>
+      /// <param name="end"></param>
+      /// <returns></returns>
       public Pline2d Tesselation(double step, ParamType stepType = ParamType.rel, bool start=true, bool end = true)
       {
          Range range;
          Vector vector;
          if (stepType == ParamType.abs)
          {
+            double param = Lenght / step;
+            step = Angle * param;
             range = new Range(0, Angle);
             vector = range.GetVectorByStep(step, true, start, end);
          }

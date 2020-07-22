@@ -4,29 +4,29 @@ namespace Geo
 {
    public class Pline2d
    {
-      protected List<Vertex2d> pts;
+      protected List<Vertex2d> vertxs;
       protected List<Line2d> segs;
       protected BoundingBox2d bb;
 
-      public List<Vertex2d> Vertexs { get => pts; internal set { pts = value; CalcBB(); CalcSegs(); } }
+      public List<Vertex2d> Vertexs { get => vertxs; internal set { vertxs = value; CalcBB(); CalcSegs(); } }
       public BoundingBox2d BoundingBox { get => bb; }
       public List<Line2d> Segments { get => segs; }
 
       public Pline2d()
       {
-         pts = new List<Vertex2d>();
+         vertxs = new List<Vertex2d>();
          segs = new List<Line2d>();
       }
 
       public Pline2d(List<Point2d> points)
       {
          segs = new List<Line2d>();
-         pts = new List<Vertex2d>();
+         vertxs = new List<Vertex2d>();
          if (points.Count > 0)
          {
             foreach (Point2d item in points)
             {
-               pts.Add(new Vertex2d(item.ToPoint3d()));
+               vertxs.Add(new Vertex2d(item.ToPoint3d()));
             }
          }
          CalcBB();
@@ -36,12 +36,12 @@ namespace Geo
       public Pline2d(List<Point3d> points)
       {
          segs = new List<Line2d>();
-         pts = new List<Vertex2d>();
+         vertxs = new List<Vertex2d>();
          if (points.Count > 0)
          {
             foreach (Point3d item in points)
             {
-               pts.Add(new Vertex2d(item));
+               vertxs.Add(new Vertex2d(item));
             }
          }
          CalcBB();
@@ -50,21 +50,21 @@ namespace Geo
 
       protected virtual void AddPoint(Point2d pt)
       {
-         pts.Add(new Vertex2d(pt.ToPoint3d()));
+         vertxs.Add(new Vertex2d(pt.ToPoint3d()));
          CalcBB();
          CalcSegs();
       }
 
       public virtual void AddPoint(Point3d pt)
       {
-         pts.Add(new Vertex2d(pt));
+         vertxs.Add(new Vertex2d(pt));
          CalcBB();
          CalcSegs();
       }
 
       public virtual void AddVertex(Vertex2d pt)
       {
-         pts.Add(pt);
+         vertxs.Add(pt);
          CalcBB();
          CalcSegs();
       }
@@ -76,9 +76,9 @@ namespace Geo
          double maxX = -1000000000;
          double maxY = -1000000000;
 
-         if (pts.Count > 0)
+         if (vertxs.Count > 0)
          {
-            foreach (ICoordinates item in pts)
+            foreach (ICoordinates item in vertxs)
             {
                if (item.X < minX) { minX = item.X; }
                if (item.Y < minY) { minY = item.Y; }
@@ -92,32 +92,46 @@ namespace Geo
 
       protected void CalcSegs()
       {
-         if (pts.Count > 1)
+         if (vertxs.Count > 1)
          {
             segs = new List<Line2d>();
 
-            for (int i = 1; i < pts.Count; i++)
+            for (int i = 1; i < vertxs.Count; i++)
             {
-               segs.Add(new Line2d(pts[i - 1], pts[i]));
+               segs.Add(new Line2d(vertxs[i - 1], vertxs[i]));
             }
 
-            if (pts.Count > 2) { segs.Add(new Line2d(pts[pts.Count - 1], pts[0])); }
+            if (vertxs.Count > 2) { segs.Add(new Line2d(vertxs[vertxs.Count - 1], vertxs[0])); }
          }
          CalcVertexs();
       }
 
       void CalcVertexs()
       {
-         List<Vertex2d> res = new List<Vertex2d>(pts);
-         for (int i = 1; i < pts.Count-1; i++)
+         List<Vertex2d> res = new List<Vertex2d>(vertxs);
+         for (int i = 1; i < vertxs.Count-1; i++)
          {
-            pts[i].Prev = pts[i-1];
-            pts[i].Next = pts[i+1];
+            vertxs[i].Id = i + 1;
+            vertxs[i].Prev = vertxs[i-1];
+            vertxs[i].Next = vertxs[i+1];
          }
-         pts[0].Pos = VertexPosition.First;
-         pts[0].Next = pts[1];
-         pts[pts.Count - 1].Pos = VertexPosition.Last;
-         pts[pts.Count - 1].Prev = pts[pts.Count - 2];
+         vertxs[0].Id = 1;
+         vertxs[0].Pos = VertexPosition.First;
+         vertxs[0].Next = vertxs[1];
+         vertxs[0].Prev = null;
+         vertxs[vertxs.Count - 1].Id = vertxs.Count;
+         vertxs[vertxs.Count - 1].Pos = VertexPosition.Last;
+         vertxs[vertxs.Count - 1].Prev = vertxs[vertxs.Count - 2];
+         vertxs[vertxs.Count - 1].Next = null;
+      }
+
+      /// <summary>
+      ///Смена направления полилинии.
+      /// </summary>
+      public void Inverse()
+      {
+         vertxs.Reverse();
+         CalcSegs();
       }
 
    }

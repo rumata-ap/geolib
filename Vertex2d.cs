@@ -34,6 +34,7 @@ namespace Geo
          X = source.X;
          Y = source.Y;
          Z = source.Z;
+         Pos = VertexPosition.Middle;
       }
 
       public Vertex2d(double x, double y)
@@ -41,6 +42,7 @@ namespace Geo
          X = x;
          Y = y;
          Z = 0;
+         Pos = VertexPosition.Middle;
       }
 
       public Vertex2d(ICoordinates pt, Vertex2d prev = null, Vertex2d next = null, VertexPosition pos = VertexPosition.Middle)

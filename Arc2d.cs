@@ -70,13 +70,16 @@ namespace Geo
       }
 
       /// <summary>
-      /// 
+      /// Метод деления дуги на равные участки по заданному шагу.
       /// </summary>
-      /// <param name="step"></param>
-      /// <param name="stepType"></param>
-      /// <param name="start"></param>
-      /// <param name="end"></param>
-      /// <returns></returns>
+      /// <param name="step">Значение шага деления.</param>
+      /// <param name="stepType">Тип значения шага деления (относительное или абсолютное).</param>
+      /// <param name="start">Флаг, указывающий на включение начальной точки дуги в результат деления.</param>
+      /// <param name="end">Флаг, указывающий на включение конечной точки дуги в результат деления.</param>
+      /// <remarks>
+      /// В качестве шага деления с абсолютным значением следует задавать значение части длины дуги.
+      /// </remarks>
+      /// <returns>Возврашает плоскую полилинию с вершинами в точках деления и линейными сегментами.</returns>
       public Pline2d TesselationByStep(double step, ParamType stepType = ParamType.rel, bool start=true, bool end = true)
       {
          Range range;

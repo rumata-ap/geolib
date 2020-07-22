@@ -86,16 +86,20 @@ namespace Geo
          Vector vector;
          if (stepType == ParamType.abs)
          {
-            double param = Lenght / step;
+            if (step > Lenght) step = Lenght;
+            double param = step/Lenght;
             step = Angle * param;
             range = new Range(0, Angle);
             vector = range.GetVectorByStep(step, true, start, end);
          }
          else
          {
+            if (step > 1) step = 1;
             range = new Range(0, 1);
             vector = range.GetVectorByStepParam(step, start, end);
          }
+
+         if (vector == null) return new Pline2d();
 
          List<Point3d> pts = new List<Point3d>(vector.N);
          for (int i = 0; i < vector.N; i++) pts.Add(GetPoint(vector[i], stepType));

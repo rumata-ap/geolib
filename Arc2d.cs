@@ -20,6 +20,13 @@ namespace Geo
       public double Bulge { get; private set; }
       public int Sign { get; private set; }
 
+      /// <summary>
+      /// Создание плоской дуги по двум точкам и радиусу.
+      /// </summary>
+      /// <param name="pt1">Начальная точка</param>
+      /// <param name="pt2">Конечная точка</param>
+      /// <param name="r">Радиус</param>
+      /// <param name="sign"></param>
       public Arc2d(Point3d pt1, Point3d pt2, double r, int sign = -1)
       {
          StartPoint = pt1;

@@ -70,9 +70,9 @@ namespace Geo
       }
 
       /// <summary>
-      /// Метод деления дуги на равные участки по заданному шагу.
+      /// Деление дуги на равные участки по заданному шагу.
       /// </summary>
-      /// <param name="step">Значение шага деления.</param>
+      /// <param name="step">Шаг деления.</param>
       /// <param name="stepType">Тип значения шага деления (относительное или абсолютное).</param>
       /// <param name="start">Флаг, указывающий на включение начальной точки дуги в результат деления.</param>
       /// <param name="end">Флаг, указывающий на включение конечной точки дуги в результат деления.</param>
@@ -103,6 +103,24 @@ namespace Geo
 
          List<Point3d> pts = new List<Point3d>(vector.N);
          for (int i = 0; i < vector.N; i++) pts.Add(GetPoint(vector[i], stepType));
+
+         return new Pline2d(pts);
+      }
+
+      /// <summary>
+      /// Деление дуги на равные участки по заданному количеству участков.
+      /// </summary>
+      /// <param name="nDiv">Количество участков деления.</param>
+      /// <param name="start">Флаг, указывающий на включение начальной точки дуги в результат деления.</param>
+      /// <param name="end">Флаг, указывающий на включение конечной точки дуги в результат деления.</param>
+      /// <returns>Возврашает плоскую полилинию с вершинами в точках деления и линейными сегментами.</returns>
+      public Pline2d TesselationByNumber(int nDiv, bool start = true, bool end = true)
+      {
+         if (nDiv <= 0) nDiv = 1;
+         Range range = new Range(0, Angle);
+         Vector vector = range.GetVectorByNumber(nDiv, start, end);
+         List<Point3d> pts = new List<Point3d>(vector.N);
+         for (int i = 0; i < vector.N; i++) pts.Add(GetPoint(vector[i], ParamType.abs));
 
          return new Pline2d(pts);
       }

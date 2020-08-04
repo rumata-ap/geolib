@@ -68,6 +68,14 @@ namespace Geo.Calc
          }
       }
 
+      public Vector3d(double vx,double vy, double vz = 0)
+      {
+         arr = new double[3];
+         arr[0] = vx;
+         arr[1] = vy;
+         arr[2] = vz;
+      }
+
       public static double CosAngleBetVectors(Vector3d v1, Vector3d v2)
       {
          return (v1.Vx * v2.Vx + v1.Vy * v2.Vy + v1.Vz * v2.Vz) / (Sqrt(v1.Vx * v1.Vx + v1.Vy * v1.Vy + v1.Vz * v1.Vz) * Sqrt(v2.Vx * v2.Vx + v2.Vy * v2.Vy + v2.Vz * v2.Vz));
@@ -88,6 +96,22 @@ namespace Geo.Calc
          return new Vector(arr);
       }
 
+      public Point3d ToPoint3d()
+      {
+         return new Point3d(Vx, Vy, Vz);
+      }
+      
+      public Point2d ToPoint2d()
+      {
+         return new Point2d(Vx, Vy);
+      }
+
+      /// <summary>
+      /// Векторное произведение
+      /// </summary>
+      /// <param name="v1">1-й вектор</param>
+      /// <param name="v2">2-й ветор</param>
+      /// <returns>Возвращает результат векторного произведения в виде трехмерного вектора</returns>
       public static Vector3d operator ^(Vector3d v1, Vector3d v2)
       {
          return new Vector3d

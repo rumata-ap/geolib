@@ -67,6 +67,11 @@ namespace Geo
          return new Vector3d { Vx = X, Vy = Y, Vz = Z };
       }
 
+      public Vector2d ToVector2d()
+      {
+         return new Vector2d { Vx = X, Vy = Y };
+      }
+
       public Point2d ToPoint2d()
       {
          return new Point2d { X = X, Y = Y };

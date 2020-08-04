@@ -149,6 +149,11 @@ namespace Geo
       {
          return new Vector3d(new double[] { Directive.Vx / Length, Directive.Vy / Length, 0 });
       }
+
+      public Point3d GetPointByParameter(double parameter)
+      {        
+         return directive.ToPoint3d() * parameter + startPoint.ToVector3d();
+      }
    }
 
    [Serializable]

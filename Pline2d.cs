@@ -4,9 +4,9 @@ namespace Geo
 {
    public class Pline2d
    {
-      List<Vertex2d> vertxs;
-      List<ICurve2d> segs;
-      BoundingBox2d bb;
+      protected List<Vertex2d> vertxs;
+      protected List<ICurve2d> segs;
+      protected BoundingBox2d bb;
       private bool isClosed;
 
       public List<Vertex2d> Vertexs { get => vertxs; internal set { vertxs = value; CalcBB(); CalcSegs(); } }

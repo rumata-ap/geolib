@@ -91,7 +91,7 @@ namespace Geo
       /// В качестве шага деления с абсолютным значением следует задавать значение части длины отрезка.
       /// </remarks>
       /// <returns>Возврашает плоскую полилинию с вершинами в точках деления и линейными сегментами.</returns>
-      public Pline2d TesselationByStep(double step, ParamType stepType = ParamType.rel, bool start = true, bool end = true)
+      public Pline2d TesselationByStep(double step, ParamType stepType = ParamType.abs, bool start = true, bool end = true)
       {
          Range range;
          Vector vector;

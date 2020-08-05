@@ -14,20 +14,16 @@ namespace Geo.Calc
       {
          get
          {
-            if (n > 0)
-               return n;
-            else
-               return -1;
+            if (n > 0) return n;
+            else return -1;
          }
       }
       public int M
       {
          get
          {
-            if (m > 0)
-               return m;
-            else
-               return -1;
+            if (m > 0) return m;
+            else return -1;
          }
       }
       public double this[int i, int j]
@@ -35,23 +31,17 @@ namespace Geo.Calc
          get
          {
             if (n > 0 && m > 0)
-               if (i > -1 && j > -1)
-                  return arr[i, j];
-               else
-                  Console.WriteLine("Неверный индексы");
-            else
-               Console.WriteLine("Не задана матрица");
-            return -1;
+               if (i > -1 && j > -1) return arr[i, j];
+               else throw new ArgumentException("Неверно задана индексация");
+            else throw new ArgumentException("Не задана матрица");
          }
          set
          {
             if (n > 0 && m > 0)
                if (i > -1 && j > -1)
                   arr[i, j] = value;
-               else
-                  Console.WriteLine("Неверный индексы");
-            else
-               Console.WriteLine("Не задана матрица");
+               else throw new ArgumentException("Неверно задана индексация");
+            else throw new ArgumentException("Не задана матрица");
          }
       }
 
@@ -121,6 +111,7 @@ namespace Geo.Calc
             }
          }
       }
+
       /// <summary>
       /// Вычисления определителя матрицы
       /// </summary>
@@ -287,6 +278,19 @@ namespace Geo.Calc
             res[i] = item;
          }
          return res;
+      }
+
+      public MatrixL<double> ToMatrixL()
+      {
+         MatrixL<double> res = new MatrixL<double>(n, m, 0);
+         for (int i = 0; i < n; i++)
+         {
+            for (int j = 0; j < m; j++)
+            {
+               res[i, j] = arr[i, j];
+            }
+         }
+         return null;
       }
 
       public Matrix Transpose()

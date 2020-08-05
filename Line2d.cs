@@ -150,10 +150,81 @@ namespace Geo
          return new Vector3d(new double[] { Directive.Vx / Length, Directive.Vy / Length, 0 });
       }
 
-      public Point3d GetPointByParameter(double parameter)
-      {        
-         return directive.ToPoint3d() * parameter + startPoint.ToVector3d();
+      /// <summary>
+      /// Получение точки на линии по заданнамо параметру.
+      /// </summary>
+      /// <param name="param">Параметр в долях единицы или абсолютное значение в диапазоне от -∞ до +∞</param>
+      /// <param name="paramType">Тип параметра (относительный или абсолютный)</param>
+      /// <returns>Возвращает вычисленную точку</returns>
+      public Point3d GetPoint(double parameter, ParamType paramType = ParamType.rel)
+      {
+         if (paramType == ParamType.rel)
+         {
+            return directive.ToPoint3d() * parameter + startPoint.ToVector3d();
+         }
+         else
+         {
+            parameter /= Length;
+            return directive.ToPoint3d() * parameter + startPoint.ToVector3d();
+         }       
       }
+
+      /// <summary>
+      /// Деление отрезка на равные участки по заданному шагу.
+      /// </summary>
+      /// <param name="step">Шаг деления.</param>
+      /// <param name="stepType">Тип значения шага деления (относительное или абсолютное).</param>
+      /// <param name="start">Флаг, указывающий на включение начальной точки отрезка в результат деления.</param>
+      /// <param name="end">Флаг, указывающий на включение конечной точки отрезка в результат деления.</param>
+      /// <remarks>
+      /// В качестве шага деления с абсолютным значением следует задавать значение части длины отрезка.
+      /// </remarks>
+      /// <returns>Возврашает плоскую полилинию с вершинами в точках деления и линейными сегментами.</returns>
+      public Pline2d TesselationByStep(double step, ParamType stepType = ParamType.rel, bool start = true, bool end = true)
+      {
+         Range range;
+         Vector vector;
+         if (stepType == ParamType.abs)
+         {
+            if (step > Length) step = Length;
+            double param = step / Length;
+            step = Length * param;
+            range = new Range(0, Length);
+            vector = range.GetVectorByStep(step, true, start, end);
+         }
+         else
+         {
+            if (step > 1) step = 1;
+            range = new Range(0, 1);
+            vector = range.GetVectorByStepParam(step, start, end);
+         }
+
+         if (vector == null) return new Pline2d();
+
+         List<Point3d> pts = new List<Point3d>(vector.N);
+         for (int i = 0; i < vector.N; i++) pts.Add(GetPoint(vector[i], stepType));
+
+         return new Pline2d(pts);
+      }
+
+      /// <summary>
+      /// Деление отрезка на равные участки по заданному количеству участков.
+      /// </summary>
+      /// <param name="nDiv">Количество участков деления.</param>
+      /// <param name="start">Флаг, указывающий на включение начальной точки отрезка в результат деления.</param>
+      /// <param name="end">Флаг, указывающий на включение конечной точки отрезка в результат деления.</param>
+      /// <returns>Возврашает плоскую полилинию с вершинами в точках деления и линейными сегментами.</returns>
+      public Pline2d TesselationByNumber(int nDiv, bool start = true, bool end = true)
+      {
+         if (nDiv <= 0) nDiv = 1;
+         Range range = new Range(0, Length);
+         Vector vector = range.GetVectorByNumber(nDiv, start, end);
+         List<Point3d> pts = new List<Point3d>(vector.N);
+         for (int i = 0; i < vector.N; i++) pts.Add(GetPoint(vector[i], ParamType.abs));
+
+         return new Pline2d(pts);
+      }
+
    }
 
    [Serializable]

@@ -137,6 +137,7 @@ namespace Geo.Calc
          precalculatedDeterminant = result;
          return result;
       }
+
       /// <summary>
       /// Вычисление обратной матрицы методом Крамера
       /// </summary>
@@ -156,6 +157,7 @@ namespace Geo.Calc
          result = result.Transpose();
          return result;
       }
+
       /// <summary>
       /// Создание матрицы, образованной последовательным размещением матриц-аргументов друг за другом (слева на право).
       /// </summary>

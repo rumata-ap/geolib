@@ -65,8 +65,45 @@ namespace Geo
       public virtual void AddVertex(Vertex2d pt)
       {
          vertxs.Add(pt);
+
          CalcBB();
          CalcSegs();
+      }
+
+      public void AddPline2d(Pline2d pline)
+      {
+         int id = vertxs[vertxs.Count - 1].Id + 1;
+         if (pline.Vertexs[0].X == vertxs[vertxs.Count - 1].X && pline.Vertexs[0].Y == vertxs[vertxs.Count - 1].Y)
+         {
+            pline.vertxs[1].Prev = vertxs[vertxs.Count - 1];
+            for (int i = 1; i < pline.Vertexs.Count; i++)
+            {
+               vertxs.Add(pline.Vertexs[i]);
+               pline.Vertexs[i].Id = id;
+               id++;
+            }
+            for (int i = 0; i < pline.Segments.Count; i++)
+            {
+               segs.Add(pline.Segments[i]);
+            }
+         }
+         else
+         {
+            pline.vertxs[0].Prev = vertxs[vertxs.Count - 1];
+            segs.Add(new Line2d(vertxs[vertxs.Count - 1], pline.vertxs[0]));
+            foreach (Vertex2d item in pline.Vertexs)
+            {
+               item.Id = id;
+               id++;
+               vertxs.Add(item);
+            }
+            foreach (Line2d item in pline.Segments)
+            {
+               segs.Add(item);
+            }
+         }
+
+         CalcBB();
       }
 
       protected void CalcBB()

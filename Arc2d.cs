@@ -8,10 +8,13 @@ using Geo.Calc;
 namespace Geo
 {
    [Serializable]
-   public class Arc2d
+   public class Arc2d : ICurve2d
    {
-      public Point3d StartPoint { get; private set; }
-      public Point3d EndPoint { get; private set; }
+      private Point3d startPoint;
+      private Point3d endPoint;
+
+      public Point3d StartPoint { get => startPoint; set { startPoint = value; CalcArc(); } }
+      public Point3d EndPoint { get => endPoint; set { endPoint = value; CalcArc(); } }
       public Point3d Center { get; private set; }
       public double Lenght { get; private set; }
       public double Radius { get; private set; }
@@ -19,6 +22,8 @@ namespace Geo
       public double Angle0 { get; private set; }
       public double Bulge { get; private set; }
       public int Sign { get; private set; }
+      public int Id { get; set; }
+      public object Parent { get; set; }
 
       /// <summary>
       /// Создание плоской дуги по двум точкам и радиусу.
@@ -34,6 +39,28 @@ namespace Geo
          Radius = r;
          Sign = Math.Sign(sign);
          CalcArc();
+      }
+
+      public Arc2d(Point3d pt1, Point3d pt2, double bulge)
+      {
+         StartPoint = pt1;
+         EndPoint = pt2;
+         Sign = Math.Sign(bulge);
+         Vector3d p = EndPoint - StartPoint;
+         double l = Math.Sqrt(p[0] * p[0] + p[1] * p[1]);
+         Angle = 4 * Math.Atan(Math.Abs(bulge));
+         Radius = 0.5 * l / Math.Sin(0.5 * Angle);
+         Matrix C = new Matrix(3, 3);
+         C[0, 0] = p[0] / l;
+         C[0, 1] = p[1] / l;
+         C[1, 0] = p[1] / l;
+         C[1, 1] = -p[0] / l;
+         C[2, 2] = 1;
+         Vector3d cl = new Vector3d(new double[] { 0.5 * l, Math.Sqrt(Radius * Radius - (0.5 * l) * (0.5 * l)) * -Sign, 0 });
+         Vector3d c = C.Inverse() * cl + StartPoint.ToVector3d();
+         Center = new Point3d(c.ToArray());
+         Angle0 = 0.5 * Math.PI - 0.5 * Angle;
+         Lenght = Radius * Angle;
       }
 
       void CalcArc()
@@ -52,7 +79,7 @@ namespace Geo
          Angle = 2 * Math.Acos(Math.Sqrt(Radius * Radius - (0.5 * l) * (0.5 * l)) / Radius);
          Angle0 = 0.5 * Math.PI - 0.5 * Angle;
          Lenght = Radius * Angle;
-         Bulge = Math.Atan(0.25 * Angle);
+         Bulge = Math.Tan(0.25 * Angle) * Math.Sign(Sign);
       }
 
       /// <summary>
@@ -87,14 +114,14 @@ namespace Geo
       /// В качестве шага деления с абсолютным значением следует задавать значение части длины дуги.
       /// </remarks>
       /// <returns>Возврашает плоскую полилинию с вершинами в точках деления и линейными сегментами.</returns>
-      public Pline2d TesselationByStep(double step, ParamType stepType = ParamType.rel, bool start=true, bool end = true)
+      public Pline2d TesselationByStep(double step, ParamType stepType = ParamType.rel, bool start = true, bool end = true)
       {
          Range range;
          Vector vector;
          if (stepType == ParamType.abs)
          {
             if (step > Lenght) step = Lenght;
-            double param = step/Lenght;
+            double param = step / Lenght;
             step = Angle * param;
             range = new Range(0, Angle);
             vector = range.GetVectorByStep(step, true, start, end);

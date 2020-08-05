@@ -5,24 +5,24 @@ namespace Geo
    public class Pline2d
    {
       List<Vertex2d> vertxs;
-      List<Line2d> segs;
+      List<ICurve2d> segs;
       BoundingBox2d bb;
       private bool isClosed;
 
       public List<Vertex2d> Vertexs { get => vertxs; internal set { vertxs = value; CalcBB(); CalcSegs(); } }
       public BoundingBox2d BoundingBox { get => bb; }
-      public List<Line2d> Segments { get => segs; }
+      public List<ICurve2d> Segments { get => segs; }
       public bool IsClosed { get => isClosed; set { isClosed = value; Close(); } }
 
       public Pline2d()
       {
          vertxs = new List<Vertex2d>();
-         segs = new List<Line2d>();
+         segs = new List<ICurve2d>();
       }
 
       public Pline2d(List<Point2d> points)
       {
-         segs = new List<Line2d>();
+         segs = new List<ICurve2d>();
          vertxs = new List<Vertex2d>();
          if (points.Count > 0)
          {
@@ -37,7 +37,7 @@ namespace Geo
 
       public Pline2d(List<Point3d> points)
       {
-         segs = new List<Line2d>();
+         segs = new List<ICurve2d>();
          vertxs = new List<Vertex2d>();
          if (points.Count > 0)
          {
@@ -121,6 +121,8 @@ namespace Geo
 
       void Close()
       {
+         if (vertxs.Count < 2) return;
+
          if (vertxs[0].IsMatch(vertxs[vertxs.Count - 1]))
          {
             vertxs.RemoveAt(vertxs.Count - 1);
@@ -164,14 +166,15 @@ namespace Geo
       {
          if (vertxs.Count > 1)
          {
-            segs = new List<Line2d>();
+            segs = new List<ICurve2d>();
 
             for (int i = 1; i < vertxs.Count; i++)
             {
-               segs.Add(new Line2d(vertxs[i - 1], vertxs[i]));
+               if (vertxs[i - 1].Bulge == 0) segs.Add(new Line2d(vertxs[i - 1], vertxs[i]));
+               else segs.Add(new Arc2d(vertxs[i - 1].ToPoint3d(), vertxs[i].ToPoint3d(), vertxs[i - 1].Bulge));
             }
 
-            if (vertxs.Count > 2) { segs.Add(new Line2d(vertxs[vertxs.Count - 1], vertxs[0])); }
+            //if (vertxs.Count > 2) { segs.Add(new Line2d(vertxs[vertxs.Count - 1], vertxs[0])); }
          }
          CalcVertexs();
       }

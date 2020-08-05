@@ -7,7 +7,7 @@ using System.Runtime.InteropServices;
 namespace Geo
 {
    [Serializable]
-   public class Line2d
+   public class Line2d:ICurve2d
    {
       protected Point3d startPoint;
       protected Point3d endPoint;
@@ -28,6 +28,8 @@ namespace Geo
       public double cosAlfa { get; private set; }
       public double cosBeta { get; private set; }
       public double p { get; private set; }
+      public int Id { get; set; }
+      public object Parent { get; set; }
 
       public Line2d()
       {

@@ -8,8 +8,8 @@ namespace Geo
       double Y { get; set; }
       double Z { get; set; }
 
-      bool IsEqual(ICoordinates pt);
-      bool NotEqual(ICoordinates pt);
+      bool IsMatch(ICoordinates pt);
+      bool NotMath(ICoordinates pt);
       double[] ToArray();
       Vector3d ToVector3d();
    }

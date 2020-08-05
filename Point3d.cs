@@ -171,7 +171,7 @@ namespace Geo
       //   return (check);
       //}
 
-      public bool IsEqual(ICoordinates pt)
+      public bool IsMatch(ICoordinates pt)
       {
          bool check = false;
          if (X == pt.X && Y == pt.Y && Z == pt.Z)
@@ -181,7 +181,7 @@ namespace Geo
          return (check);
       }
 
-      public bool NotEqual(ICoordinates pt)
+      public bool NotMath(ICoordinates pt)
       {
          bool check = false;
          if (X != pt.X || Y != pt.Y || Z != pt.Z)

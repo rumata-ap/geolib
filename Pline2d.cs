@@ -4,13 +4,15 @@ namespace Geo
 {
    public class Pline2d
    {
-      protected List<Vertex2d> vertxs;
-      protected List<Line2d> segs;
-      protected BoundingBox2d bb;
+      List<Vertex2d> vertxs;
+      List<Line2d> segs;
+      BoundingBox2d bb;
+      private bool isClosed;
 
       public List<Vertex2d> Vertexs { get => vertxs; internal set { vertxs = value; CalcBB(); CalcSegs(); } }
       public BoundingBox2d BoundingBox { get => bb; }
       public List<Line2d> Segments { get => segs; }
+      public bool IsClosed { get => isClosed; set { isClosed = value; Close(); } }
 
       public Pline2d()
       {
@@ -90,6 +92,7 @@ namespace Geo
          else
          {
             pline.vertxs[0].Prev = vertxs[vertxs.Count - 1];
+            pline.vertxs[0].Pos = VertexPosition.Middle;
             segs.Add(new Line2d(vertxs[vertxs.Count - 1], pline.vertxs[0]));
             foreach (Vertex2d item in pline.Vertexs)
             {
@@ -103,7 +106,37 @@ namespace Geo
             }
          }
 
+         if (vertxs[0].IsMatch(vertxs[vertxs.Count - 1]))
+         {
+            vertxs.RemoveAt(vertxs.Count - 1);
+            vertxs[vertxs.Count - 1].Pos = VertexPosition.Last;
+            vertxs[vertxs.Count - 1].Next = vertxs[0];
+            vertxs[0].Prev = vertxs[vertxs.Count - 1];
+            segs[segs.Count - 1].EndPoint = vertxs[0].ToPoint3d();
+            isClosed = true;
+         }
+
          CalcBB();
+      }
+
+      void Close()
+      {
+         if (vertxs[0].IsMatch(vertxs[vertxs.Count - 1]))
+         {
+            vertxs.RemoveAt(vertxs.Count - 1);
+            vertxs[vertxs.Count - 1].Pos = VertexPosition.Last;
+            vertxs[vertxs.Count - 1].Next = vertxs[0];
+            vertxs[0].Prev = vertxs[vertxs.Count - 1];
+            segs[segs.Count - 1].EndPoint = vertxs[0].ToPoint3d();
+            isClosed = true;
+         }
+         else
+         {
+            vertxs[vertxs.Count - 1].Next = vertxs[0];
+            vertxs[0].Prev = vertxs[vertxs.Count - 1];
+            segs.Add(new Line2d(vertxs[vertxs.Count - 1], vertxs[0]));
+            isClosed = true;
+         }
       }
 
       protected void CalcBB()
@@ -146,11 +179,11 @@ namespace Geo
       void CalcVertexs()
       {
          List<Vertex2d> res = new List<Vertex2d>(vertxs);
-         for (int i = 1; i < vertxs.Count-1; i++)
+         for (int i = 1; i < vertxs.Count - 1; i++)
          {
             vertxs[i].Id = i + 1;
-            vertxs[i].Prev = vertxs[i-1];
-            vertxs[i].Next = vertxs[i+1];
+            vertxs[i].Prev = vertxs[i - 1];
+            vertxs[i].Next = vertxs[i + 1];
          }
          vertxs[0].Id = 1;
          vertxs[0].Pos = VertexPosition.First;

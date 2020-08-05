@@ -34,8 +34,8 @@ namespace Geo
       /// <param name="sign"></param>
       public Arc2d(Point3d pt1, Point3d pt2, double r, int sign = -1)
       {
-         StartPoint = pt1;
-         EndPoint = pt2;
+         startPoint = pt1;
+         endPoint = pt2;
          Radius = r;
          Sign = Math.Sign(sign);
          CalcArc();
@@ -43,9 +43,10 @@ namespace Geo
 
       public Arc2d(Point3d pt1, Point3d pt2, double bulge)
       {
-         StartPoint = pt1;
-         EndPoint = pt2;
+         startPoint = pt1;
+         endPoint = pt2;
          Sign = Math.Sign(bulge);
+         Bulge = bulge;
          Vector3d p = EndPoint - StartPoint;
          double l = Math.Sqrt(p[0] * p[0] + p[1] * p[1]);
          Angle = 4 * Math.Atan(Math.Abs(bulge));

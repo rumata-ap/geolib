@@ -128,30 +128,30 @@ namespace Geo
 
       protected void CalcPerimeter()
       {
-         if (IsClosed && Segments.Count > 2)
-         {
-            perimeter = 0;
-            foreach (Line2d item in Segments)
-            {
-               perimeter = perimeter + item.Directive.Norma;
-            }
-         }
-         else if (IsClosed == false)
-         {
-            perimeter = 0;
-            for (int i = 0; i < Segments.Count - 1; i++)
-            {
-               perimeter = perimeter + Segments[i].Directive.Norma;
-            }
-         }
-         else if (Segments.Count < 3)
-         {
-            perimeter = 0;
-            for (int i = 0; i < Segments.Count; i++)
-            {
-               perimeter = perimeter + Segments[i].Directive.Norma;
-            }
-         }
+         //if (IsClosed && Segments.Count > 2)
+         //{
+         //   perimeter = 0;
+         //   foreach (Line2d item in Segments)
+         //   {
+         //      perimeter = perimeter + item.Directive.Norma;
+         //   }
+         //}
+         //else if (IsClosed == false)
+         //{
+         //   perimeter = 0;
+         //   for (int i = 0; i < Segments.Count - 1; i++)
+         //   {
+         //      perimeter = perimeter + Segments[i].Directive.Norma;
+         //   }
+         //}
+         //else if (Segments.Count < 3)
+         //{
+         //   perimeter = 0;
+         //   for (int i = 0; i < Segments.Count; i++)
+         //   {
+         //      perimeter = perimeter + Segments[i].Directive.Norma;
+         //   }
+         //}
       }
    }
 }

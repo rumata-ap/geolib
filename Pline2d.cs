@@ -1,201 +1,318 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
+using Geo.Calc;
 
 namespace Geo
 {
    public class Pline2d
    {
-      protected List<Vertex2d> vertxs;
-      protected List<ICurve2d> segs;
+      protected List<Vertex2d> vrtxs;
+      //protected List<ICurve2d> segs;
       protected BoundingBox2d bb;
-      private bool isClosed;
 
-      public List<Vertex2d> Vertexs { get => vertxs; internal set { vertxs = value; CalcBB(); CalcSegs(); } }
+      public List<Vertex2d> Vertices { get => vrtxs; internal set { vrtxs = value; CalcBB(); CalcVertices(); } }
       public BoundingBox2d BoundingBox { get => bb; }
-      public List<ICurve2d> Segments { get => segs; }
-      public bool IsClosed { get => isClosed; set { isClosed = value; Close(); } }
+      //public List<ICurve2d> Segments { get => segs; }
+      public bool IsClosed { get; private set; }
 
       public Pline2d()
       {
-         vertxs = new List<Vertex2d>();
-         segs = new List<ICurve2d>();
+         vrtxs = new List<Vertex2d>();
+         //segs = new List<ICurve2d>();
       }
 
       public Pline2d(List<Point2d> points)
       {
-         segs = new List<ICurve2d>();
-         vertxs = new List<Vertex2d>();
+         //segs = new List<ICurve2d>();
+         vrtxs = new List<Vertex2d>();
          if (points.Count > 0)
          {
             foreach (Point2d item in points)
             {
-               vertxs.Add(new Vertex2d(item.ToPoint3d()));
+               vrtxs.Add(new Vertex2d(item.ToPoint3d()));
             }
          }
          CalcBB();
-         CalcSegs();
+         CalcVertices();
       }
 
       public Pline2d(List<Point3d> points)
       {
-         segs = new List<ICurve2d>();
-         vertxs = new List<Vertex2d>();
+         //segs = new List<ICurve2d>();
+         vrtxs = new List<Vertex2d>();
          if (points.Count > 0)
          {
             foreach (Point3d item in points)
             {
-               vertxs.Add(new Vertex2d(item));
+               vrtxs.Add(new Vertex2d(item));
             }
          }
          CalcBB();
-         CalcSegs();
+         CalcVertices();
       }
 
-      protected virtual void AddPoint(Point2d pt)
+      protected void AddVertex(Point2d pt)
       {
-         vertxs.Add(new Vertex2d(pt.ToPoint3d()));
+         vrtxs.Add(new Vertex2d(pt.ToPoint3d()));
          CalcBB();
-         CalcSegs();
+         CalcVertices();
       }
 
-      public virtual void AddPoint(Point3d pt)
+      public void AddVertex(Point3d pt)
       {
-         vertxs.Add(new Vertex2d(pt));
+         vrtxs.Add(new Vertex2d(pt));
          CalcBB();
-         CalcSegs();
+         CalcVertices();
       }
 
-      public virtual void AddVertex(Vertex2d pt)
+      public void AddVertex(Vertex2d pt)
       {
-         vertxs.Add(pt);
+         vrtxs.Add(pt);
 
          CalcBB();
-         CalcSegs();
+         CalcVertices();
       }
 
-      public void AddPline2d(Pline2d pline)
+      public void AddVertices(Pline2d pline)
       {
-         int id = vertxs[vertxs.Count - 1].Id + 1;
-         if (pline.Vertexs[0].X == vertxs[vertxs.Count - 1].X && pline.Vertexs[0].Y == vertxs[vertxs.Count - 1].Y)
+         if (pline == null || pline.Vertices.Count == 0) return;
+
+         int id = vrtxs[vrtxs.Count - 1].Id + 1;
+         if (pline.Vertices[0].X == vrtxs[vrtxs.Count - 1].X && pline.Vertices[0].Y == vrtxs[vrtxs.Count - 1].Y)
          {
-            pline.vertxs[1].Prev = vertxs[vertxs.Count - 1];
-            for (int i = 1; i < pline.Vertexs.Count; i++)
+            pline.vrtxs[1].Prev = vrtxs[vrtxs.Count - 1];
+            for (int i = 1; i < pline.Vertices.Count; i++)
             {
-               vertxs.Add(pline.Vertexs[i]);
-               pline.Vertexs[i].Id = id;
+               vrtxs.Add(pline.Vertices[i]);
+               pline.Vertices[i].Id = id;
                id++;
-            }
-            for (int i = 0; i < pline.Segments.Count; i++)
-            {
-               segs.Add(pline.Segments[i]);
             }
          }
          else
          {
-            pline.vertxs[0].Prev = vertxs[vertxs.Count - 1];
-            pline.vertxs[0].Pos = VertexPosition.Middle;
-            segs.Add(new Line2d(vertxs[vertxs.Count - 1], pline.vertxs[0]));
-            foreach (Vertex2d item in pline.Vertexs)
+            pline.vrtxs[0].Prev = vrtxs[vrtxs.Count - 1];
+            pline.vrtxs[0].Pos = VertexPosition.Middle;
+            //segs.Add(new Line2d(vertxs[vertxs.Count - 1], pline.vertxs[0]));
+            foreach (Vertex2d item in pline.Vertices)
             {
                item.Id = id;
                id++;
-               vertxs.Add(item);
+               vrtxs.Add(item);
             }
-            foreach (Line2d item in pline.Segments)
+         }
+      }
+      
+      public void AddVertices(IEnumerable<Vertex2d> vertex2s)
+      {
+         List<Vertex2d> vl = new List<Vertex2d>(vertex2s);
+         if (vl.Count == 0) return;
+
+         int id = vrtxs[vrtxs.Count - 1].Id + 1;
+         if (vl[0].X == vl[vl.Count - 1].X && vl[0].Y == vl[vl.Count - 1].Y)
+         {
+            vl[1].Prev = vrtxs[vrtxs.Count - 1];
+            for (int i = 1; i < vl.Count; i++)
             {
-               segs.Add(item);
+               vrtxs.Add(vl[i]);
+               vl[i].Id = id;
+               id++;
+            }
+         }
+         else
+         {
+            vl[0].Prev = vrtxs[vrtxs.Count - 1];
+            vl[0].Pos = VertexPosition.Middle;
+            foreach (Vertex2d item in vl)
+            {
+               item.Id = id;
+               id++;
+               vrtxs.Add(item);
             }
          }
 
-         if (vertxs[0].IsMatch(vertxs[vertxs.Count - 1]))
+         if (vrtxs[0].IsMatch(vrtxs[vrtxs.Count - 1]))
          {
-            vertxs.RemoveAt(vertxs.Count - 1);
-            vertxs[vertxs.Count - 1].Pos = VertexPosition.Last;
-            vertxs[vertxs.Count - 1].Next = vertxs[0];
-            vertxs[0].Prev = vertxs[vertxs.Count - 1];
-            segs[segs.Count - 1].EndPoint = vertxs[0].ToPoint3d();
-            isClosed = true;
+            vrtxs.RemoveAt(vrtxs.Count - 1);
+            vrtxs[vrtxs.Count - 1].Pos = VertexPosition.Last;
+            vrtxs[vrtxs.Count - 1].Next = vrtxs[0];
+            vrtxs[0].Prev = vrtxs[vrtxs.Count - 1];
+            IsClosed = true;
          }
 
          CalcBB();
       }
 
-      void Close()
+      public void Close()
       {
-         if (vertxs.Count < 2) return;
+         if (vrtxs.Count < 2) { IsClosed = false; return; }
 
-         if (vertxs[0].IsMatch(vertxs[vertxs.Count - 1]))
+         if (vrtxs[0].IsMatch(vrtxs[vrtxs.Count - 1]) && !IsClosed)
          {
-            vertxs.RemoveAt(vertxs.Count - 1);
-            vertxs[vertxs.Count - 1].Pos = VertexPosition.Last;
-            vertxs[vertxs.Count - 1].Next = vertxs[0];
-            vertxs[0].Prev = vertxs[vertxs.Count - 1];
-            segs[segs.Count - 1].EndPoint = vertxs[0].ToPoint3d();
-            isClosed = true;
+            vrtxs.RemoveAt(vrtxs.Count - 1);
+            vrtxs[vrtxs.Count - 1].Pos = VertexPosition.Last;
+            vrtxs[vrtxs.Count - 1].Next = vrtxs[0];
+            vrtxs[0].Prev = vrtxs[vrtxs.Count - 1];
+            IsClosed = true;
          }
-         else
+         else if(!IsClosed)
          {
-            vertxs[vertxs.Count - 1].Next = vertxs[0];
-            vertxs[0].Prev = vertxs[vertxs.Count - 1];
-            segs.Add(new Line2d(vertxs[vertxs.Count - 1], vertxs[0]));
-            isClosed = true;
+            vrtxs[vrtxs.Count - 1].Next = vrtxs[0];
+            vrtxs[0].Prev = vrtxs[vrtxs.Count - 1];
+            IsClosed = true;
+         }
+      }
+      
+      public void Open()
+      {
+         if (vrtxs.Count < 2) { IsClosed = false; return; }
+
+         if (IsClosed)
+         {
+            vrtxs.Add(new Vertex2d(vrtxs[0]));
+            CalcVertices();
+            IsClosed = false;
          }
       }
 
       protected void CalcBB()
       {
-         double minX = 1000000000;
-         double minY = 1000000000;
-         double maxX = -1000000000;
-         double maxY = -1000000000;
+         if (vrtxs.Count == 0) return;
+         
+         IOrderedEnumerable<Vertex2d> selectedX = from v in vrtxs orderby v.X select v;
+         IOrderedEnumerable<Vertex2d> selectedY = from v in vrtxs orderby v.Y select v;
 
-         if (vertxs.Count > 0)
-         {
-            foreach (ICoordinates item in vertxs)
-            {
-               if (item.X < minX) { minX = item.X; }
-               if (item.Y < minY) { minY = item.Y; }
-               if (item.X > maxX) { maxX = item.X; }
-               if (item.Y > maxY) { maxY = item.Y; }
-            }
+         double minX = selectedX.First().X;
+         double minY = selectedY.First().Y;
+         double maxX = selectedX.Last().X;
+         double maxY = selectedY.Last().Y;
 
-            bb = new BoundingBox2d(new Point2d(minX, minY), new Point2d(maxX, maxY));
-         }
+         bb = new BoundingBox2d(new Point2d(minX, minY), new Point2d(maxX, maxY));
       }
 
-      protected void CalcSegs()
+      /// <summary>
+      /// Задание значение выпуклости в вершине.
+      /// </summary>
+      /// <param name="idx">Индекс вершины, в которой задается выпуклость.</param>
+      /// <param name="bulge">Значение величины выпуклости.</param>
+      /// <remarks>
+      /// При задании величины выпуклости <0 - принимается направление обхода по дуге по часовой стрелке от начальной точки сегмента к конечной.
+      /// Величина выпуклости численно равна тангенсу 1/4 угла дуги.
+      /// </remarks>
+      public void SetBulgeAt(int idx, double bulge)
       {
-         if (vertxs.Count > 1)
-         {
-            segs = new List<ICurve2d>();
-
-            for (int i = 1; i < vertxs.Count; i++)
-            {
-               if (vertxs[i - 1].Bulge == 0) segs.Add(new Line2d(vertxs[i - 1], vertxs[i]));
-               else segs.Add(new Arc2d(vertxs[i - 1].ToPoint3d(), vertxs[i].ToPoint3d(), vertxs[i - 1].Bulge));
-            }
-
-            //if (vertxs.Count > 2) { segs.Add(new Line2d(vertxs[vertxs.Count - 1], vertxs[0])); }
-         }
-         CalcVertexs();
+         vrtxs[idx].Bulge = bulge;
       }
 
-      void CalcVertexs()
+      /// <summary>
+      /// Получения количества сегментов полилиниию
+      /// </summary>
+      public int GetSegsCount()
       {
-         List<Vertex2d> res = new List<Vertex2d>(vertxs);
-         for (int i = 1; i < vertxs.Count - 1; i++)
+         if (IsClosed) return vrtxs.Count;
+         else return vrtxs.Count - 1;
+      }
+
+      /// <summary>
+      /// Получения сегмента полилинии по начальной вершине.
+      /// </summary>
+      /// <param name="sPt">Начальная вершина сегмента.</param>
+      public ICurve2d GetSegment(Vertex2d sPt)
+      {
+         int idx = vrtxs.BinarySearch(sPt);
+         if (vrtxs[idx].Pos == VertexPosition.Last && !IsClosed) return null;
+         if (vrtxs[idx].Bulge == 0) return new Line2d(vrtxs[idx], vrtxs[idx].Next) { Id = idx + 1 };
+         else return new Arc2d(vrtxs[idx], vrtxs[idx].Next, vrtxs[idx].Bulge) { Id = idx + 1 };
+      }
+
+      /// <summary>
+      /// Получения сегмента полилинии по индексу.
+      /// </summary>
+      /// <param name="idx">Индекс сегмента.</param>
+      public ICurve2d GetSegment(int idx)
+      {
+         int count = GetSegsCount();
+         Range range = new Range(0, count);
+         if (!range.Affiliation(idx)) return null;
+         if (vrtxs[idx].Bulge == 0) return new Line2d(vrtxs[idx], vrtxs[idx].Next) { Id = idx + 1 };
+         else return new Arc2d(vrtxs[idx], vrtxs[idx].Next, vrtxs[idx].Bulge) { Id = idx + 1 };
+      }
+
+
+      /// <summary>
+      /// Деление полилинии на сегменты по заданному шагу.
+      /// </summary>
+      /// <param name="step">Шаг деления.</param>
+      /// <param name="stepType">Тип значения шага деления (относительное или абсолютное).</param>
+      /// <param name="start">Флаг, указывающий на включение начальной точки отрезка в результат деления.</param>
+      /// <param name="end">Флаг, указывающий на включение конечной точки отрезка в результат деления.</param>
+      /// <remarks>
+      /// В качестве шага деления с абсолютным значением следует задавать значение части длины отрезка.
+      /// </remarks>
+      /// <returns>Возврашает плоскую полилинию с вершинами в точках деления и линейными сегментами.</returns>
+      public Pline2d TesselationByStep(double step, ParamType stepType = ParamType.abs, bool start = true, bool end = true)
+      {
+         Pline2d res = new Pline2d();
+         int count = GetSegsCount();
+         for (int i = 0; i < count; i++)
          {
-            vertxs[i].Id = i + 1;
-            vertxs[i].Prev = vertxs[i - 1];
-            vertxs[i].Next = vertxs[i + 1];
+            res.AddVertices(GetSegment(i).TesselationByStep(step, stepType, start, end));
          }
-         vertxs[0].Id = 1;
-         vertxs[0].Pos = VertexPosition.First;
-         vertxs[0].Next = vertxs[1];
-         vertxs[0].Prev = null;
-         vertxs[vertxs.Count - 1].Id = vertxs.Count;
-         vertxs[vertxs.Count - 1].Pos = VertexPosition.Last;
-         vertxs[vertxs.Count - 1].Prev = vertxs[vertxs.Count - 2];
-         vertxs[vertxs.Count - 1].Next = null;
+
+         return res;
+      }
+
+      /// <summary>
+      /// Деление отрезка на равные участки по заданному количеству участков.
+      /// </summary>
+      /// <param name="nDiv">Количество участков деления.</param>
+      /// <param name="start">Флаг, указывающий на включение начальной точки отрезка в результат деления.</param>
+      /// <param name="end">Флаг, указывающий на включение конечной точки отрезка в результат деления.</param>
+      /// <returns>Возврашает плоскую полилинию с вершинами в точках деления и линейными сегментами.</returns>
+      public Pline2d TesselationByNumber(int nDiv, bool start = true, bool end = true)
+      {
+         Pline2d res = new Pline2d();
+         int count = GetSegsCount();
+         for (int i = 0; i < count; i++)
+         {
+            res.AddVertices(GetSegment(i).TesselationByNumber(nDiv, start, end));
+         }
+
+         return res;
+      }
+
+      //protected void CalcSegs()
+      //{
+      //   if (vrtxs.Count > 1)
+      //   {
+      //      segs = new List<ICurve2d>();
+
+      //      for (int i = 1; i < vertxs.Count; i++)
+      //      {
+      //         if (vertxs[i - 1].Bulge == 0) segs.Add(new Line2d(vertxs[i - 1], vertxs[i]));
+      //         else segs.Add(new Arc2d(vertxs[i - 1].ToPoint3d(), vertxs[i].ToPoint3d(), vertxs[i - 1].Bulge));
+      //      }
+
+      //      if (vertxs.Count > 2) { segs.Add(new Line2d(vertxs[vertxs.Count - 1], vertxs[0])); }
+      //   }
+      //   CalcVertices();
+      //}
+
+      void CalcVertices()
+      {
+         for (int i = 1; i < vrtxs.Count - 1; i++)
+         {
+            vrtxs[i].Id = i + 1;
+            vrtxs[i].Prev = vrtxs[i - 1];
+            vrtxs[i].Next = vrtxs[i + 1];
+         }
+         vrtxs[0].Id = 1;
+         vrtxs[0].Pos = VertexPosition.First;
+         vrtxs[0].Next = vrtxs[1];
+         vrtxs[0].Prev = null;
+         vrtxs[vrtxs.Count - 1].Id = vrtxs.Count;
+         vrtxs[vrtxs.Count - 1].Pos = VertexPosition.Last;
+         vrtxs[vrtxs.Count - 1].Prev = vrtxs[vrtxs.Count - 2];
+         vrtxs[vrtxs.Count - 1].Next = null;
       }
 
       /// <summary>
@@ -203,8 +320,8 @@ namespace Geo
       /// </summary>
       public void Inverse()
       {
-         vertxs.Reverse();
-         CalcSegs();
+         vrtxs.Reverse();
+         CalcVertices();
       }
 
    }

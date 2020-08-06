@@ -31,6 +31,8 @@ namespace Geo
       public int Id { get; set; }
       public object Parent { get; set; }
 
+      public CurveType Type => CurveType.line;
+
       public Line2d()
       {
 

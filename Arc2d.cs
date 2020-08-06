@@ -25,6 +25,8 @@ namespace Geo
       public int Id { get; set; }
       public object Parent { get; set; }
 
+      public CurveType Type => CurveType.arc;
+
       /// <summary>
       /// Создание плоской дуги по двум точкам и радиусу.
       /// </summary>
@@ -41,10 +43,44 @@ namespace Geo
          CalcArc();
       }
 
+      public Arc2d(Vertex2d pt1, Vertex2d pt2, double r, int sign = -1)
+      {
+         startPoint = pt1.ToPoint3d();
+         endPoint = pt2.ToPoint3d();
+         Radius = r;
+         Sign = Math.Sign(sign);
+         CalcArc();
+      }
+
+
       public Arc2d(Point3d pt1, Point3d pt2, double bulge)
       {
          startPoint = pt1;
          endPoint = pt2;
+         Sign = Math.Sign(bulge);
+         Bulge = bulge;
+         Vector3d p = EndPoint - StartPoint;
+         double l = Math.Sqrt(p[0] * p[0] + p[1] * p[1]);
+         Angle = 4 * Math.Atan(Math.Abs(bulge));
+         Radius = 0.5 * l / Math.Sin(0.5 * Angle);
+         Matrix C = new Matrix(3, 3);
+         C[0, 0] = p[0] / l;
+         C[0, 1] = p[1] / l;
+         C[1, 0] = p[1] / l;
+         C[1, 1] = -p[0] / l;
+         C[2, 2] = 1;
+         Vector3d cl = new Vector3d(new double[] { 0.5 * l, Math.Sqrt(Radius * Radius - (0.5 * l) * (0.5 * l)) * -Sign, 0 });
+         Vector3d c = C.Inverse() * cl + StartPoint.ToVector3d();
+         Center = new Point3d(c.ToArray());
+         Angle0 = 0.5 * Math.PI - 0.5 * Angle;
+         Lenght = Radius * Angle;
+      }
+      
+
+      public Arc2d(Vertex2d pt1, Vertex2d pt2, double bulge)
+      {
+         startPoint = pt1.ToPoint3d();
+         endPoint = pt2.ToPoint3d();
          Sign = Math.Sign(bulge);
          Bulge = bulge;
          Vector3d p = EndPoint - StartPoint;

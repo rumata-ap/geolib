@@ -34,6 +34,12 @@ namespace Geo
          startPoint = startPt.ToPoint3d(); endPoint = endPt.ToPoint3d();
          CalcLine();
       }
+      
+      public Line3d(Vertex2d startPt, Vertex2d endPt)
+      {
+         startPoint = startPt.ToPoint3d(); endPoint = endPt.ToPoint3d();
+         CalcLine();
+      }
 
       public Line3d(Point3d startPt, Point3d endPt)
       {

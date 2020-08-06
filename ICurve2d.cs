@@ -6,8 +6,15 @@
       object Parent { get; set; }
       Point3d EndPoint { get; set; }
       Point3d StartPoint { get; set; }
+      CurveType Type { get; }
 
       Pline2d TesselationByNumber(int nDiv, bool start = true, bool end = true);
       Pline2d TesselationByStep(double step, ParamType stepType = ParamType.rel, bool start = true, bool end = true);
+   }
+
+   public enum CurveType
+   {
+      line,
+      arc
    }
 }

@@ -25,8 +25,8 @@ namespace Geo
          {
             vertices.Add(new Vertex2d(item.ToPoint3d()));
          }
-         Vertexs = vertices;
-         IsClosed = true;
+         Vertices = vertices;
+         Close();
 
          CalcPerimeter();
          CalcArea();
@@ -42,8 +42,8 @@ namespace Geo
          {
             vertices.Add(new Vertex2d(item));
          }
-         Vertexs = vertices;
-         IsClosed = true;
+         Vertices = vertices;
+         Close();
 
          CalcPerimeter();
          CalcArea();
@@ -53,8 +53,8 @@ namespace Geo
       
       public Contour2d(IEnumerable<Vertex2d> vertices)
       {
-         Vertexs = new List<Vertex2d>(vertices);
-         IsClosed = true;
+         Vertices = new List<Vertex2d>(vertices);
+         Close();
 
          CalcPerimeter();
          CalcArea();
@@ -64,8 +64,8 @@ namespace Geo
 
       public Contour2d(Pline2d pline)
       {
-         Vertexs = pline.Vertexs;
-         IsClosed = true;
+         Vertices = pline.Vertices;
+         Close();
 
          CalcPerimeter();
          CalcArea();
@@ -78,11 +78,11 @@ namespace Geo
          CalcArea();
          CalcCentroid();
          List<Vertex2d> temp = new List<Vertex2d>();
-         foreach (Vertex2d item in Vertexs)
+         foreach (Vertex2d item in Vertices)
          {
             temp.Add(new Vertex2d(item.X - centroid.X, item.Y - centroid.Y));
          }
-         Vertexs = temp;
+         Vertices = temp;
          //CalcCentroid();
 
          CalcI();
@@ -93,37 +93,43 @@ namespace Geo
       {
          double tempX = 0;
          double tempY = 0;
-         for (int i = 0; i < Segments.Count; i++)
+         Open();
+         for (int i = 0; i < vrtxs.Count - 1; i++)
          {
-            Point3d arrTemp = Segments[i].StartPoint; Point3d arrTemp1 = Segments[i].EndPoint;
+            ICoordinates arrTemp = vrtxs[i]; ICoordinates arrTemp1 = vrtxs[i + 1];
             tempX = tempX + (Math.Pow(arrTemp.X, 2) + arrTemp.X * arrTemp1.X + Math.Pow(arrTemp1.X, 2)) * (arrTemp.X * arrTemp1.Y - arrTemp.Y * arrTemp1.X);
             tempY = tempY + (Math.Pow(arrTemp.Y, 2) + arrTemp.Y * arrTemp1.Y + Math.Pow(arrTemp1.Y, 2)) * (arrTemp.X * arrTemp1.Y - arrTemp.Y * arrTemp1.X);
          }
          ix = tempX / 12;
          iy = tempY / 12;
+         Close();
       }
 
       protected void CalcCentroid()
       {
-         Point2d temp = new Point2d();
-         for (int i = 0; i < Segments.Count; i++)
+         Open();
+         ICoordinates temp = new Point3d();
+         for (int i = 0; i < vrtxs.Count - 1; i++)
          {
-            Point3d arrTemp = Segments[i].StartPoint; Point3d arrTemp1 = Segments[i].EndPoint;
+            ICoordinates arrTemp = vrtxs[i]; ICoordinates arrTemp1 = vrtxs[i + 1];
             temp.X = temp.X + 1 / (6 * area) * (arrTemp.X + arrTemp1.X) * (arrTemp.X * arrTemp1.Y - arrTemp.Y * arrTemp1.X);
             temp.Y = temp.Y + 1 / (6 * area) * (arrTemp.Y + arrTemp1.Y) * (arrTemp.X * arrTemp1.Y - arrTemp.Y * arrTemp1.X);
          }
-         centroid = temp;
+         centroid = (Point2d)temp;
+         Close();
       }
 
       protected void CalcArea()
       {
+         Open();
          double temp = 0;
-         for (int i = 0; i < Segments.Count; i++)
+         for (int i = 0; i < vrtxs.Count - 1; i++)
          {
-            Point3d arrTemp = Segments[i].StartPoint; Point3d arrTemp1 = Segments[i].EndPoint;
+            ICoordinates arrTemp = vrtxs[i]; ICoordinates arrTemp1 = vrtxs[i + 1];
             temp = temp + 0.5 * (arrTemp.X * arrTemp1.Y - arrTemp1.X * arrTemp.Y);
          }
          area = temp;
+         Close();
       }
 
       protected void CalcPerimeter()

@@ -259,7 +259,7 @@ namespace Geo
       /// В качестве шага деления с абсолютным значением следует задавать значение части длины отрезка.
       /// </remarks>
       /// <returns>Возврашает плоскую полилинию с вершинами в точках деления и линейными сегментами.</returns>
-      public Pline2d TesselationByStep(double step, ParamType stepType = ParamType.abs, bool start = true, bool end = true)
+      public virtual Pline2d TesselationByStep(double step, ParamType stepType = ParamType.abs, bool start = true, bool end = true)
       {
          Pline2d res = new Pline2d();
          int count = GetSegsCount();
@@ -268,7 +268,7 @@ namespace Geo
             ICurve2d seg = GetSegment(i);
             res.AddVertices(seg.TesselationByStep(step, stepType, start, end));
          }
-
+         res.CalcBB();
          return res;
       }
 
@@ -279,7 +279,7 @@ namespace Geo
       /// <param name="start">Флаг, указывающий на включение начальной точки отрезка в результат деления.</param>
       /// <param name="end">Флаг, указывающий на включение конечной точки отрезка в результат деления.</param>
       /// <returns>Возврашает плоскую полилинию с вершинами в точках деления и линейными сегментами.</returns>
-      public Pline2d TesselationByNumber(int nDiv, bool start = true, bool end = true)
+      public virtual Pline2d TesselationByNumber(int nDiv, bool start = true, bool end = true)
       {
          Pline2d res = new Pline2d();
          int count = GetSegsCount();
@@ -287,7 +287,7 @@ namespace Geo
          {
             res.AddVertices(GetSegment(i).TesselationByNumber(nDiv, start, end));
          }
-
+         res.CalcBB();
          return res;
       }
 

@@ -144,5 +144,48 @@ namespace Geo
          }
          perimeter = segs.Sum();
       }
+
+      /// <summary>
+      /// Деление полилинии на сегменты по заданному шагу.
+      /// </summary>
+      /// <param name="step">Шаг деления.</param>
+      /// <param name="stepType">Тип значения шага деления (относительное или абсолютное).</param>
+      /// <param name="start">Флаг, указывающий на включение начальной точки отрезка в результат деления.</param>
+      /// <param name="end">Флаг, указывающий на включение конечной точки отрезка в результат деления.</param>
+      /// <remarks>
+      /// В качестве шага деления с абсолютным значением следует задавать значение части длины отрезка.
+      /// </remarks>
+      /// <returns>Возврашает плоскую полилинию с вершинами в точках деления и линейными сегментами.</returns>
+      public override Pline2d TesselationByStep(double step, ParamType stepType = ParamType.abs, bool start = true, bool end = true)
+      {
+         Pline2d res = new Pline2d();
+         int count = GetSegsCount();
+         for (int i = 0; i < count; i++)
+         {
+            ICurve2d seg = GetSegment(i);
+            res.AddVertices(seg.TesselationByStep(step, stepType, start, end));
+         }
+         res.Close();
+         return res;
+      }
+
+      /// <summary>
+      /// Деление отрезка на равные участки по заданному количеству участков.
+      /// </summary>
+      /// <param name="nDiv">Количество участков деления.</param>
+      /// <param name="start">Флаг, указывающий на включение начальной точки отрезка в результат деления.</param>
+      /// <param name="end">Флаг, указывающий на включение конечной точки отрезка в результат деления.</param>
+      /// <returns>Возврашает плоскую полилинию с вершинами в точках деления и линейными сегментами.</returns>
+      public override Pline2d TesselationByNumber(int nDiv, bool start = true, bool end = true)
+      {
+         Pline2d res = new Pline2d();
+         int count = GetSegsCount();
+         for (int i = 0; i < count; i++)
+         {
+            res.AddVertices(GetSegment(i).TesselationByNumber(nDiv, start, end));
+         }
+         res.Close();
+         return res;
+      }
    }
 }

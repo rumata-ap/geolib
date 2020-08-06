@@ -4,17 +4,17 @@ namespace Geo
 {
    public class Triangle
    {
-      private Point3d vertex1;
-      private Point3d vertex2;
-      private Point3d vertex3;
+      private ICoordinates vertex1;
+      private ICoordinates vertex2;
+      private ICoordinates vertex3;
 
       public double Area { get; private set; }
       public double Xc { get; private set; }
       public double Yc { get; private set; }
       //public double MaxAngleDeg { get; private set; }
-      public Point3d Vertex1 { get => vertex1; set { vertex1 = value; CalcTriangle(); } }
-      public Point3d Vertex2 { get => vertex2; set { vertex2 = value; CalcTriangle(); } }
-      public Point3d Vertex3 { get => vertex3; set { vertex3 = value; CalcTriangle(); } }
+      public ICoordinates Vertex1 { get => vertex1; set { vertex1 = value; CalcTriangle(); } }
+      public ICoordinates Vertex2 { get => vertex2; set { vertex2 = value; CalcTriangle(); } }
+      public ICoordinates Vertex3 { get => vertex3; set { vertex3 = value; CalcTriangle(); } }
       
       public Triangle(Point3d node1, Point3d node2, Point3d node3)
       {
@@ -29,6 +29,14 @@ namespace Geo
          vertex1 = node1.ToPoint3d();
          vertex2 = node2.ToPoint3d();
          vertex3 = node3.ToPoint3d(); ;
+         CalcTriangle();
+      }
+      
+      public Triangle(ICoordinates node1, ICoordinates node2, ICoordinates node3)
+      {
+         vertex1 = node1;
+         vertex2 = node2;
+         vertex3 = node3;
          CalcTriangle();
       }
 

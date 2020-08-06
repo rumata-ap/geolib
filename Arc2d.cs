@@ -16,7 +16,7 @@ namespace Geo
       public Point3d StartPoint { get => startPoint; set { startPoint = value; CalcArc(); } }
       public Point3d EndPoint { get => endPoint; set { endPoint = value; CalcArc(); } }
       public Point3d Center { get; private set; }
-      public double Lenght { get; private set; }
+      public double Length { get; private set; }
       public double Radius { get; private set; }
       public double Angle { get; private set; }
       public double Angle0 { get; private set; }
@@ -73,7 +73,7 @@ namespace Geo
          Vector3d c = C.Inverse() * cl + StartPoint.ToVector3d();
          Center = new Point3d(c.ToArray());
          Angle0 = 0.5 * Math.PI - 0.5 * Angle;
-         Lenght = Radius * Angle;
+         Length = Radius * Angle;
       }
       
 
@@ -97,7 +97,7 @@ namespace Geo
          Vector3d c = C.Inverse() * cl + StartPoint.ToVector3d();
          Center = new Point3d(c.ToArray());
          Angle0 = 0.5 * Math.PI - 0.5 * Angle;
-         Lenght = Radius * Angle;
+         Length = Radius * Angle;
       }
 
       void CalcArc()
@@ -115,7 +115,7 @@ namespace Geo
          Center = new Point3d(c.ToArray());
          Angle = 2 * Math.Acos(Math.Sqrt(Radius * Radius - (0.5 * l) * (0.5 * l)) / Radius);
          Angle0 = 0.5 * Math.PI - 0.5 * Angle;
-         Lenght = Radius * Angle;
+         Length = Radius * Angle;
          Bulge = Math.Tan(0.25 * Angle) * Math.Sign(Sign);
       }
 
@@ -157,8 +157,8 @@ namespace Geo
          Vector vector;
          if (stepType == ParamType.abs)
          {
-            if (step > Lenght) step = Lenght;
-            double param = step / Lenght;
+            if (step > Length) step = Length;
+            double param = step / Length;
             step = Angle * param;
             range = new Range(0, Angle);
             vector = range.GetVectorByStep(step, true, start, end);

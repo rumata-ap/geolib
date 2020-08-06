@@ -115,7 +115,7 @@ namespace Geo
             temp.X = temp.X + 1 / (6 * area) * (arrTemp.X + arrTemp1.X) * (arrTemp.X * arrTemp1.Y - arrTemp.Y * arrTemp1.X);
             temp.Y = temp.Y + 1 / (6 * area) * (arrTemp.Y + arrTemp1.Y) * (arrTemp.X * arrTemp1.Y - arrTemp.Y * arrTemp1.X);
          }
-         centroid = (Point2d)temp;
+         centroid = new Point2d(temp.X, temp.Y);
          Close();
       }
 

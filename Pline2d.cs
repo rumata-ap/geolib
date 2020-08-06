@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+
 using Geo.Calc;
 
 namespace Geo
@@ -77,7 +78,11 @@ namespace Geo
       {
          if (pline == null || pline.Vertices.Count == 0) return;
 
-         int id = vrtxs[vrtxs.Count - 1].Id + 1;
+         int id;
+         if (vrtxs.Count == 0) id = 1;
+         else id = vrtxs[vrtxs.Count - 1].Id + 1;
+
+         if (vrtxs.Count == 0) { vrtxs = pline.Vertices; return; }
          if (pline.Vertices[0].X == vrtxs[vrtxs.Count - 1].X && pline.Vertices[0].Y == vrtxs[vrtxs.Count - 1].Y)
          {
             pline.vrtxs[1].Prev = vrtxs[vrtxs.Count - 1];
@@ -101,13 +106,18 @@ namespace Geo
             }
          }
       }
-      
+
       public void AddVertices(IEnumerable<Vertex2d> vertex2s)
       {
          List<Vertex2d> vl = new List<Vertex2d>(vertex2s);
          if (vl.Count == 0) return;
 
-         int id = vrtxs[vrtxs.Count - 1].Id + 1;
+         int id;
+         if (vrtxs.Count == 0) id = 1;
+         else id = vrtxs[vrtxs.Count - 1].Id + 1;
+
+         if (vrtxs.Count == 0) { vrtxs = vl; return; }
+         id = vrtxs[vrtxs.Count - 1].Id + 1;
          if (vl[0].X == vl[vl.Count - 1].X && vl[0].Y == vl[vl.Count - 1].Y)
          {
             vl[1].Prev = vrtxs[vrtxs.Count - 1];
@@ -154,14 +164,14 @@ namespace Geo
             vrtxs[0].Prev = vrtxs[vrtxs.Count - 1];
             IsClosed = true;
          }
-         else if(!IsClosed)
+         else if (!IsClosed)
          {
             vrtxs[vrtxs.Count - 1].Next = vrtxs[0];
             vrtxs[0].Prev = vrtxs[vrtxs.Count - 1];
             IsClosed = true;
          }
       }
-      
+
       public void Open()
       {
          if (vrtxs.Count < 2) { IsClosed = false; return; }
@@ -177,7 +187,7 @@ namespace Geo
       protected void CalcBB()
       {
          if (vrtxs.Count == 0) return;
-         
+
          IOrderedEnumerable<Vertex2d> selectedX = from v in vrtxs orderby v.X select v;
          IOrderedEnumerable<Vertex2d> selectedY = from v in vrtxs orderby v.Y select v;
 
@@ -255,7 +265,8 @@ namespace Geo
          int count = GetSegsCount();
          for (int i = 0; i < count; i++)
          {
-            res.AddVertices(GetSegment(i).TesselationByStep(step, stepType, start, end));
+            ICurve2d seg = GetSegment(i);
+            res.AddVertices(seg.TesselationByStep(step, stepType, start, end));
          }
 
          return res;
@@ -299,6 +310,8 @@ namespace Geo
 
       void CalcVertices()
       {
+         if (vrtxs.Count < 2) return;
+
          for (int i = 1; i < vrtxs.Count - 1; i++)
          {
             vrtxs[i].Id = i + 1;

@@ -4,7 +4,7 @@ using System.Linq;
 
 namespace Geo
 {
-   public class Contour2d : Pline2d
+   public class Polygon2d : Pline2d
    {
       double area;
       double perimeter;
@@ -18,7 +18,7 @@ namespace Geo
       public double Ix { get => Math.Abs(ix); }
       public double Iy { get => Math.Abs(iy); }
 
-      public Contour2d(IEnumerable<Point2d> points)
+      public Polygon2d(IEnumerable<Point2d> points)
       {
          List<Point2d> point2Ds = new List<Point2d>(points);
          List<Vertex2d> vertices = new List<Vertex2d>(point2Ds.Count);
@@ -35,7 +35,7 @@ namespace Geo
          CalcI();
       }
       
-      public Contour2d(IEnumerable<Point3d> points)
+      public Polygon2d(IEnumerable<Point3d> points)
       {
          List<Point3d> point3Ds = new List<Point3d>(points);
          List<Vertex2d> vertices = new List<Vertex2d>(point3Ds.Count);
@@ -52,7 +52,7 @@ namespace Geo
          CalcI();
       }
       
-      public Contour2d(IEnumerable<Vertex2d> vertices)
+      public Polygon2d(IEnumerable<Vertex2d> vertices)
       {
          Vertices = new List<Vertex2d>(vertices);
          Close();
@@ -63,7 +63,7 @@ namespace Geo
          CalcI();
       }
 
-      public Contour2d(Pline2d pline)
+      public Polygon2d(Pline2d pline)
       {
          Vertices = pline.Vertices;
          Close();
@@ -146,7 +146,7 @@ namespace Geo
       }
 
       /// <summary>
-      /// Деление полилинии на сегменты по заданному шагу.
+      /// Деление контура на сегменты путем деления исходных сегментов по заданному шагу.
       /// </summary>
       /// <param name="step">Шаг деления.</param>
       /// <param name="stepType">Тип значения шага деления (относительное или абсолютное).</param>
@@ -170,7 +170,7 @@ namespace Geo
       }
 
       /// <summary>
-      /// Деление отрезка на равные участки по заданному количеству участков.
+      /// Деление контура на сегменты путем деления исходных сегментов по заданному количеству участков.
       /// </summary>
       /// <param name="nDiv">Количество участков деления.</param>
       /// <param name="start">Флаг, указывающий на включение начальной точки отрезка в результат деления.</param>
@@ -186,6 +186,11 @@ namespace Geo
          }
          res.Close();
          return res;
+      }
+
+      public Polygon2d Partition()
+      {
+         return null;
       }
    }
 }

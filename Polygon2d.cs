@@ -18,15 +18,24 @@ namespace Geo
       public double Ix { get => Math.Abs(ix); }
       public double Iy { get => Math.Abs(iy); }
 
-      public Polygon2d(IEnumerable<Point2d> points)
+      public Polygon2d(IEnumerable<Point2d> points):base (points)
       {
-         List<Point2d> point2Ds = new List<Point2d>(points);
-         List<Vertex2d> vertices = new List<Vertex2d>(point2Ds.Count);
-         foreach (Point2d item in point2Ds)
-         {
-            vertices.Add(new Vertex2d(item.ToPoint3d()));
-         }
-         Vertices = vertices;
+         Close();
+         CalcPerimeter();
+         CalcArea();
+         CalcCentroid();
+         CalcI();
+      }
+      
+      public Polygon2d(IEnumerable<Point3d> points) : base(points)
+      {
+         //List<Point3d> point3Ds = new List<Point3d>(points);
+         //List<Vertex2d> vertices = new List<Vertex2d>(point3Ds.Count);
+         //foreach (Point3d item in point3Ds)
+         //{
+         //   vertices.Add(new Vertex2d(item));
+         //}
+         //Vertices = vertices;
          Close();
 
          CalcPerimeter();
@@ -35,26 +44,9 @@ namespace Geo
          CalcI();
       }
       
-      public Polygon2d(IEnumerable<Point3d> points)
+      public Polygon2d(IEnumerable<Vertex2d> vertices) : base(vertices)
       {
-         List<Point3d> point3Ds = new List<Point3d>(points);
-         List<Vertex2d> vertices = new List<Vertex2d>(point3Ds.Count);
-         foreach (Point3d item in point3Ds)
-         {
-            vertices.Add(new Vertex2d(item));
-         }
-         Vertices = vertices;
-         Close();
-
-         CalcPerimeter();
-         CalcArea();
-         CalcCentroid();
-         CalcI();
-      }
-      
-      public Polygon2d(IEnumerable<Vertex2d> vertices)
-      {
-         Vertices = new List<Vertex2d>(vertices);
+         //Vertices = new List<Vertex2d>(vertices);
          Close();
 
          CalcPerimeter();
@@ -135,6 +127,7 @@ namespace Geo
 
       protected void CalcPerimeter()
       {
+         Open();
          int count = GetSegsCount();
          if (count < 1) return;
          List<double> segs = new List<double>(count);
@@ -143,6 +136,7 @@ namespace Geo
             segs.Add(GetSegment(i).Length);
          }
          perimeter = segs.Sum();
+         Close();
       }
 
       /// <summary>
@@ -188,9 +182,64 @@ namespace Geo
          return res;
       }
 
-      public Polygon2d Partition()
+      public Polygon2d Partition(Vertex2d vrt1, Vertex2d vrt2)
       {
-         return null;
+         //int ii = vrtxs.IndexOf(vrt1);
+         //int jj = vrtxs.IndexOf(vrt2);
+         List<Vertex2d> original = new List<Vertex2d>(vrtxs);
+         List<Vertex2d> newl = new List<Vertex2d>();
+         newl.Add(new Vertex2d(vrt1));
+         
+         Vertex2d item = vrt1;
+         //for (int i = ii; i < jj-1; i++)
+         //{
+         //   newl.Add(vrtxs[i].Next);
+         //   original.RemoveAt(i+1);
+         //}
+         while (!item.Next.Equals(vrt2))
+         {
+            item = item.Next;
+            newl.Add(item);
+            original.Remove(item);
+         }
+         original.Remove(vrt2);
+
+         vrtxs = original;
+         CalcVertices();
+         Close();
+         CalcPerimeter();
+         CalcArea();
+         CalcCentroid();
+         CalcI();
+
+         return new Polygon2d(newl);
+      }
+
+      public void Partition(Vertex2d vrt1, Vertex2d vrt2, out Polygon2d res)
+      {
+         res = Partition(vrt1, vrt2);
+      }
+
+      public void Insert(Vertex2d vrt1, Vertex2d vrt2, Polygon2d insert)
+      {
+
+      }
+
+      public Pline2d Break(Vertex2d point)
+      {
+         List<Vertex2d> newl = new List<Vertex2d>(vrtxs.Count+1);
+         newl.Add(new Vertex2d(point));
+         Vertex2d item = point;
+         while (!item.Next.Equals(point))
+         {
+            item = item.Next;
+            newl.Add(item);
+         }
+         newl.Add(point);
+
+         Pline2d res = new Pline2d();
+         res.ReplaceVertices(newl);
+         return res;
       }
    }
 }

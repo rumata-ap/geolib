@@ -22,11 +22,11 @@ namespace Geo
          //segs = new List<ICurve2d>();
       }
 
-      public Pline2d(List<Point2d> points)
+      public Pline2d(IEnumerable<Point2d> points)
       {
          //segs = new List<ICurve2d>();
-         vrtxs = new List<Vertex2d>();
-         if (points.Count > 0)
+         vrtxs = new List<Vertex2d>(points.Count());
+         if (points.Count() > 0)
          {
             foreach (Point2d item in points)
             {
@@ -37,17 +37,24 @@ namespace Geo
          CalcVertices();
       }
 
-      public Pline2d(List<Point3d> points)
+      public Pline2d(IEnumerable<Point3d> points)
       {
          //segs = new List<ICurve2d>();
-         vrtxs = new List<Vertex2d>();
-         if (points.Count > 0)
+         vrtxs = new List<Vertex2d>(points.Count());
+         if (points.Count() > 0)
          {
             foreach (Point3d item in points)
             {
                vrtxs.Add(new Vertex2d(item));
             }
          }
+         CalcBB();
+         CalcVertices();
+      }
+
+      public Pline2d(IEnumerable<Vertex2d> vertices)
+      {
+         vrtxs = new List<Vertex2d>(vertices);
          CalcBB();
          CalcVertices();
       }
@@ -70,6 +77,18 @@ namespace Geo
       {
          vrtxs.Add(pt);
 
+         CalcBB();
+         CalcVertices();
+      }
+
+      public void ReplaceVertices(IEnumerable<Vertex2d> vertices)
+      {        
+         List<Vertex2d> tmp = new List<Vertex2d>(vertices);
+         vrtxs = new List<Vertex2d>(tmp.Count);
+         foreach (Vertex2d item in tmp)
+         {
+            vrtxs.Add(new Vertex2d(item));
+         }
          CalcBB();
          CalcVertices();
       }
@@ -308,7 +327,7 @@ namespace Geo
       //   CalcVertices();
       //}
 
-      void CalcVertices()
+      protected void CalcVertices()
       {
          if (vrtxs.Count < 2) return;
 

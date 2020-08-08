@@ -106,6 +106,18 @@ namespace Geo.Calc
          return new Point2d(Vx, Vy);
       }
 
+      public bool IsMatch(Vector3d vector)
+      {
+         if (Vx == vector.Vx && Vy == vector.Vy && Vz == vector.Vz) return true;
+         else return false;
+      }
+      
+      public bool IsMatchAbs(Vector3d vector)
+      {
+         if (Vx == -vector.Vx && Vy == -vector.Vy && Vz == -vector.Vz) return true;
+         else return false;
+      }
+
       /// <summary>
       /// Векторное произведение
       /// </summary>
@@ -160,6 +172,17 @@ namespace Geo.Calc
          for (int i = 0; i < v1.n; i++)
          {
             res[i] = v1[i] + v2[i];
+         }
+
+         return new Vector3d(res);
+      }
+
+      public static Vector3d operator -(Vector3d v1, Vector3d v2)
+      {
+         double[] res = new double[3];
+         for (int i = 0; i < 3; i++)
+         {
+            res[i] = v1[i] - v2[i];
          }
 
          return new Vector3d(res);

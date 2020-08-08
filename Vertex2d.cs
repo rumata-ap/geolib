@@ -13,7 +13,7 @@ namespace Geo
       public Vertex2d Next { get => next; set { next = value; GetAngle(); } }
       public VertexPosition Pos { get; set; }
       public double Angle { get; private set; }
-      public double AngleGrad { get; private set; }
+      public double AngleDeg { get; private set; }
       double x;
       private double z;
       private double y;
@@ -64,12 +64,12 @@ namespace Geo
          Vector3d nd = pp ^ pn;
          double cosTo = Vector3d.CosAngleBetVectors(pp, pn);
          Angle = Math.Acos(cosTo);
-         AngleGrad = RadToDeg(Math.Acos(cosTo));
+         AngleDeg = RadToDeg(Math.Acos(cosTo));
 
          if (nd.Unit[2] < 0)
          {
             Angle = 2 * Math.PI - Angle;
-            AngleGrad = 360 - AngleGrad;
+            AngleDeg = 360 - AngleDeg;
          }
       }
 

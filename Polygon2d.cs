@@ -18,7 +18,7 @@ namespace Geo
       public double Ix { get => Math.Abs(ix); }
       public double Iy { get => Math.Abs(iy); }
 
-      public Polygon2d(IEnumerable<Point2d> points):base (points)
+      public Polygon2d(IEnumerable<ICoordinates> vertices):base (vertices)
       {
          Close();
          CalcPerimeter();
@@ -27,37 +27,9 @@ namespace Geo
          CalcI();
       }
       
-      public Polygon2d(IEnumerable<Point3d> points) : base(points)
-      {
-         //List<Point3d> point3Ds = new List<Point3d>(points);
-         //List<Vertex2d> vertices = new List<Vertex2d>(point3Ds.Count);
-         //foreach (Point3d item in point3Ds)
-         //{
-         //   vertices.Add(new Vertex2d(item));
-         //}
-         //Vertices = vertices;
-         Close();
-
-         CalcPerimeter();
-         CalcArea();
-         CalcCentroid();
-         CalcI();
-      }
-      
-      public Polygon2d(IEnumerable<Vertex2d> vertices) : base(vertices)
-      {
-         //Vertices = new List<Vertex2d>(vertices);
-         Close();
-
-         CalcPerimeter();
-         CalcArea();
-         CalcCentroid();
-         CalcI();
-      }
-
       public Polygon2d(Pline2d pline)
       {
-         Vertices = pline.Vertices;
+         Vertices = pline.Copy().Vertices;
          Close();
 
          CalcPerimeter();
@@ -184,18 +156,13 @@ namespace Geo
 
       public Polygon2d Partition(Vertex2d vrt1, Vertex2d vrt2)
       {
-         //int ii = vrtxs.IndexOf(vrt1);
-         //int jj = vrtxs.IndexOf(vrt2);
          List<Vertex2d> original = new List<Vertex2d>(vrtxs);
-         List<Vertex2d> newl = new List<Vertex2d>();
-         newl.Add(new Vertex2d(vrt1));
-         
+         List<Vertex2d> newl = new List<Vertex2d>
+         {
+            new Vertex2d(vrt1)
+         };
+
          Vertex2d item = vrt1;
-         //for (int i = ii; i < jj-1; i++)
-         //{
-         //   newl.Add(vrtxs[i].Next);
-         //   original.RemoveAt(i+1);
-         //}
          while (!item.Next.Equals(vrt2))
          {
             item = item.Next;
@@ -212,7 +179,7 @@ namespace Geo
          CalcCentroid();
          CalcI();
 
-         return new Polygon2d(newl);
+         return new Polygon2d(newl.ToArray());
       }
 
       public void Partition(Vertex2d vrt1, Vertex2d vrt2, out Polygon2d res)
@@ -220,15 +187,30 @@ namespace Geo
          res = Partition(vrt1, vrt2);
       }
 
-      public void Insert(Vertex2d vrt1, Vertex2d vrt2, Polygon2d insert)
+      public void Insert(Vertex2d main, Vertex2d insert, Polygon2d insertPoly)
       {
-
+         List<Vertex2d> origin = Break(main).Vertices;
+         List<Vertex2d> newl = insertPoly.Break(insert).Vertices;
+         //newl[0].Prev = origin[i1 - 1].Prev;
+         //newl[i2 - 1].Next = origin[0].Next;
+         origin.RemoveAt(origin.Count - 1);
+         origin.RemoveAt(0);
+         newl.Reverse();
+         origin.AddRange(newl);
+         ReplaceVertices(origin);
+         Close();
+         CalcPerimeter();
+         CalcArea();
+         CalcCentroid();
+         CalcI();
       }
 
       public Pline2d Break(Vertex2d point)
       {
-         List<Vertex2d> newl = new List<Vertex2d>(vrtxs.Count+1);
-         newl.Add(new Vertex2d(point));
+         List<Vertex2d> newl = new List<Vertex2d>(vrtxs.Count + 1)
+         {
+            new Vertex2d(point)
+         };
          Vertex2d item = point;
          while (!item.Next.Equals(point))
          {
@@ -237,9 +219,7 @@ namespace Geo
          }
          newl.Add(point);
 
-         Pline2d res = new Pline2d();
-         res.ReplaceVertices(newl);
-         return res;
+         return new Pline2d(newl.ToArray());
       }
    }
 }

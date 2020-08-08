@@ -57,7 +57,8 @@
     <Compile Include="Point3d.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Calc\Vector3d.cs" />
-    <Compile Include="Triangle.cs" />
+    <Compile Include="Quad.cs" />
+    <Compile Include="Tria.cs" />
     <Compile Include="Vertex2d.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

@@ -8,42 +8,23 @@ namespace Geo
    public class Pline2d
    {
       protected List<Vertex2d> vrtxs;
-      //protected List<ICurve2d> segs;
       protected BoundingBox2d bb;
 
       public List<Vertex2d> Vertices { get => vrtxs; internal set { vrtxs = value; CalcBB(); CalcVertices(); } }
       public BoundingBox2d BoundingBox { get => bb; }
-      //public List<ICurve2d> Segments { get => segs; }
       public bool IsClosed { get; private set; }
 
       public Pline2d()
       {
          vrtxs = new List<Vertex2d>();
-         //segs = new List<ICurve2d>();
       }
 
-      public Pline2d(IEnumerable<Point2d> points)
+      public Pline2d(IEnumerable<ICoordinates> vertices)
       {
-         //segs = new List<ICurve2d>();
-         vrtxs = new List<Vertex2d>(points.Count());
-         if (points.Count() > 0)
+         vrtxs = new List<Vertex2d>(vertices.Count());
+         if (vertices.Count() > 0)
          {
-            foreach (Point2d item in points)
-            {
-               vrtxs.Add(new Vertex2d(item.ToPoint3d()));
-            }
-         }
-         CalcBB();
-         CalcVertices();
-      }
-
-      public Pline2d(IEnumerable<Point3d> points)
-      {
-         //segs = new List<ICurve2d>();
-         vrtxs = new List<Vertex2d>(points.Count());
-         if (points.Count() > 0)
-         {
-            foreach (Point3d item in points)
+            foreach (ICoordinates item in vertices)
             {
                vrtxs.Add(new Vertex2d(item));
             }
@@ -52,37 +33,53 @@ namespace Geo
          CalcVertices();
       }
 
-      public Pline2d(IEnumerable<Vertex2d> vertices)
+      protected void AddVertexNew(ICoordinates pt)
       {
-         vrtxs = new List<Vertex2d>(vertices);
-         CalcBB();
-         CalcVertices();
-      }
-
-      protected void AddVertex(Point2d pt)
-      {
-         vrtxs.Add(new Vertex2d(pt.ToPoint3d()));
-         CalcBB();
-         CalcVertices();
-      }
-
-      public void AddVertex(Point3d pt)
-      {
+         Open();
          vrtxs.Add(new Vertex2d(pt));
+         vrtxs[vrtxs.Count - 1].Pos = VertexPosition.Last;
+         vrtxs[vrtxs.Count - 1].Id = vrtxs.Count;
+         vrtxs[vrtxs.Count - 1].Prev = vrtxs[vrtxs.Count - 2];
+         vrtxs[vrtxs.Count - 1].Next = null;
          CalcBB();
-         CalcVertices();
       }
 
       public void AddVertex(Vertex2d pt)
       {
+         Open();
          vrtxs.Add(pt);
-
+         vrtxs[vrtxs.Count - 1].Pos = VertexPosition.Last;
+         vrtxs[vrtxs.Count - 1].Id = vrtxs.Count;
+         vrtxs[vrtxs.Count - 1].Prev = vrtxs[vrtxs.Count - 2];
+         vrtxs[vrtxs.Count - 1].Next = null;
          CalcBB();
-         CalcVertices();
       }
 
-      public void ReplaceVertices(IEnumerable<Vertex2d> vertices)
-      {        
+      public void AddVerticesNew(IEnumerable<ICoordinates> vertices, bool recalc = true)
+      {
+         Open();
+         List<ICoordinates> tmp = new List<ICoordinates>(vertices);
+         foreach (Vertex2d item in tmp)
+         {
+            vrtxs.Add(new Vertex2d(item));
+         }
+         CalcBB();
+         if (recalc) CalcVertices();
+      }
+
+      public void CopySelfVertices()
+      {
+         List<Vertex2d> tmp = new List<Vertex2d>(vrtxs);
+         vrtxs = new List<Vertex2d>(tmp.Count);
+         foreach (Vertex2d item in tmp)
+         {
+            vrtxs.Add(new Vertex2d(item));
+         }
+      }
+
+      public void ReplaceVertices(IEnumerable<Vertex2d> vertices, bool recalc = true)
+      {
+         Open();
          List<Vertex2d> tmp = new List<Vertex2d>(vertices);
          vrtxs = new List<Vertex2d>(tmp.Count);
          foreach (Vertex2d item in tmp)
@@ -90,85 +87,37 @@ namespace Geo
             vrtxs.Add(new Vertex2d(item));
          }
          CalcBB();
-         CalcVertices();
+         if(recalc) CalcVertices();
       }
 
-      public void AddVertices(Pline2d pline)
+      public virtual Pline2d Copy()
       {
+         Pline2d res = new Pline2d();
+         res.AddVerticesNew(vrtxs.ToArray());
+
+         return res;
+      }
+
+      public void AddVertices(IEnumerable<Vertex2d> vertices, bool recalc = true)
+      {
+         Open();
+         List<Vertex2d> tmp = new List<Vertex2d>(vertices);
+         foreach (Vertex2d item in tmp)
+         {
+            vrtxs.Add(item);
+         }
+         CalcBB();
+         if (recalc) CalcVertices();
+      }
+
+      public void AddVertices(Pline2d pline, bool recalc = true)
+      {
+         Open();
          if (pline == null || pline.Vertices.Count == 0) return;
 
-         int id;
-         if (vrtxs.Count == 0) id = 1;
-         else id = vrtxs[vrtxs.Count - 1].Id + 1;
-
-         if (vrtxs.Count == 0) { vrtxs = pline.Vertices; return; }
-         if (pline.Vertices[0].X == vrtxs[vrtxs.Count - 1].X && pline.Vertices[0].Y == vrtxs[vrtxs.Count - 1].Y)
-         {
-            pline.vrtxs[1].Prev = vrtxs[vrtxs.Count - 1];
-            for (int i = 1; i < pline.Vertices.Count; i++)
-            {
-               vrtxs.Add(pline.Vertices[i]);
-               pline.Vertices[i].Id = id;
-               id++;
-            }
-         }
-         else
-         {
-            pline.vrtxs[0].Prev = vrtxs[vrtxs.Count - 1];
-            pline.vrtxs[0].Pos = VertexPosition.Middle;
-            //segs.Add(new Line2d(vertxs[vertxs.Count - 1], pline.vertxs[0]));
-            foreach (Vertex2d item in pline.Vertices)
-            {
-               item.Id = id;
-               id++;
-               vrtxs.Add(item);
-            }
-         }
-      }
-
-      public void AddVertices(IEnumerable<Vertex2d> vertex2s)
-      {
-         List<Vertex2d> vl = new List<Vertex2d>(vertex2s);
-         if (vl.Count == 0) return;
-
-         int id;
-         if (vrtxs.Count == 0) id = 1;
-         else id = vrtxs[vrtxs.Count - 1].Id + 1;
-
-         if (vrtxs.Count == 0) { vrtxs = vl; return; }
-         id = vrtxs[vrtxs.Count - 1].Id + 1;
-         if (vl[0].X == vl[vl.Count - 1].X && vl[0].Y == vl[vl.Count - 1].Y)
-         {
-            vl[1].Prev = vrtxs[vrtxs.Count - 1];
-            for (int i = 1; i < vl.Count; i++)
-            {
-               vrtxs.Add(vl[i]);
-               vl[i].Id = id;
-               id++;
-            }
-         }
-         else
-         {
-            vl[0].Prev = vrtxs[vrtxs.Count - 1];
-            vl[0].Pos = VertexPosition.Middle;
-            foreach (Vertex2d item in vl)
-            {
-               item.Id = id;
-               id++;
-               vrtxs.Add(item);
-            }
-         }
-
-         if (vrtxs[0].IsMatch(vrtxs[vrtxs.Count - 1]))
-         {
-            vrtxs.RemoveAt(vrtxs.Count - 1);
-            vrtxs[vrtxs.Count - 1].Pos = VertexPosition.Last;
-            vrtxs[vrtxs.Count - 1].Next = vrtxs[0];
-            vrtxs[0].Prev = vrtxs[vrtxs.Count - 1];
-            IsClosed = true;
-         }
-
+         vrtxs.AddRange(pline.Vertices);
          CalcBB();
+         if (recalc) CalcVertices();
       }
 
       public void Close()

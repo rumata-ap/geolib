@@ -178,7 +178,7 @@ namespace Geo
          {
             check = true;
          }
-         return (check);
+         return check;
       }
 
       public bool NotMath(ICoordinates pt)
@@ -188,7 +188,7 @@ namespace Geo
          {
             check = true;
          }
-         return (check);
+         return check;
       }
    }
 }

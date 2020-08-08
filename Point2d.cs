@@ -5,13 +5,14 @@ using System;
 namespace Geo
 {
    [Serializable]
-   public class Point2d
+   public class Point2d:ICoordinates
    {
       double[] arr = new double[2];
 
       public double this[int i] { get => arr[i]; set => arr[i] = value; }
       public double X { get => arr[0]; set => arr[0] = value; }
       public double Y { get => arr[1]; set => arr[1] = value; }
+      public double Z { get; set; }
 
       public Point2d()
       {
@@ -129,6 +130,26 @@ namespace Geo
       public override int GetHashCode()
       {
          return base.GetHashCode();
+      }
+
+      public bool IsMatch(ICoordinates pt)
+      {
+         bool check = false;
+         if (X == pt.X && Y == pt.Y)
+         {
+            check = true;
+         }
+         return check;
+      }
+
+      public bool NotMath(ICoordinates pt)
+      {
+         bool check = false;
+         if (X != pt.X || Y != pt.Y)
+         {
+            check = true;
+         }
+         return check;
       }
    }
 }

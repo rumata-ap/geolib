@@ -2,7 +2,7 @@
 
 namespace Geo
 {
-   public class Triangle
+   public class Tria
    {
       private ICoordinates vertex1;
       private ICoordinates vertex2;
@@ -15,24 +15,8 @@ namespace Geo
       public ICoordinates Vertex1 { get => vertex1; set { vertex1 = value; CalcTriangle(); } }
       public ICoordinates Vertex2 { get => vertex2; set { vertex2 = value; CalcTriangle(); } }
       public ICoordinates Vertex3 { get => vertex3; set { vertex3 = value; CalcTriangle(); } }
-      
-      public Triangle(Point3d node1, Point3d node2, Point3d node3)
-      {
-         vertex1 = node1;
-         vertex2 = node2;
-         vertex3 = node3;
-         CalcTriangle();
-      }
-
-      public Triangle(Point2d node1, Point2d node2, Point2d node3)
-      {
-         vertex1 = node1.ToPoint3d();
-         vertex2 = node2.ToPoint3d();
-         vertex3 = node3.ToPoint3d(); ;
-         CalcTriangle();
-      }
-      
-      public Triangle(ICoordinates node1, ICoordinates node2, ICoordinates node3)
+         
+      public Tria(ICoordinates node1, ICoordinates node2, ICoordinates node3)
       {
          vertex1 = node1;
          vertex2 = node2;
@@ -52,6 +36,27 @@ namespace Geo
          Yc = (vertex1.Y + vertex2.Y + vertex3.Y) / 3;
          Area = Math.Abs(0.5 * ((vertex2.X - vertex1.X) * (vertex3.Y - vertex1.Y) - 
             (vertex3.X - vertex1.X) * (vertex2.Y - vertex1.Y)));
+      }
+
+      public bool IsPointIn(ICoordinates pt)
+      {
+         if (pt.IsMatch(vertex1) || pt.IsMatch(vertex2) || pt.IsMatch(vertex3)) return true;
+
+         double bx = vertex2.X - vertex1.X;
+         double by = vertex2.Y - vertex1.Y;
+         double cx = vertex3.X - vertex1.X;
+         double cy = vertex3.Y - vertex1.Y;
+         double px = pt.X - vertex1.X;
+         double py = pt.Y - vertex1.Y;
+
+         double m = (px * by - bx * py) / (cx * by - bx * cy);
+         if (m >= 0 && m <= 1)
+         {
+            double l = (px - m * cx) / bx;
+            if (l > 0 && m + l <= 1) return true;
+            else return false;
+         }
+         else return false;
       }
    }
 }

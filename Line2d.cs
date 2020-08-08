@@ -208,7 +208,7 @@ namespace Geo
          List<Point3d> pts = new List<Point3d>(vector.N);
          for (int i = 0; i < vector.N; i++) pts.Add(GetPoint(vector[i], stepType));
 
-         return new Pline2d(pts);
+         return new Pline2d(pts.ToArray());
       }
 
       /// <summary>
@@ -226,7 +226,7 @@ namespace Geo
          List<Point3d> pts = new List<Point3d>(vector.N);
          for (int i = 0; i < vector.N; i++) pts.Add(GetPoint(vector[i], ParamType.abs));
 
-         return new Pline2d(pts);
+         return new Pline2d(pts.ToArray());
       }
 
    }

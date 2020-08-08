@@ -4,7 +4,7 @@ using System;
 using System.Linq;
 using System.Collections.Generic;
 
-namespace Geo
+namespace Geo.Triangulation
 {
    public class Quad
    {

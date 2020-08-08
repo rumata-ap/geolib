@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Geo
+namespace Geo.Triangulation
 {
    public class Tria
    {

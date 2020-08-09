@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using System.Xml;
 
 using Geo.Calc;
 
@@ -33,10 +34,35 @@ namespace Geo
          CalcVertices();
       }
 
+      public Pline2d(List<Vertex2d> vertices)
+      {
+         vrtxs = new List<Vertex2d>(vertices.Count());
+         if (vertices.Count() > 0)
+         {
+            foreach (Vertex2d item in vertices)
+            {
+               vrtxs.Add(Vertex2d.Copy(item));
+            }
+         }
+         CalcBB();
+         CalcVertices();
+      }
+
       protected void AddVertexNew(ICoordinates pt)
       {
          Open();
          vrtxs.Add(new Vertex2d(pt));
+         vrtxs[vrtxs.Count - 1].Pos = VertexPosition.Last;
+         vrtxs[vrtxs.Count - 1].Id = vrtxs.Count;
+         vrtxs[vrtxs.Count - 1].Prev = vrtxs[vrtxs.Count - 2];
+         vrtxs[vrtxs.Count - 1].Next = null;
+         CalcBB();
+      }
+      
+      protected void AddVertexNew(Vertex2d pt)
+      {
+         Open();
+         vrtxs.Add(Vertex2d.Copy(pt));
          vrtxs[vrtxs.Count - 1].Pos = VertexPosition.Last;
          vrtxs[vrtxs.Count - 1].Id = vrtxs.Count;
          vrtxs[vrtxs.Count - 1].Prev = vrtxs[vrtxs.Count - 2];
@@ -66,6 +92,17 @@ namespace Geo
          CalcBB();
          if (recalc) CalcVertices();
       }
+      
+      public void AddVerticesNew(List<Vertex2d> vertices, bool recalc = true)
+      {
+         Open();
+         foreach (Vertex2d item in vertices)
+         {
+            vrtxs.Add(Vertex2d.Copy(item));
+         }
+         CalcBB();
+         if (recalc) CalcVertices();
+      }
 
       public void CopySelfVertices()
       {
@@ -73,7 +110,7 @@ namespace Geo
          vrtxs = new List<Vertex2d>(tmp.Count);
          foreach (Vertex2d item in tmp)
          {
-            vrtxs.Add(new Vertex2d(item));
+            vrtxs.Add(new Vertex2d(item) { Nref = item.Nref });
          }
       }
 
@@ -84,7 +121,7 @@ namespace Geo
          vrtxs = new List<Vertex2d>(tmp.Count);
          foreach (Vertex2d item in tmp)
          {
-            vrtxs.Add(new Vertex2d(item));
+            vrtxs.Add(Vertex2d.Copy(item));
          }
          CalcBB();
          if(recalc) CalcVertices();
@@ -98,14 +135,17 @@ namespace Geo
          return res;
       }
 
+      public virtual void RemoveVertex(Vertex2d vertex, bool recalc = true)
+      {
+         vrtxs.Remove(vertex);
+         CalcBB();
+         if (recalc) CalcVertices();
+      }
+
       public void AddVertices(IEnumerable<Vertex2d> vertices, bool recalc = true)
       {
          Open();
-         List<Vertex2d> tmp = new List<Vertex2d>(vertices);
-         foreach (Vertex2d item in tmp)
-         {
-            vrtxs.Add(item);
-         }
+         vrtxs.AddRange(new List<Vertex2d>(vertices));
          CalcBB();
          if (recalc) CalcVertices();
       }
@@ -227,14 +267,14 @@ namespace Geo
       /// В качестве шага деления с абсолютным значением следует задавать значение части длины отрезка.
       /// </remarks>
       /// <returns>Возврашает плоскую полилинию с вершинами в точках деления и линейными сегментами.</returns>
-      public virtual Pline2d TesselationByStep(double step, ParamType stepType = ParamType.abs, bool start = true, bool end = true)
+      public virtual Pline2d TesselationByStep(double step, ParamType stepType = ParamType.abs)
       {
          Pline2d res = new Pline2d();
          int count = GetSegsCount();
          for (int i = 0; i < count; i++)
          {
             ICurve2d seg = GetSegment(i);
-            res.AddVertices(seg.TesselationByStep(step, stepType, start, end));
+            res.AddVertices(seg.TesselationByStep(step, stepType, true, true));
          }
          res.CalcBB();
          return res;
@@ -247,13 +287,13 @@ namespace Geo
       /// <param name="start">Флаг, указывающий на включение начальной точки отрезка в результат деления.</param>
       /// <param name="end">Флаг, указывающий на включение конечной точки отрезка в результат деления.</param>
       /// <returns>Возврашает плоскую полилинию с вершинами в точках деления и линейными сегментами.</returns>
-      public virtual Pline2d TesselationByNumber(int nDiv, bool start = true, bool end = true)
+      public virtual Pline2d TesselationByNumber(int nDiv)
       {
          Pline2d res = new Pline2d();
          int count = GetSegsCount();
          for (int i = 0; i < count; i++)
          {
-            res.AddVertices(GetSegment(i).TesselationByNumber(nDiv, start, end));
+            res.AddVertices(GetSegment(i).TesselationByNumber(nDiv, true, true));
          }
          res.CalcBB();
          return res;

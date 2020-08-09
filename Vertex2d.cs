@@ -8,6 +8,7 @@ namespace Geo
    public class Vertex2d : ICoordinates
    {
       public int Id { get; set; }
+      public int Nref { get; set; }
       public double Bulge { get; set; }
       public Vertex2d Prev { get => prev; set { prev = value; GetAngle(); } }
       public Vertex2d Next { get => next; set { next = value; GetAngle(); } }
@@ -54,6 +55,11 @@ namespace Geo
          Next = next;
          Pos = pos;
          //GetAngle();
+      }
+
+      public static Vertex2d Copy (Vertex2d pt)
+      {
+         return new Vertex2d { X = pt.X, Y = pt.Y, Pos = pt.Pos, Nref = pt.Nref };
       }
 
       void GetAngle()
@@ -113,6 +119,13 @@ namespace Geo
          return new Point3d(x, y, z);
       }
 
+      public double LengthTo(ICoordinates target)
+      {
+         double dx = X - target.X;
+         double dy = Y - target.Y;
+         return Math.Sqrt(dx * dx + dy * dy);
+      }
+
       public static Vector3d operator -(Vertex2d pt1, Vertex2d pt2)
       {
          Vector3d res = new Vector3d();
@@ -141,5 +154,5 @@ namespace Geo
       }
    }
 
-   public enum VertexPosition { First,Last,Middle}
+   public enum VertexPosition { Middle, First, Last}
 }

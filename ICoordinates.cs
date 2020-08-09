@@ -12,5 +12,6 @@ namespace Geo
       bool NotMath(ICoordinates pt);
       double[] ToArray();
       Vector3d ToVector3d();
+      double LengthTo(ICoordinates target);
    }
 }

@@ -151,5 +151,12 @@ namespace Geo
          }
          return check;
       }
+
+      public double LengthTo(ICoordinates target)
+      {
+         double dx = X - target.X;
+         double dy = Y - target.Y;
+         return Math.Sqrt(dx * dx + dy * dy);
+      }
    }
 }

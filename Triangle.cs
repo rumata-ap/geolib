@@ -1,8 +1,11 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
 
-namespace Geo.Triangulation
+namespace Geo
 {
-   public class Tria
+   public class Triangle
    {
       private ICoordinates vertex1;
       private ICoordinates vertex2;
@@ -15,8 +18,8 @@ namespace Geo.Triangulation
       public ICoordinates Vertex1 { get => vertex1; set { vertex1 = value; CalcTriangle(); } }
       public ICoordinates Vertex2 { get => vertex2; set { vertex2 = value; CalcTriangle(); } }
       public ICoordinates Vertex3 { get => vertex3; set { vertex3 = value; CalcTriangle(); } }
-         
-      public Tria(ICoordinates node1, ICoordinates node2, ICoordinates node3)
+
+      public Triangle(ICoordinates node1, ICoordinates node2, ICoordinates node3)
       {
          vertex1 = node1;
          vertex2 = node2;
@@ -34,7 +37,7 @@ namespace Geo.Triangulation
 
          Xc = (vertex1.X + vertex2.X + vertex3.X) / 3;
          Yc = (vertex1.Y + vertex2.Y + vertex3.Y) / 3;
-         Area = Math.Abs(0.5 * ((vertex2.X - vertex1.X) * (vertex3.Y - vertex1.Y) - 
+         Area = Math.Abs(0.5 * ((vertex2.X - vertex1.X) * (vertex3.Y - vertex1.Y) -
             (vertex3.X - vertex1.X) * (vertex2.Y - vertex1.Y)));
       }
 

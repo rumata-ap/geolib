@@ -1,4 +1,6 @@
-﻿using System;
+﻿using Geo.Triangulation;
+
+using System;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -19,6 +21,15 @@ namespace Geo
       public double Iy { get => Math.Abs(iy); }
 
       public Polygon2d(IEnumerable<ICoordinates> vertices):base (vertices)
+      {
+         Close();
+         CalcPerimeter();
+         CalcArea();
+         CalcCentroid();
+         CalcI();
+      }
+      
+      public Polygon2d(List<Vertex2d> vertices):base (vertices)
       {
          Close();
          CalcPerimeter();
@@ -122,14 +133,14 @@ namespace Geo
       /// В качестве шага деления с абсолютным значением следует задавать значение части длины отрезка.
       /// </remarks>
       /// <returns>Возврашает плоскую полилинию с вершинами в точках деления и линейными сегментами.</returns>
-      public override Pline2d TesselationByStep(double step, ParamType stepType = ParamType.abs, bool start = true, bool end = true)
+      public override Pline2d TesselationByStep(double step, ParamType stepType = ParamType.abs)
       {
          Pline2d res = new Pline2d();
          int count = GetSegsCount();
          for (int i = 0; i < count; i++)
          {
             ICurve2d seg = GetSegment(i);
-            res.AddVertices(seg.TesselationByStep(step, stepType, start, end));
+            res.AddVertices(seg.TesselationByStep(step, stepType, true, true));
          }
          res.Close();
          return res;
@@ -142,13 +153,13 @@ namespace Geo
       /// <param name="start">Флаг, указывающий на включение начальной точки отрезка в результат деления.</param>
       /// <param name="end">Флаг, указывающий на включение конечной точки отрезка в результат деления.</param>
       /// <returns>Возврашает плоскую полилинию с вершинами в точках деления и линейными сегментами.</returns>
-      public override Pline2d TesselationByNumber(int nDiv, bool start = true, bool end = true)
+      public override Pline2d TesselationByNumber(int nDiv)
       {
          Pline2d res = new Pline2d();
          int count = GetSegsCount();
          for (int i = 0; i < count; i++)
          {
-            res.AddVertices(GetSegment(i).TesselationByNumber(nDiv, start, end));
+            res.AddVertices(GetSegment(i).TesselationByNumber(nDiv, true, true));
          }
          res.Close();
          return res;
@@ -159,7 +170,7 @@ namespace Geo
          List<Vertex2d> original = new List<Vertex2d>(vrtxs);
          List<Vertex2d> newl = new List<Vertex2d>
          {
-            new Vertex2d(vrt1)
+            Vertex2d.Copy(vrt1)
          };
 
          Vertex2d item = vrt1;
@@ -179,7 +190,7 @@ namespace Geo
          CalcCentroid();
          CalcI();
 
-         return new Polygon2d(newl.ToArray());
+         return new Polygon2d(newl);
       }
 
       public void Partition(Vertex2d vrt1, Vertex2d vrt2, out Polygon2d res)
@@ -209,7 +220,7 @@ namespace Geo
       {
          List<Vertex2d> newl = new List<Vertex2d>(vrtxs.Count + 1)
          {
-            new Vertex2d(point)
+            Vertex2d.Copy(point)
          };
          Vertex2d item = point;
          while (!item.Next.Equals(point))
@@ -219,7 +230,70 @@ namespace Geo
          }
          newl.Add(point);
 
-         return new Pline2d(newl.ToArray());
+         return new Pline2d(newl);
+      }
+
+      public Mesh Triangulation(double step, ParamType stepType = ParamType.abs)
+      {
+         return new Mesh();
+      }
+
+      public Mesh TriangulationSimple()
+      {
+         Mesh res = new Mesh();
+         res.Out = new List<Node>(vrtxs.Count);
+         Polygon2d poly = new Polygon2d(vrtxs);
+         for (int i = 0; i < vrtxs.Count; i++)
+         {
+            res.Out.Add(new Node(vrtxs[i], NodeType.border) { Id = i + 1 });
+            poly.Vertices[i].Nref = i + 1;
+         }
+         Stack<Polygon2d> work = new Stack<Polygon2d>();
+         work.Push(poly);
+
+         int cntr = 1;
+
+         while (work.Count > 0)
+         {
+            poly = work.Pop();
+
+            while (poly.Vertices.Count>3)
+            {
+               var sel = from i in poly.Vertices orderby i.AngleDeg select i;
+               Vertex2d v = sel.First();
+               Triangle tria = new Triangle(v.Next, v, v.Prev);
+
+               #region Проверка на самопересечение при генерации треугольника
+               List<Vertex2d> sect = new List<Vertex2d>(poly.Vertices);
+               sect.Remove(v.Next);
+               sect.Remove(v);
+               sect.Remove(v.Prev);
+               sel = from i in sect orderby i.LengthTo(v) select i;
+               if (tria.IsPointIn(sel.First()))
+               {
+                  res.Simplexs.Add(new Tri(v.Nref, v.Next.Nref, sel.First().Nref) { Id = cntr });
+                  cntr++;
+                  res.Simplexs.Add(new Tri(v.Nref, sel.First().Nref, v.Prev.Nref) { Id = cntr });
+                  cntr++;
+                  work.Push(poly.Partition(sel.First(), v));
+               }
+               #endregion
+               else
+               {
+                  res.Simplexs.Add(new Tri(v.Next.Nref, v.Nref, v.Prev.Nref) { Id = cntr });
+                  cntr++;
+                  poly.RemoveVertex(v);
+               }
+            }
+
+            if (poly.Vertices.Count == 3)
+            {
+               res.Simplexs.Add(new Tri(poly.Vertices[0].Nref, poly.Vertices[1].Nref, poly.Vertices[2].Nref) { Id = cntr });
+               cntr++;
+            }
+         }
+
+         return res;
       }
    }
 }

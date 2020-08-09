@@ -57,6 +57,12 @@ namespace Geo
          arr = source.ToArray();
       }
 
+      public Point3d(ICoordinates src)
+      {
+         arr = new double[3];
+         arr[0] = src.X; arr[1] = src.Y; arr[2] = src.Z;
+      }
+
       public double[] ToArray()
       {
          return new double[] { X, Y, Z };
@@ -189,6 +195,14 @@ namespace Geo
             check = true;
          }
          return check;
+      }
+
+      public double LengthTo(ICoordinates target)
+      {
+         double dx = X - target.X;
+         double dy = Y - target.Y;
+         double dz = Z - target.Z;
+         return Math.Sqrt(dx * dx + dy * dy + dz * dz);
       }
    }
 }

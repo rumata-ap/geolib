@@ -142,6 +142,48 @@ namespace Geo
          return new Pline2d(pts.ToArray());
       }
 
+      public bool IsMath(ICoordinates pt, int t = 6)
+      {
+         if (Math.Round((pt.X - startPoint.X) / Directive.Vx, 6) == 
+            Math.Round((pt.Y - startPoint.Y) / Directive.Vy, 6) &&
+            Math.Round((pt.X - startPoint.X) / Directive.Vx, 6) == 
+            Math.Round((pt.Z - startPoint.Z) / Directive.Vz, 6)) return true;
+         else return false;
+      }
+      
+      public bool IsMath(Line3d line, int t = 6)
+      {
+         if (Math.Round((line.StartPoint.X - startPoint.X) / Directive.Vx, 6) == 
+            Math.Round((line.StartPoint.Y - startPoint.Y) / Directive.Vy, 6) &&
+            Math.Round((line.StartPoint.X - startPoint.X) / Directive.Vx, 6) == 
+            Math.Round((line.StartPoint.Z - startPoint.Z) / Directive.Vz, 6) &&
+            Math.Round((line.EndPoint.X - startPoint.X) / Directive.Vx, 6) ==
+            Math.Round((line.EndPoint.Y - startPoint.Y) / Directive.Vy, 6) &&
+            Math.Round((line.EndPoint.X - startPoint.X) / Directive.Vx, 6) ==
+            Math.Round((line.EndPoint.Z - startPoint.Z) / Directive.Vz, 6)) return true;
+         else return false;
+      }
+      
+      public bool IsContain(ICoordinates pt, int t = 6)
+      {
+         if (pt.X >= startPoint.X && pt.X <= endPoint.X &&
+            pt.Y >= startPoint.Y && pt.Y <= endPoint.Y &&
+            pt.Z >= startPoint.Z && pt.Z <= endPoint.Z && IsMath(pt, t)) return true;
+         else return false;
+      }
+      
+      public bool IsContain(Line3d line, int t = 6)
+      {
+         if (line.StartPoint.X >= startPoint.X && line.StartPoint.X <= endPoint.X &&
+            line.StartPoint.Y >= startPoint.Y && line.StartPoint.Y <= endPoint.Y &&
+            line.StartPoint.Z >= startPoint.Z && line.StartPoint.Z <= endPoint.Z &&
+            line.EndPoint.X >= startPoint.X && line.EndPoint.X <= endPoint.X &&
+            line.EndPoint.Y >= startPoint.Y && line.EndPoint.Y <= endPoint.Y &&
+            line.EndPoint.Z >= startPoint.Z && line.EndPoint.Z <= endPoint.Z &&
+            IsMath(line, t)) return true;
+         else return false;
+      }
+
    }
 }
 

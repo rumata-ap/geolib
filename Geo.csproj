@@ -43,6 +43,11 @@
     <Compile Include="BoundingBox2d.cs" />
     <Compile Include="Calc\MatrixL.cs" />
     <Compile Include="Calc\Range.cs" />
+    <Compile Include="GMSH\CircleG.cs" />
+    <Compile Include="GMSH\LineG.cs" />
+    <Compile Include="GMSH\LoopG.cs" />
+    <Compile Include="GMSH\PlaneSurface.cs" />
+    <Compile Include="GMSH\PointG.cs" />
     <Compile Include="Polygon2d.cs" />
     <Compile Include="ICoordinates.cs" />
     <Compile Include="ICurve2d.cs" />

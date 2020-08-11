@@ -5,11 +5,13 @@ using System.Text;
 
 namespace Geo.GMSH
 {
-   public class PointG : Point3d, ICoordinates
+   public class PointG : Point3d, ICoordinates, IEntityG
    {
       public int Id { get; set; }
       public string GeoString { get => GetGeoString(); }
       public double Step { get; set; }
+
+      public EntityGType Type => EntityGType.point;
 
       public PointG(double x, double y, double z, int id = 0, double st = 1000) : base(x, y, z)
       {

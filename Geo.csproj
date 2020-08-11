@@ -44,9 +44,10 @@
     <Compile Include="Calc\MatrixL.cs" />
     <Compile Include="Calc\Range.cs" />
     <Compile Include="GMSH\CircleG.cs" />
-    <Compile Include="GMSH\ICurveG.cs" />
+    <Compile Include="GMSH\IEntityG.cs" />
     <Compile Include="GMSH\LineG.cs" />
     <Compile Include="GMSH\LoopG.cs" />
+    <Compile Include="GMSH\ModelG.cs" />
     <Compile Include="GMSH\PlaneSurface.cs" />
     <Compile Include="GMSH\PointG.cs" />
     <Compile Include="Polygon2d.cs" />

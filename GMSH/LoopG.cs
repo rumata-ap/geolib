@@ -11,11 +11,18 @@ namespace Geo.GMSH
       public EntityGType Type => EntityGType.loop;
       public string GeoString => GetGeoString();
       public IEnumerable<int> CurvIds { get; }
+      public IEnumerable<IEntityG> Curvs { get; }
 
       public LoopG(IEnumerable<int> ids, int id = 0)
       {
          Id = id;
          CurvIds = ids;
+      }
+
+      public LoopG(int id, IEnumerable<IEntityG> entities)
+      {
+         Id = id;
+         Curvs = entities;
       }
 
       public LoopG(int id, params int[] ids)
@@ -26,14 +33,29 @@ namespace Geo.GMSH
 
       string GetGeoString()
       {
-         StringBuilder sb = new StringBuilder($"Curve Loop({Id}) = " + "{");
-         foreach (int item in CurvIds)
+         StringBuilder sb = null;
+         if (CurvIds != null)
          {
-            sb.Append(item);
-            sb.Append(", ");
+            sb = new StringBuilder($"Curve Loop({Id}) = " + "{");
+            foreach (int item in CurvIds)
+            {
+               sb.Append(item);
+               sb.Append(", ");
+            }
+            sb.Remove(sb.Length - 2, 2);
+            sb.Append("};");
          }
-         sb.Remove(sb.Length - 2, 2);
-         sb.Append("};");
+         else if (Curvs != null)
+         {
+            sb = new StringBuilder($"Curve Loop({Id}) = " + "{");
+            foreach (IEntityG item in Curvs)
+            {
+               sb.Append(item.Id);
+               sb.Append(", ");
+            }
+            sb.Remove(sb.Length - 2, 2);
+            sb.Append("};");
+         }
 
          return sb.ToString();
       }

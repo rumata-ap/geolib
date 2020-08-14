@@ -30,12 +30,13 @@ namespace Geo.GMSH
          P3 = pt3;
       }
             
-      public CircleG(Arc2d arc, int pt2, int pt3, int id = 0)
+      public CircleG(Arc2d arc, int pt1, int pt2, int idpt3, out PointG pt3, int id = 0)
       {
          Id = id;
          P1 = pt1;
          P2 = pt2;
-         P3 = pt3;
+         pt3 = new PointG(arc.Center, idpt3);
+         P3 = idpt3;
       }
 
       string GetGeoString()

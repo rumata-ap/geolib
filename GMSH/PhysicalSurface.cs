@@ -5,7 +5,7 @@ using System.Text;
 
 namespace Geo.GMSH
 {
-   public class LoopG : IEntityG
+   public class PhysicalSurface : IEntityG
    {
       public int Id { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
 

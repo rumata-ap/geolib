@@ -48,6 +48,8 @@
     <Compile Include="GMSH\LineG.cs" />
     <Compile Include="GMSH\LoopG.cs" />
     <Compile Include="GMSH\ModelG.cs" />
+    <Compile Include="GMSH\PhysicalCurve.cs" />
+    <Compile Include="GMSH\PhysicalSurface.cs" />
     <Compile Include="GMSH\PlaneSurface.cs" />
     <Compile Include="GMSH\PointG.cs" />
     <Compile Include="Polygon2d.cs" />

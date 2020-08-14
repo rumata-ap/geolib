@@ -12,6 +12,8 @@ namespace Geo.GMSH
       public List<CircleG> Circles { get; private set; }
       public List<LoopG> Loops { get; private set; }
       public List<PlaneSurface> Surfaces { get; private set; }
+      public List<PhysicalSurface> PhySurfaces { get; private set; }
+      public List<PhysicalCurve> PhyCurves { get; private set; }
 
       public ModelG()
       {
@@ -38,17 +40,40 @@ namespace Geo.GMSH
             case EntityGType.surf:
                Surfaces.Add((PlaneSurface)entity);
                break;
+            case EntityGType.phsurf:
+               PhySurfaces.Add((PhysicalSurface)entity);
+               break;
+            case EntityGType.phcurve:
+               PhyCurves.Add((PhysicalCurve)entity);
+               break;
             case EntityGType.point:
                Points.Add((PointG)entity);
                break;
          }
       }
 
-      public void AddPointRange(IEnumerable<IEntityG> pts)
+      public IEntityG GetEntity(EntityGType type, int id)
       {
-         List<IEntityG> entities = pts.ToList();
-         foreach (IEntityG item in entities) AddEntity(item);
+         switch (type)
+         {
+            case EntityGType.point:
+               return Points[id];
+            case EntityGType.line:
+               return Lines[id];
+            case EntityGType.arc:
+               return Circles[id];
+            case EntityGType.loop:
+               return Loops[id];
+            case EntityGType.surf:
+               return Surfaces[id];
+            case EntityGType.phsurf:
+               return PhySurfaces[id];
+            case EntityGType.phcurve:
+               return PhyCurves[id];
+            default:
+               return null;
+         }
       }
-      
+
    }
 }

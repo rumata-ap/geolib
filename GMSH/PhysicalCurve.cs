@@ -5,9 +5,9 @@ using System.Text;
 
 namespace Geo.GMSH
 {
-   public class LoopG : IEntityG
+   public class PhysicalCurve : IEntityG
    {
-      public int Id { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
+      public int Id { get; set; }
 
       public EntityGType Type => throw new NotImplementedException();
 

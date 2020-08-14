@@ -2,7 +2,7 @@
 {
    public interface IEntityG
    {
-      int Id { get; set; }
+      object Id { get; set; }
       EntityGType Type { get; }
       string GeoString { get; }
    }

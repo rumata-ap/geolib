@@ -7,7 +7,7 @@ namespace Geo.GMSH
 {
    public class PlaneSurface : IEntityG
    {
-      public int Id { get; set; }
+      public object Id { get; set; }
       public EntityGType Type => EntityGType.loop;
       public string GeoString => GetGeoString();
       public IEnumerable<int> CurvIds { get; }
@@ -36,7 +36,7 @@ namespace Geo.GMSH
          StringBuilder sb = null;
          if (CurvIds!=null)
          {
-            sb = new StringBuilder($"Curve Loop({Id}) = " + "{");
+            sb = new StringBuilder($"Plane Surface({Id}) = " + "{");
             foreach (int item in CurvIds)
             {
                sb.Append(item);
@@ -47,7 +47,7 @@ namespace Geo.GMSH
          }
          else if (Loops!=null)
          {
-            sb = new StringBuilder($"Curve Loop({Id}) = " + "{");
+            sb = new StringBuilder($"Plane Surface({Id}) = " + "{");
             foreach (IEntityG item in Loops)
             {
                sb.Append(item.Id);

@@ -7,13 +7,13 @@ namespace Geo.GMSH
 {
    public class LoopG : IEntityG
    {
-      public int Id { get; set; }
+      public object Id { get; set; }
       public EntityGType Type => EntityGType.loop;
       public string GeoString => GetGeoString();
       public IEnumerable<int> CurvIds { get; }
       public IEnumerable<IEntityG> Curvs { get; }
 
-      public LoopG(IEnumerable<int> ids, int id = 0)
+      public LoopG(int id, IEnumerable<int> ids)
       {
          Id = id;
          CurvIds = ids;

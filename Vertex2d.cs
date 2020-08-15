@@ -22,7 +22,7 @@ namespace Geo
       private Vertex2d next;
 
       public double Y { get => y; set { y = value; GetAngle(); } }
-      public double Z { get => z; set { z = value; GetAngle(); } }
+      public double Z { get => 0; set { z = 0; } }
       public double X { get => x; set { x = value; GetAngle(); } }
 
       public Vertex2d()
@@ -77,9 +77,37 @@ namespace Geo
             Angle = 2 * Math.PI - Angle;
             AngleDeg = 360 - AngleDeg;
          }
+
+         if (double.IsNaN(AngleDeg)) AngleDeg = 180;
       }
 
-      private double RadToDeg(double radians)
+      public static double GetAngleDeg(ICoordinates vp, ICoordinates v, ICoordinates vn)
+      {
+         if (vp == null || vn == null) return 0;
+         Vector3d pp = new Vector3d(vp.X - v.X, vp.Y - v.Y, vp.Z - v.Z);
+         Vector3d pn = new Vector3d(vn.X - v.X, vn.Y - v.Y, vn.Z - v.Z);
+         Vector3d nd = pp ^ pn;
+         double cosTo = Vector3d.CosAngleBetVectors(pp, pn);
+         double angleDeg = RadToDeg(Math.Acos(cosTo));
+
+         if (nd.Unit[2] < 0)
+         {
+            angleDeg = 360 - angleDeg;
+         }
+
+         return angleDeg;
+      }
+
+      public Vector2d GetBisector()
+      {
+         Vector2d dir1 = new Vector2d(new Vector2d(prev.X - X, prev.Y - Y).Unit);
+         Vector2d dir2 = new Vector2d(new Vector2d(next.X - X, next.Y - Y).Unit);
+
+         if (AngleDeg > 180) return new Vector2d((dir1 + dir2).Unit) * -1.0;
+         else return new Vector2d((dir1 + dir2).Unit);
+      }
+
+      static double RadToDeg(double radians)
       {
          return radians * 180 / System.Math.PI;
       }
@@ -132,6 +160,15 @@ namespace Geo
          res[0] = pt1.X - pt2.X;
          res[1] = pt1.Y - pt2.Y;
          res[2] = pt1.Z - pt2.Z;
+         return res;
+      }
+      
+      public static Vertex2d operator -(Vertex2d pt1, ICoordinates pt2)
+      {
+         Vertex2d res = new Vertex2d();
+         res.X = pt1.X - pt2.X;
+         res.Y = pt1.Y - pt2.Y;
+         res.Z = pt1.Z - pt2.Z;
          return res;
       }
 

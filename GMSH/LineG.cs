@@ -17,8 +17,8 @@ namespace Geo.GMSH
       public LineG(int id, PointG pt1, PointG pt2) : base(pt1, pt2)
       {
          Id = id;
-         P1 = pt1.Id;
-         P2 = pt2.Id;
+         P1 = (int)pt1.Id;
+         P2 = (int)pt2.Id;
       }
 
       string GetGeoString()

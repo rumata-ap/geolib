@@ -1,4 +1,5 @@
-﻿using Geo.Triangulation;
+﻿using Geo.Calc;
+using Geo.Triangulation;
 
 using System;
 using System.Collections.Generic;
@@ -142,8 +143,7 @@ namespace Geo
             ICurve2d seg = GetSegment(i);
             res.AddVertices(seg.TesselationByStep(step, stepType, true, true));
          }
-         res.Close();
-         return res;
+         return new Polygon2d(res);
       }
 
       /// <summary>
@@ -161,8 +161,7 @@ namespace Geo
          {
             res.AddVertices(GetSegment(i).TesselationByNumber(nDiv, true, true));
          }
-         res.Close();
-         return res;
+         return new Polygon2d(res);
       }
 
       public Polygon2d Partition(Vertex2d vrt1, Vertex2d vrt2)
@@ -233,9 +232,167 @@ namespace Geo
          return new Pline2d(newl);
       }
 
+      public double MaxAngleDeg()
+      {
+         var sel = from i in vrtxs orderby i.AngleDeg select i;
+         return sel.Last().AngleDeg;
+      }
+
       public Mesh Triangulation(double step, ParamType stepType = ParamType.abs)
       {
-         return new Mesh();
+         Mesh res = new Mesh();
+         res.Out = new List<Node>(vrtxs.Count);
+         Polygon2d poly = (Polygon2d)TesselationByStep(step, stepType);
+         for (int i = 0; i < poly.Vertices.Count; i++)
+         {
+            res.Out.Add(new Node(poly.Vertices[i], NodeType.border) { Id = i + 1 });
+            poly.Vertices[i].Nref = i + 1;
+         }
+         Stack<Polygon2d> work = new Stack<Polygon2d>();
+         work.Push(poly);
+
+         int it = 1;
+         int jn = res.Out.Count + 1;
+         while (work.Count > 0)
+         {
+            poly = work.Pop();
+            while (poly.Vertices.Count > 3)
+            {
+               var sel = from i in poly.Vertices orderby i.AngleDeg select i;
+               Vertex2d v = sel.First();
+               Triangle tria = new Triangle(v.Next, v, v.Prev);
+
+               #region Проверка на самопересечение
+               List<Vertex2d> sect = new List<Vertex2d>(poly.Vertices);
+               sect.Remove(v.Next);
+               sect.Remove(v);
+               sect.Remove(v.Prev);
+               sel = from i in sect where Vertex2d.GetAngleDeg(v.Prev, v, i) < v.AngleDeg orderby i.LengthTo(v) select i;
+               Vertex2d vs = null;
+               double an = 0;
+               double ln = double.PositiveInfinity;
+               if (sel.Count() > 0)
+               {
+                  vs = sel.First();
+                  an = Vertex2d.GetAngleDeg(v.Prev, v, vs);
+                  ln = vs.LengthTo(v);                 
+               }
+               double maxL = Math.Max((v.Next - v).Norma, (v.Prev - v).Norma);
+               if (vs != null && an>0 && ((vs - v.Next).Norma < maxL || (vs - v.Prev).Norma < maxL))
+               {
+                  if (sel.First().IsMatch(v.Next))
+                  {
+                     work.Push(poly.Partition(sel.First(), v));
+                  }
+                  //Проверка на самопересечение при генерации треугольника
+                  else if (tria.IsPointIn(sel.First()))
+                  {
+                     res.Simplexs.Add(new Tri(v.Nref, v.Next.Nref, sel.First().Nref) { Id = it });
+                     it++;
+                     res.Simplexs.Add(new Tri(v.Nref, sel.First().Nref, v.Prev.Nref) { Id = it });
+                     it++;
+                     work.Push(poly.Partition(sel.First(), v));
+                  }
+                  else
+                  {
+                     Polygon2d t1 = new Polygon2d(new List<Vertex2d> { v, v.Next, sel.First() });
+                     Polygon2d t2 = new Polygon2d(new List<Vertex2d> { v, sel.First(), v.Prev });
+                     Polygon2d t3 = new Polygon2d(new List<Vertex2d> { v, v.Next, v.Prev });
+                     Polygon2d t4 = new Polygon2d(new List<Vertex2d> { v.Next, sel.First(), v.Prev });
+                     if (Math.Max(t1.MaxAngleDeg(), t2.MaxAngleDeg()) <= Math.Max(t3.MaxAngleDeg(), t4.MaxAngleDeg()))
+                     {
+                        res.Simplexs.Add(new Tri(v.Nref, v.Next.Nref, sel.First().Nref) { Id = it });
+                        it++;
+                        res.Simplexs.Add(new Tri(v.Nref, sel.First().Nref, v.Prev.Nref) { Id = it });
+                        it++;
+                     }
+                     else
+                     {
+                        res.Simplexs.Add(new Tri(v.Nref, v.Next.Nref, v.Prev.Nref) { Id = it });
+                        it++;
+                        res.Simplexs.Add(new Tri(v.Next.Nref, sel.First().Nref, v.Prev.Nref) { Id = it });
+                        it++;
+                     }
+                     work.Push(poly.Partition(sel.First(), v));
+                  }
+               }
+               #endregion
+               else if (v.AngleDeg < 45)
+               {
+                  res.Simplexs.Add(new Tri(v.Next.Nref, v.Nref, v.Prev.Nref) { Id = it });
+                  it++;
+                  poly.RemoveVertex(v);
+               }
+               else if (v.AngleDeg >= 45 && v.AngleDeg <= 90)
+               {
+                  Vector3d v1 = v.Prev - v;
+                  Vector3d v2 = v.Next - v;
+                  Vector3d v3 = v1 + v2;
+                  Node node = new Node(v.X + v3.Vx, v.Y + v3.Vy, 0, NodeType.interior) { Id = jn };
+                  res.Nodes.Add(node);
+
+                  res.Simplexs.Add(new Tri(v.Nref, v.Next.Nref, v.Prev.Nref) { Id = it });
+                  it++;
+                  res.Simplexs.Add(new Tri(v.Next.Nref, jn, v.Prev.Nref) { Id = it });
+                  it++;
+
+                  v.X = node.X;
+                  v.Y = node.Y;
+                  v.Nref = jn;
+                  jn++;
+                  poly.Open();
+                  poly.Close();
+               }
+               else if (v.AngleDeg > 90 && v.AngleDeg <= 135)
+               {
+                  Vector3d v1 = v.Prev - v;
+                  Vector3d v2 = v.Next - v;
+                  Vector3d v3 = v1 + v2;
+                  Node node = new Node(v.X + v3.Vx, v.Y + v3.Vy, 0, NodeType.interior) { Id = jn };
+                  res.Nodes.Add(node);
+
+                  res.Simplexs.Add(new Tri(v.Nref, v.Next.Nref, jn) { Id = it });
+                  it++;
+                  res.Simplexs.Add(new Tri(v.Nref, jn, v.Prev.Nref) { Id = it });
+                  it++;
+
+                  v.X = node.X;
+                  v.Y = node.Y;
+                  v.Nref = jn;
+                  jn++;
+                  poly.Open();
+                  poly.Close();
+               }
+               else
+               {
+                  Vector3d v1 = v.Prev - v;
+                  Vector3d v2 = v.Next - v;
+                  double ml = 0.5 * (v1.Norma + v2.Norma);
+                  Vector2d v3 = v.GetBisector() * ml;
+                  Node node = new Node(v.X + v3.Vx, v.Y + v3.Vy, 0, NodeType.interior) { Id = jn };
+                  res.Nodes.Add(node);
+
+                  res.Simplexs.Add(new Tri(v.Nref, v.Next.Nref, jn) { Id = it });
+                  it++;
+                  res.Simplexs.Add(new Tri(v.Nref, jn, v.Prev.Nref) { Id = it });
+                  it++;
+
+                  v.X = node.X;
+                  v.Y = node.Y;
+                  v.Nref = jn;
+                  jn++;
+                  poly.Open();
+                  poly.Close();
+               }
+            }
+            if (poly.Vertices.Count == 3)
+            {
+               res.Simplexs.Add(new Tri(poly.Vertices[0].Nref, poly.Vertices[1].Nref, poly.Vertices[2].Nref) { Id = it });
+               it++;
+            }
+         }
+
+            return res;
       }
 
       public Mesh TriangulationSimple()

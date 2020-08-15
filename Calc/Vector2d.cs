@@ -31,6 +31,13 @@ namespace Geo.Calc
          arr = new double[3];
          arr = (double[])source.arr.Clone();
       }
+      
+      public Vector2d(ICoordinates source)
+      {
+         arr = new double[2];
+         arr[0] = source.X;
+         arr[1] = source.Y;
+      }
 
       public Vector2d(Point2d source)
       {
@@ -107,6 +114,24 @@ namespace Geo.Calc
             Vy = v1.Vy * v2.Vy
          };
       }
+      
+      public static Vector2d operator *(Vector2d v1, int v2)
+      {
+         return new Vector2d
+         {
+            Vx = v1.Vx * v2,
+            Vy = v1.Vy * v2
+         };
+      }
+            
+      public static Vector2d operator *(Vector2d v1, double v2)
+      {
+         return new Vector2d
+         {
+            Vx = v1.Vx * v2,
+            Vy = v1.Vy * v2
+         };
+      }
 
       public static Vector2d operator +(Vector2d v1, Vector2d v2)
       {
@@ -125,5 +150,6 @@ namespace Geo.Calc
             Vy = v1.Vy - v2.Vy
          };
       }
+
    }
 }

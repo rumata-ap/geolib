@@ -17,9 +17,9 @@ namespace Geo.GMSH
       public CircleG(int id, PointG pt1, PointG pt2, PointG pt3)
       {
          Id = id;
-         P1 = pt1.Id;
-         P2 = pt2.Id;
-         P3 = pt3.Id;
+         P1 = (int)pt1.Id;
+         P2 = (int)pt2.Id;
+         P3 = (int)pt3.Id;
       }
       
       public CircleG(int id, int pt1, int pt2, int pt3)

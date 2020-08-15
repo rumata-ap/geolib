@@ -145,6 +145,7 @@ namespace Geo
       public void AddVertices(IEnumerable<Vertex2d> vertices, bool recalc = true)
       {
          Open();
+         if (vrtxs.Count > 0 && vrtxs.Last().IsMatch(vertices.First())) vertices.ToList().RemoveAt(0);
          vrtxs.AddRange(new List<Vertex2d>(vertices));
          CalcBB();
          if (recalc) CalcVertices();
@@ -154,7 +155,7 @@ namespace Geo
       {
          Open();
          if (pline == null || pline.Vertices.Count == 0) return;
-
+         if (vrtxs.Count>0 && vrtxs.Last().IsMatch(pline.Vertices[0])) pline.Vertices.RemoveAt(0);
          vrtxs.AddRange(pline.Vertices);
          CalcBB();
          if (recalc) CalcVertices();
@@ -325,6 +326,7 @@ namespace Geo
             vrtxs[i].Id = i + 1;
             vrtxs[i].Prev = vrtxs[i - 1];
             vrtxs[i].Next = vrtxs[i + 1];
+            vrtxs[i].Pos = VertexPosition.Middle;
          }
          vrtxs[0].Id = 1;
          vrtxs[0].Pos = VertexPosition.First;

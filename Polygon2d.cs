@@ -215,6 +215,11 @@ namespace Geo
          CalcI();
       }
 
+      /// <summary>
+      /// Разрыв полигона в указанной вершине.
+      /// </summary>
+      /// <param name="point">Вершина, в которой будет выполнен разрыв.</param>
+      /// <returns>Возвращает плоскую разомкнутую полилинию.</returns>
       public Pline2d Break(Vertex2d point)
       {
          List<Vertex2d> newl = new List<Vertex2d>(vrtxs.Count + 1)
@@ -232,12 +237,54 @@ namespace Geo
          return new Pline2d(newl);
       }
 
+      /// <summary>
+      /// Определение максимального угла полигона.
+      /// </summary>
+      /// <returns>Возвращает величину максимального угла в градусах.</returns>
       public double MaxAngleDeg()
       {
          var sel = from i in vrtxs orderby i.AngleDeg select i;
          return sel.Last().AngleDeg;
       }
 
+      /// <summary>
+      ///Получение вершины с минимальным углом.
+      /// </summary>
+      public Vertex2d GetMinAngleVert()
+      {
+         var sel = from i in vrtxs orderby i.AngleDeg select i;
+         return sel.First();
+      }
+      
+      /// <summary>
+      ///Получение списка вершин с нулевым углом.
+      /// </summary>
+      public List<Vertex2d> GetNullAngleVert()
+      {
+         var sel = from i in vrtxs where i.Prev.IsMatch(i.Next) select i;
+         return sel.ToList();
+      }
+
+      public bool CheckTriaIntersect(Vertex2d v)
+      {
+         Triangle tria = new Triangle(v.Next, v, v.Prev);
+         List<Vertex2d> sect = new List<Vertex2d>(vrtxs);
+         sect.Remove(v.Next);
+         sect.Remove(v);
+         sect.Remove(v.Prev);
+
+         var sel = from i in sect where Vertex2d.GetAngleDeg(v.Prev, v, i) < v.AngleDeg select i;
+         sel = from i in sel where Vertex2d.GetAngleDeg(v.Prev, v, i) > 0 orderby i.LengthTo(v) select i;
+
+         return tria.IsPointIn(sel.First());
+      }
+
+      /// <summary>
+      /// Триангуляция полигона по заданной величине шага
+      /// </summary>
+      /// <param name="step"></param>
+      /// <param name="stepType"></param>
+      /// <returns></returns>
       public Mesh Triangulation(double step, ParamType stepType = ParamType.abs)
       {
          Mesh res = new Mesh();
@@ -250,6 +297,7 @@ namespace Geo
          }
          Stack<Polygon2d> work = new Stack<Polygon2d>();
          work.Push(poly);
+
 
          int it = 1;
          int jn = res.Out.Count + 1;

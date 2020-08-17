@@ -115,7 +115,7 @@ namespace Geo
       public bool IsMatch(ICoordinates pt)
       {
          bool check = false;
-         if (X == pt.X && Y == pt.Y && Z == pt.Z)
+         if (Math.Round(X, 4) == Math.Round(pt.X, 4) && Math.Round(Y, 4) == Math.Round(pt.Y, 4) && Math.Round(Z, 4) == Math.Round(pt.Z, 4))
          {
             check = true;
          }

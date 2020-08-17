@@ -255,7 +255,21 @@ namespace Geo
          if (vrtxs[idx].Bulge == 0) return new Line2d(vrtxs[idx], vrtxs[idx].Next) { Id = idx + 1 };
          else return new Arc2d(vrtxs[idx], vrtxs[idx].Next, vrtxs[idx].Bulge) { Id = idx + 1 };
       }
+      
 
+      public List<ICurve2d> GetAllSegments()
+      {
+         int count = GetSegsCount();
+         List<ICurve2d> res = new List<ICurve2d>(count);
+         if (count>=1)
+         {
+            for (int i = 0; i < count; i++)
+            {
+               res.Add(new Line2d(vrtxs[i], vrtxs[i].Next) { Id = i + 1 });
+            }
+         }
+         return res;
+      }
 
       /// <summary>
       /// Деление полилинии на сегменты по заданному шагу.

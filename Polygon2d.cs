@@ -345,11 +345,17 @@ namespace Geo
                Vector3d n2 = v3 ^ v4;
                Vector3d n3 = v5 ^ v6;
 
-               if (Math.Sign(n1[2]) == Math.Sign(n2[2]) && Math.Sign(n1[2]) == Math.Sign(n3[2])) 
+               int sign1 = Math.Sign(n1[2]);
+               int sign2 = Math.Sign(n2[2]);
+               int sign3 = Math.Sign(n3[2]);
+
+               if (sign1 == 0 || sign2 == 0 || sign3 == 0) continue;
+               else if (Math.Sign(n1[2]) == Math.Sign(n2[2]) && Math.Sign(n1[2]) == Math.Sign(n3[2])) continue;
+               else
                {
                   res = true;
                   break;
-               } 
+               }
             }
          }
          return res;
@@ -429,11 +435,15 @@ namespace Geo
                   Vector3d v2 = v.Next - v;
                   Vector3d v3 = v1 + v2;
                   Node node = new Node(v.X + v3.Vx, v.Y + v3.Vy, 0, NodeType.interior) { Id = jn };
-
-                  Vertex2d nv = new Vertex2d(node) { Prev = v.Prev, Next = v.Next, Nref = v.Nref };
+                  double x = v.X;
+                  double y = v.Y;
+                  v.X = node.X;
+                  v.Y = node.Y;
                   
-                  if (CheckIntersect(nv))
+                  if (poly.CheckIntersect(v))
                   {
+                     v.X = x;
+                     v.Y = y;
                      res.Simplexs.Add(new Tri(v.Nref, v.Next.Nref, v.Prev.Nref) { Id = it });
                      it++;
                      poly.RemoveVertex(v);
@@ -447,9 +457,7 @@ namespace Geo
                      it++;
                      res.Simplexs.Add(new Tri(v.Next.Nref, jn, v.Prev.Nref) { Id = it });
                      it++;
-
-                     v.X = node.X;
-                     v.Y = node.Y;
+                     
                      v.Nref = jn;
                      jn++;
 
@@ -479,11 +487,15 @@ namespace Geo
                   Vector3d v2 = v.Next - v;
                   Vector3d v3 = v1 + v2;
                   Node node = new Node(v.X + v3.Vx, v.Y + v3.Vy, 0, NodeType.interior) { Id = jn };
+                  double x = v.X;
+                  double y = v.Y;
+                  v.X = node.X;
+                  v.Y = node.Y;
 
-                  Vertex2d nv = new Vertex2d(node) { Prev = v.Prev, Next = v.Next, Nref = v.Nref };
-
-                  if (CheckIntersect(nv))
+                  if (poly.CheckIntersect(v))
                   {
+                     v.X = x;
+                     v.Y = y;
                      res.Simplexs.Add(new Tri(v.Nref, v.Next.Nref, v.Prev.Nref) { Id = it });
                      it++;
                      poly.RemoveVertex(v);
@@ -498,8 +510,6 @@ namespace Geo
                      res.Simplexs.Add(new Tri(v.Next.Nref, jn, v.Prev.Nref) { Id = it });
                      it++;
 
-                     v.X = node.X;
-                     v.Y = node.Y;
                      v.Nref = jn;
                      jn++;
 
@@ -528,10 +538,15 @@ namespace Geo
                   double ml = 0.5 * (v1.Norma + v2.Norma);
                   Vector2d v3 = v.GetBisector() * ml;
                   Node node = new Node(v.X + v3.Vx, v.Y + v3.Vy, 0, NodeType.interior) { Id = jn };
-                  Vertex2d nv = new Vertex2d(node) { Prev = v.Prev, Next = v.Next, Nref = v.Nref };
+                  double x = v.X;
+                  double y = v.Y;
+                  v.X = node.X;
+                  v.Y = node.Y;
 
-                  if (CheckIntersect(nv))
+                  if (poly.CheckIntersect(v))
                   {
+                     v.X = x;
+                     v.Y = y;
                      res.Simplexs.Add(new Tri(v.Nref, v.Next.Nref, v.Prev.Nref) { Id = it });
                      it++;
                      poly.RemoveVertex(v);
@@ -546,8 +561,6 @@ namespace Geo
                      res.Simplexs.Add(new Tri(v.Next.Nref, jn, v.Prev.Nref) { Id = it });
                      it++;
 
-                     v.X = node.X;
-                     v.Y = node.Y;
                      v.Nref = jn;
                      jn++;
 

@@ -21,7 +21,7 @@ namespace Geo
       public double Ix { get => Math.Abs(ix); }
       public double Iy { get => Math.Abs(iy); }
 
-      public Polygon2d(IEnumerable<ICoordinates> vertices):base (vertices)
+      public Polygon2d(IEnumerable<ICoordinates> vertices) : base(vertices)
       {
          Close();
          CalcPerimeter();
@@ -29,8 +29,8 @@ namespace Geo
          CalcCentroid();
          CalcI();
       }
-      
-      public Polygon2d(List<Vertex2d> vertices):base (vertices)
+
+      public Polygon2d(List<Vertex2d> vertices) : base(vertices)
       {
          Close();
          CalcPerimeter();
@@ -38,7 +38,7 @@ namespace Geo
          CalcCentroid();
          CalcI();
       }
-      
+
       public Polygon2d(Pline2d pline)
       {
          Vertices = pline.Copy().Vertices;
@@ -255,7 +255,7 @@ namespace Geo
          var sel = from i in vrtxs orderby i.AngleDeg select i;
          return sel.First();
       }
-      
+
       /// <summary>
       ///Получение списка вершин с нулевым углом.
       /// </summary>
@@ -284,7 +284,7 @@ namespace Geo
          o = sel.First();
          return tria.IsPointIn(o);
       }
-      
+
       /// <summary>
       /// 
       /// </summary>
@@ -300,9 +300,9 @@ namespace Geo
          sect.Remove(v.Prev);
 
          var sel = from i in sect where Math.Round(Vertex2d.GetAngleDeg(v.Prev, v, i), 3) < Math.Round(v.AngleDeg, 3) select i;
-         sel = from i in sel where Math.Round(Vertex2d.GetAngleDeg(v.Prev, v, i), 3) > 0 orderby i.LengthTo(v) select i;       
+         sel = from i in sel where Math.Round(Vertex2d.GetAngleDeg(v.Prev, v, i), 3) > 0 orderby i.LengthTo(v) select i;
 
-         if (sel.Count()>0) o = sel.First();
+         if (sel.Count() > 0) o = sel.First();
          else o = null;
 
          //double l = o.LengthTo(v);
@@ -328,34 +328,44 @@ namespace Geo
       public bool CheckIntersect(Vertex2d v)
       {
          bool res = false;
-         List < ICurve2d > ds = GetAllSegments();
+         List<ICurve2d> ds = GetAllSegments();
          if (ds.Count > 0)
          {
             for (int i = 0; i < ds.Count; i++)
             {
                if (v.IsMatch(ds[i].StartPoint) || v.IsMatch(ds[i].EndPoint)) continue;
-               Vector3d v1 = ds[i].EndPoint - v.ToPoint3d();
-               Vector3d v2 = ds[i].StartPoint - v.ToPoint3d();
-               Vector3d v3 = ds[i].EndPoint - v.Prev.ToPoint3d();
-               Vector3d v4 = ds[i].StartPoint - v.Prev.ToPoint3d();
-               Vector3d v5 = ds[i].EndPoint - v.Next.ToPoint3d();
-               Vector3d v6 = ds[i].StartPoint - v.Next.ToPoint3d();
-
-               Vector3d n1 = v1 ^ v2;
-               Vector3d n2 = v3 ^ v4;
-               Vector3d n3 = v5 ^ v6;
-
-               int sign1 = Math.Sign(n1[2]);
-               int sign2 = Math.Sign(n2[2]);
-               int sign3 = Math.Sign(n3[2]);
-
-               if (sign1 == 0 || sign2 == 0 || sign3 == 0) continue;
-               else if (Math.Sign(n1[2]) == Math.Sign(n2[2]) && Math.Sign(n1[2]) == Math.Sign(n3[2])) continue;
-               else
+               Line2d ln = new Line2d(v, v.Next);
+               Line2d lp = new Line2d(v, v.Prev);
+               Line2d lch = (Line2d)ds[i];
+               lp.IntersectionSegments(lch, out IntersectResult res1);
+               ln.IntersectionSegments(lch, out IntersectResult res2);
+               if(res1.res || res2.res)
                {
                   res = true;
                   break;
                }
+               //Vector3d v1 = ds[i].EndPoint - v.ToPoint3d();
+               //Vector3d v2 = ds[i].StartPoint - v.ToPoint3d();
+               //Vector3d v3 = ds[i].EndPoint - v.Prev.ToPoint3d();
+               //Vector3d v4 = ds[i].StartPoint - v.Prev.ToPoint3d();
+               //Vector3d v5 = ds[i].EndPoint - v.Next.ToPoint3d();
+               //Vector3d v6 = ds[i].StartPoint - v.Next.ToPoint3d();
+
+               //Vector3d n1 = v1 ^ v2;
+               //Vector3d n2 = v3 ^ v4;
+               //Vector3d n3 = v5 ^ v6;
+
+               //int sign1 = Math.Sign(n1[2]);
+               //int sign2 = Math.Sign(n2[2]);
+               //int sign3 = Math.Sign(n3[2]);
+
+               //if (sign1 == 0 || sign2 == 0 || sign3 == 0) continue;
+               //else if (Math.Sign(n1[2]) == Math.Sign(n2[2]) && Math.Sign(n1[2]) == Math.Sign(n3[2])) continue;
+               //else
+               //{
+               //   res = true;
+               //   break;
+               //}
             }
          }
          return res;
@@ -439,7 +449,7 @@ namespace Geo
                   double y = v.Y;
                   v.X = node.X;
                   v.Y = node.Y;
-                  
+
                   if (poly.CheckIntersect(v))
                   {
                      v.X = x;
@@ -457,18 +467,18 @@ namespace Geo
                      it++;
                      res.Simplexs.Add(new Tri(v.Next.Nref, jn, v.Prev.Nref) { Id = it });
                      it++;
-                     
+
                      v.Nref = jn;
                      jn++;
 
                      poly.Open();
                      poly.Close();
                   }
-                 
+
                   //poly.CalcVertices();
 
                   List<Vertex2d> ds = poly.GetNullAngleVert();
-                  if (ds.Count>0)
+                  if (ds.Count > 0)
                   {
                      foreach (Vertex2d item in ds)
                      {
@@ -479,7 +489,7 @@ namespace Geo
                      poly.Open();
                      poly.Close();
                   }
-                  
+
                }
                else if (v.AngleDeg > 90 && v.AngleDeg <= 120)
                {
@@ -529,7 +539,7 @@ namespace Geo
                      poly.Open();
                      poly.Close();
                   }
-                  
+
                }
                else
                {
@@ -608,7 +618,7 @@ namespace Geo
                      it++;
                   }
                }
-              
+
                poly.RemoveVertex(v);
                poly.RemoveVertex(v.Next);
             }
@@ -619,7 +629,7 @@ namespace Geo
             }
          }
 
-            return res;
+         return res;
       }
 
       public Mesh TriangulationSimple()
@@ -641,7 +651,7 @@ namespace Geo
          {
             poly = work.Pop();
 
-            while (poly.Vertices.Count>3)
+            while (poly.Vertices.Count > 3)
             {
                var sel = from i in poly.Vertices orderby i.AngleDeg select i;
                Vertex2d v = sel.First();

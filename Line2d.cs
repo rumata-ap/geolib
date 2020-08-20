@@ -126,7 +126,7 @@ namespace Geo
          double x = (-C1 - B1 * y) / A1;
 
          res.pts = new List<Point2d>(1);
-         res.pts[0] = new Point2d(x, y);
+         res.pts.Add(new Point2d(x, y));
          res.res = true;
       }
 
@@ -145,7 +145,7 @@ namespace Geo
          {
             res.res = true;
             res.pts = new List<Point2d>(1);
-            res.pts[0] = respt;
+            res.pts.Add(respt);
          }
       }
 

@@ -134,7 +134,7 @@ namespace Geo
 
       public double[] ToArray()
       {
-         throw new NotImplementedException();
+         return new double[] { x, y, z };
       }
 
       public Vector3d ToVector3d()

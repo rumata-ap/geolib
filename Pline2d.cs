@@ -141,6 +141,13 @@ namespace Geo
          CalcBB();
          if (recalc) CalcVertices();
       }
+      
+      public virtual void InsertVertex(int id, Vertex2d vertex, bool recalc = true)
+      {
+         vrtxs.Insert(id, vertex);
+         CalcBB();
+         if (recalc) CalcVertices();
+      }
 
       public void AddVertices(IEnumerable<Vertex2d> vertices, bool recalc = true)
       {
@@ -251,7 +258,7 @@ namespace Geo
       {
          int count = GetSegsCount();
          Range range = new Range(0, count);
-         if (!range.Affiliation(idx)) return null;
+         if (!range.In(idx)) return null;
          if (vrtxs[idx].Bulge == 0) return new Line2d(vrtxs[idx], vrtxs[idx].Next) { Id = idx + 1 };
          else return new Arc2d(vrtxs[idx], vrtxs[idx].Next, vrtxs[idx].Bulge) { Id = idx + 1 };
       }

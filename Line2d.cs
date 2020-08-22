@@ -141,7 +141,7 @@ namespace Geo
          Range Yrange = new Range(StartPoint.Y, EndPoint.Y);
          Range Xrangel = new Range(line.StartPoint.X, line.EndPoint.X);
          Range Yrangel = new Range(line.StartPoint.Y, line.EndPoint.Y);
-         if (Xrange.Affiliation(respt.X) && Yrange.Affiliation(respt.Y) && Xrangel.Affiliation(respt.X) && Yrangel.Affiliation(respt.Y))
+         if (Xrange.InNoBound(respt.X) && Yrange.InNoBound(respt.Y) && Xrangel.InNoBound(respt.X) && Yrangel.InNoBound(respt.Y))
          {
             res.res = true;
             res.pts = new List<Point2d>(1);

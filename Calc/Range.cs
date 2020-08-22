@@ -26,10 +26,25 @@ namespace Geo.Calc
       /// </summary>
       /// <param name="arg">Проверяемое значение</param>
       /// <returns>Возвращает результат проверки в виде булевого значения</returns>
-      public bool Affiliation(double arg)
+      public bool In(double arg)
       {
-         if (arg >= s && arg <= e) return true;
-         else return false;
+         double l = Math.Abs(e - s);
+         double ls = Math.Abs(s - arg);
+         double le = Math.Abs(e - arg);
+         return ls <= l && le <= l;
+      }
+      
+      /// <summary>
+      /// Проверка на попадание заданного значения внутрь диапазона
+      /// </summary>
+      /// <param name="arg">Проверяемое значение</param>
+      /// <returns>Возвращает результат проверки в виде булевого значения</returns>
+      public bool InNoBound(double arg)
+      {
+         double l = Math.Abs(e - s);
+         double ls = Math.Abs(s - arg);
+         double le = Math.Abs(e - arg);
+         return ls < l && le < l;
       }
 
       /// <summary>

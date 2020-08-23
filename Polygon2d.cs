@@ -10,14 +10,12 @@ namespace Geo
    public class Polygon2d : Pline2d
    {
       double area;
-      double perimeter;
-      Point2d centroid;
       double ix;
       double iy;
 
       public double Area { get => Math.Abs(area); }
-      public double Perimeter { get => perimeter; }
-      public Point2d Centroid { get => centroid; }
+      public double Perimeter { get; private set; }
+      public Point2d Centroid { get; private set; }
       public double Ix { get => Math.Abs(ix); }
       public double Iy { get => Math.Abs(iy); }
 
@@ -50,22 +48,6 @@ namespace Geo
          CalcI();
       }
 
-      public void RecalcToCentroid()
-      {
-         CalcArea();
-         CalcCentroid();
-         List<Vertex2d> temp = new List<Vertex2d>();
-         foreach (Vertex2d item in Vertices)
-         {
-            temp.Add(new Vertex2d(item.X - centroid.X, item.Y - centroid.Y));
-         }
-         Vertices = temp;
-         //CalcCentroid();
-
-         CalcI();
-         CalcBB();
-      }
-
       protected void CalcI()
       {
          double tempX = 0;
@@ -92,7 +74,7 @@ namespace Geo
             temp.X = temp.X + 1 / (6 * area) * (arrTemp.X + arrTemp1.X) * (arrTemp.X * arrTemp1.Y - arrTemp.Y * arrTemp1.X);
             temp.Y = temp.Y + 1 / (6 * area) * (arrTemp.Y + arrTemp1.Y) * (arrTemp.X * arrTemp1.Y - arrTemp.Y * arrTemp1.X);
          }
-         centroid = new Point2d(temp.X, temp.Y);
+         Centroid = new Point2d(temp.X, temp.Y);
          Close();
       }
 
@@ -119,8 +101,27 @@ namespace Geo
          {
             segs.Add(GetSegment(i).Length);
          }
-         perimeter = segs.Sum();
+         Perimeter = segs.Sum();
          Close();
+      }
+
+      /// <summary>
+      /// Пересчет координат вершин полигона от начала координат в центроиде (центре тяжести).
+      /// </summary>
+      public void RecalcToCentroid()
+      {
+         CalcArea();
+         CalcCentroid();
+         List<Vertex2d> temp = new List<Vertex2d>();
+         foreach (Vertex2d item in Vertices)
+         {
+            temp.Add(new Vertex2d(item.X - Centroid.X, item.Y - Centroid.Y));
+         }
+         Vertices = temp;
+         //CalcCentroid();
+
+         CalcI();
+         CalcBB();
       }
 
       /// <summary>
@@ -128,12 +129,7 @@ namespace Geo
       /// </summary>
       /// <param name="step">Шаг деления.</param>
       /// <param name="stepType">Тип значения шага деления (относительное или абсолютное).</param>
-      /// <param name="start">Флаг, указывающий на включение начальной точки отрезка в результат деления.</param>
-      /// <param name="end">Флаг, указывающий на включение конечной точки отрезка в результат деления.</param>
-      /// <remarks>
-      /// В качестве шага деления с абсолютным значением следует задавать значение части длины отрезка.
-      /// </remarks>
-      /// <returns>Возврашает плоскую полилинию с вершинами в точках деления и линейными сегментами.</returns>
+      /// <returns>Возврашает плоский полигон с вершинами в точках деления и линейными сегментами.</returns>
       public override Pline2d TesselationByStep(double step, ParamType stepType = ParamType.abs)
       {
          Pline2d res = new Pline2d();
@@ -164,22 +160,28 @@ namespace Geo
          return new Polygon2d(res);
       }
 
-      public Polygon2d Partition(Vertex2d vrt1, Vertex2d vrt2)
+      /// <summary>
+      /// Разделение полигона в указанных вершинах с учетом их совмещения.
+      /// </summary>
+      /// <param name="move">Совмещаемая вершина.</param>
+      /// <param name="anchor">Неподвижная вершина.</param>
+      /// <returns>Возвращает отделенный полигон.</returns>
+      public Polygon2d Partition(Vertex2d move, Vertex2d anchor)
       {
          List<Vertex2d> original = new List<Vertex2d>(vrtxs);
          List<Vertex2d> newl = new List<Vertex2d>
          {
-            Vertex2d.Copy(vrt1)
+            Vertex2d.Copy(move)
          };
 
-         Vertex2d item = vrt1;
-         while (!item.Next.Equals(vrt2))
+         Vertex2d item = move;
+         while (!item.Next.Equals(anchor))
          {
             item = item.Next;
             newl.Add(item);
             original.Remove(item);
          }
-         original.Remove(vrt2);
+         original.Remove(anchor);
 
          vrtxs = original;
          CalcVertices();
@@ -192,15 +194,27 @@ namespace Geo
          return new Polygon2d(newl);
       }
 
-      public void Partition(Vertex2d vrt1, Vertex2d vrt2, out Polygon2d res)
+      /// <summary>
+      /// Разделение полигона в указанных вершинах с учетом их совмещения.
+      /// </summary>
+      /// <param name="move">Совмещаемая вершина.</param>
+      /// <param name="anchor">Неподвижная вершина.</param>
+      /// <param name="res">Отделенный полигон.</param>
+      public void Partition(Vertex2d move, Vertex2d anchor, out Polygon2d res)
       {
-         res = Partition(vrt1, vrt2);
+         res = Partition(move, anchor);
       }
 
-      public void Insert(Vertex2d main, Vertex2d insert, Polygon2d insertPoly)
+      /// <summary>
+      /// Объединение с отдельным полигоном в указанных вершинах.
+      /// </summary>
+      /// <param name="m">Вершина на исходном полигоне.</param>
+      /// <param name="u">Вершина на включаемом полигоне.</param>
+      /// <param name="cp">Включаемый полигон.</param>
+      public void Combin(Vertex2d m, Vertex2d u, Polygon2d cp)
       {
-         List<Vertex2d> origin = Break(main).Vertices;
-         List<Vertex2d> newl = insertPoly.Break(insert).Vertices;
+         List<Vertex2d> origin = Break(m).Vertices;
+         List<Vertex2d> newl = cp.Break(u).Vertices;
          //newl[0].Prev = origin[i1 - 1].Prev;
          //newl[i2 - 1].Next = origin[0].Next;
          origin.RemoveAt(origin.Count - 1);
@@ -248,7 +262,7 @@ namespace Geo
       }
 
       /// <summary>
-      ///Получение вершины с минимальным углом.
+      ///Получение первой вершины с минимальным углом.
       /// </summary>
       public Vertex2d GetMinAngleVert()
       {
@@ -257,7 +271,7 @@ namespace Geo
       }
 
       /// <summary>
-      ///Получение списка вершин с нулевым углом.
+      ///Получение первой вершины с нулевым углом.
       /// </summary>
       public Vertex2d GetNullAngleVert()
       {
@@ -272,8 +286,8 @@ namespace Geo
       /// <summary>
       ///Проверка попадания узла контура в треугольник, образованный смежным углом в вершине.
       /// </summary>
-      /// <param name="v"></param>
-      /// <param name="o"></param>
+      /// <param name="v">Выбранная вершина для анализа.</param>
+      /// <param name="o">Результирующая целевая вершина.</param>
       /// <returns></returns>
       public bool CheckInTria(Vertex2d v, out Vertex2d o)
       {
@@ -290,11 +304,15 @@ namespace Geo
       }
 
       /// <summary>
-      /// 
+      /// Проверка попадания произвольной вершины полигона в сектор анализа, 
+      /// образованный смежным углом выбранной вершины при фронтальной триангуляции.
       /// </summary>
-      /// <param name="v"></param>
-      /// <param name="o"></param>
-      /// <param name="inTria"></param>
+      /// <param name="v">Выбранная вершина для анализа.</param>
+      /// <param name="o">Результирующая целевая вершина.</param>
+      /// <param name="inTria">
+      /// Результат попадания целевой вершины в треугольник, 
+      /// образованный анализируемой вершиной и двумя смежными с ней вершинами.
+      /// </param>
       /// <returns></returns>
       public bool CheckIn(Vertex2d v, out Vertex2d o, out bool inTria)
       {
@@ -354,23 +372,24 @@ namespace Geo
       }
 
       /// <summary>
-      /// Проверка на пересечение контура с треугольником.
+      /// Проверка на пересечение полигона с треугольником.
       /// </summary>
-      /// <param name="v"> Выбранная вершина.</param>
+      /// <param name="t">Проверяемый треугольник.</param>
+      /// <param name="e">Возвращаемый объект ребра с которым было найдено пересечение.</param>
       /// <returns></returns>
-      public bool CheckIntersect(Triangle triangle, out ICurve2d edge)
+      public bool CheckIntersect(Triangle t, out ICurve2d e)
       {
-         edge = null;
+         e = null;
          bool res = false;
          List<ICurve2d> ds = GetAllSegments();
          if (ds.Count > 0)
          {
             for (int i = 0; i < ds.Count; i++)
             {
-               if (triangle.Intersect(ds[i], out ICoordinates[] pts))
+               if (t.Intersect(ds[i], out ICoordinates[] pts))
                {
                   res = true;
-                  edge = ds[i];
+                  e = ds[i];
                   break;
                }
             }
@@ -384,29 +403,24 @@ namespace Geo
       /// <param name="v"> Выбранная вершина.</param>
       /// <returns></returns>
       public double MinLengthSeg(Vertex2d v)
-      {
-         //List<ICurve2d> ds = GetAllSegments();
-         //var sel = from i in ds orderby GetLengthToSeg(v, i) select i;       
+      {       
          List<ICurve2d> ds = GetAllSegments();
-         //List<ICurve2d> lcs = new List<ICurve2d>(ds);
-         //if (ds.Count > 0)
-         //{
-         //   foreach (ICurve2d item in ds)
-         //   {
-         //      if (v.IsMatch(item.StartPoint) || v.IsMatch(item.EndPoint)) lcs.Remove(item);
-         //   }
-         //}
          var sel = from i in ds orderby GetLengthToSeg(v, i) select i;
          Line2d line = (Line2d)sel.First();
          return Math.Abs(line.A * v.X + line.B * v.Y + line.C) / Math.Sqrt(line.A * line.A + line.B * line.B);
       }
 
-      double GetLengthToSeg(Vertex2d v, ICurve2d lin)
+      /// <summary>
+      /// Получение расстояния от вершины до средней точки ребра.
+      /// </summary>
+      /// <param name="v">Выбранная вершина.</param>
+      /// <param name="e">Выбранное ребро.</param>
+      /// <returns></returns>
+      double GetLengthToSeg(Vertex2d v, ICurve2d e)
       {
 
-         Line2d line = (Line2d)lin;
+         Line2d line = (Line2d)e;
          return v.LengthTo(line.CenterPoint);
-         //return Math.Abs(line.A * v.X + line.B * v.Y + line.C) / Math.Sqrt(line.A * line.A + line.B * line.B);
       }
 
       /// <summary>
@@ -525,45 +539,6 @@ namespace Geo
                      poly.Open();
                      poly.Close();
                   }
-
-                  //Vector3d v1 = v.Prev - v;
-                  //Vector3d v2 = v.Next - v;
-                  //double ml = 0.5 * (v1.Norma + v2.Norma);
-                  //Vector2d v3 = v.GetBisector() * ml;
-                  //Node node = new Node(v.X + v3.Vx, v.Y + v3.Vy, 0, NodeType.interior) { Id = jn };
-                  //Triangle tr = new Triangle(v, v.Next, node);
-                  //double x = v.X;
-                  //double y = v.Y;
-
-                  //if (poly.CheckIntersect(tr, out ICurve2d seg))
-                  //{
-                  //   Line2d line = new Line2d(v.Prev, v.Next);
-                  //   node = new Node(line.CenterPoint, NodeType.interior) { Id = jn };
-                  //   res.Nodes.Add(node);
-                  //   res.Simplexs.Add(new Tri(v.Nref, v.Next.Nref, jn) { Id = it });
-                  //   it++;
-                  //   res.Simplexs.Add(new Tri(v.Nref, jn, v.Prev.Nref) { Id = it });
-                  //   it++;
-
-                  //   v.X = node.X;
-                  //   v.Y = node.Y;
-                  //}
-                  //else
-                  //{
-                  //   res.Nodes.Add(node);
-                  //   res.Simplexs.Add(new Tri(v.Nref, v.Next.Nref, jn) { Id = it });
-                  //   it++;
-                  //   res.Simplexs.Add(new Tri(v.Nref, jn, v.Prev.Nref) { Id = it });
-                  //   it++;
-
-                  //   v.X = node.X;
-                  //   v.Y = node.Y;                   
-                  //}
-
-                  //poly.Open();
-                  //poly.Close();
-                  //v.Nref = jn;
-                  //jn++;
                }
             }
             if (poly.Vertices.Count == 4)
@@ -605,12 +580,12 @@ namespace Geo
 
 
       /// <summary>
-      /// Триангуляция полигона по заданной величине шага c участками регулярной сетки.
+      /// Фронтальная триангуляция полигона по заданной величине шага c участками регулярной сетки.
       /// </summary>
       /// <param name="step"></param>
       /// <param name="stepType"></param>
       /// <returns></returns>
-      public Mesh TriangulationRegular(double step, ParamType stepType = ParamType.abs)
+      public Mesh TriangulationFrontal(double step, ParamType stepType = ParamType.abs)
       {
          Mesh res = new Mesh();
          res.Out = new List<Node>(vrtxs.Count);

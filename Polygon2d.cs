@@ -318,8 +318,10 @@ namespace Geo
       {
          List<Vertex2d> sect = new List<Vertex2d>(vrtxs);
          sect.Remove(v.Next);
+         sect.Remove(v.Next.Next);
          sect.Remove(v);
          sect.Remove(v.Prev);
+         sect.Remove(v.Prev.Prev);
 
          var sel = from i in sect where Math.Round(Vertex2d.GetAngleDeg(v.Prev, v, i), 3) < Math.Round(v.AngleDeg, 3) select i;
          sel = from i in sel where Math.Round(Vertex2d.GetAngleDeg(v.Prev, v, i), 3) > 0 orderby i.LengthTo(v) select i;
@@ -508,8 +510,8 @@ namespace Geo
                {
                   Vector3d v1 = v.Prev - v;
                   Vector3d v2 = v.Next - v;
-                  double ml = 0.5 * (v1.Norma + v2.Norma);
-                  //double ml = Math.Min(v1.Norma, v2.Norma);
+                  //double ml = 0.5 * (v1.Norma + v2.Norma);
+                  double ml = Math.Max(v1.Norma, v2.Norma);
                   Vector2d v3 = v.GetBisector() * ml;
                   Node node = new Node(v.X + v3.Vx, v.Y + v3.Vy, 0, NodeType.interior) { Id = jn };
                   double x = v.X;
@@ -760,7 +762,8 @@ namespace Geo
                {
                   Vector3d v1 = v.Prev - v;
                   Vector3d v2 = v.Next - v;
-                  double ml = 0.5 * (v1.Norma + v2.Norma);
+                  //double ml = 0.5 * (v1.Norma + v2.Norma);
+                  double ml = Math.Max(v1.Norma, v2.Norma);
                   Vector2d v3 = v.GetBisector() * ml;
                   Node node = new Node(v.X + v3.Vx, v.Y + v3.Vy, 0, NodeType.interior) { Id = jn };
                   double x = v.X;

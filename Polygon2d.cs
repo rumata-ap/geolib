@@ -356,6 +356,8 @@ namespace Geo
             for (int i = 0; i < ds.Count; i++)
             {
                if (v.IsMatch(ds[i].StartPoint) || v.IsMatch(ds[i].EndPoint)) continue;
+               if (v.Prev.IsMatch(ds[i].StartPoint) || v.Prev.IsMatch(ds[i].EndPoint)) continue;
+               if (v.Next.IsMatch(ds[i].StartPoint) || v.Next.IsMatch(ds[i].EndPoint)) continue;
                Line2d ln = new Line2d(v, v.Next);
                Line2d lp = new Line2d(v, v.Prev);
                Line2d lch = (Line2d)ds[i];

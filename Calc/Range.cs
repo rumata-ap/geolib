@@ -39,12 +39,12 @@ namespace Geo.Calc
       /// </summary>
       /// <param name="arg">Проверяемое значение</param>
       /// <returns>Возвращает результат проверки в виде булевого значения</returns>
-      public bool InNoBound(double arg)
+      public bool InNoBound(double arg, int prec = 4)
       {
          double l = Math.Abs(e - s);
          double ls = Math.Abs(s - arg);
          double le = Math.Abs(e - arg);
-         return ls < l && le < l;
+         return Math.Round(ls,prec) < Math.Round(l, prec) && Math.Round(le, prec) < Math.Round(l, prec);
       }
 
       /// <summary>

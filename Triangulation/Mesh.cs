@@ -13,6 +13,7 @@ namespace Geo.Triangulation
       public List<Node> Holes { get; set; }
       public List<Node> Pathes { get; set; }
       public List<Node> Points { get; set; }
+      public List<Edge> Edges { get; set; }
 
       public Mesh()
       {

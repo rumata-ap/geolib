@@ -72,12 +72,30 @@ namespace Geo
 
       public void AddVertex(Vertex2d pt)
       {
-         Open();
-         vrtxs.Add(pt);
-         vrtxs[vrtxs.Count - 1].Pos = VertexPosition.Last;
-         vrtxs[vrtxs.Count - 1].Id = vrtxs.Count;
-         vrtxs[vrtxs.Count - 1].Prev = vrtxs[vrtxs.Count - 2];
-         vrtxs[vrtxs.Count - 1].Next = null;
+         if (vrtxs.Count == 0)
+         {
+            vrtxs.Add(pt);
+            vrtxs[vrtxs.Count - 1].Pos = VertexPosition.First;
+         }
+         else if (vrtxs.Count < 3)
+         {
+            vrtxs.Add(pt);
+            vrtxs[vrtxs.Count - 1].Pos = VertexPosition.Middle;
+            vrtxs[vrtxs.Count - 1].Id = vrtxs.Count;
+            vrtxs[vrtxs.Count - 1].Prev = vrtxs[vrtxs.Count - 2];
+            vrtxs[vrtxs.Count - 2].Next = vrtxs[vrtxs.Count - 1];
+            vrtxs[vrtxs.Count - 1].Next = null;
+         }
+         else
+         {
+            Open();
+            vrtxs.Add(pt);
+            vrtxs[vrtxs.Count - 1].Pos = VertexPosition.Last;
+            vrtxs[vrtxs.Count - 1].Id = vrtxs.Count;
+            vrtxs[vrtxs.Count - 1].Prev = vrtxs[vrtxs.Count - 2];
+            vrtxs[vrtxs.Count - 2].Next = vrtxs[vrtxs.Count - 1];
+            vrtxs[vrtxs.Count - 1].Next = null;
+         }
          CalcBB();
       }
 

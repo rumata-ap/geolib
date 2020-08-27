@@ -1,4 +1,6 @@
-﻿using System;
+﻿using Geo.Calc;
+
+using System;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -15,6 +17,8 @@ namespace Geo
       public Point2d Centroid { get; private set; }
       public double Ix { get => Math.Abs(ix); }
       public double Iy { get => Math.Abs(iy); }
+      public int Id { get; set; }
+      public string Label { get; set; }
 
       public Polygon2d(IEnumerable<ICoordinates> vertices) : base(vertices)
       {
@@ -104,6 +108,22 @@ namespace Geo
          }
          Perimeter = segs.Sum();
          Close();
+      }
+
+      /// <summary>
+      /// Поверка направления обхода полигона.
+      /// </summary>
+      /// <param name="polygon">Полигон <see cref="Polygon2d" /></param>
+      /// <returns> true - если направление обхода по часовой стрелке.</returns>
+      public bool IsClockwise()
+      {
+         List<Vertex2d> sort = (from i in vrtxs orderby i.X select i).ToList();
+         Vertex2d v = sort[0];
+         Vector3d v1 = v.Prev - v;
+         Vector3d v2 = v.Next - v;
+         Vector3d v3 = v1 ^ v2;
+         if (v3.Vz > 0) return true;
+         else return false;
       }
 
       /// <summary>

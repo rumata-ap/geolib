@@ -68,10 +68,10 @@
     <Compile Include="Calc\Vector3d.cs" />
     <Compile Include="Quadrangle.cs" />
     <Compile Include="Triangle.cs" />
-    <Compile Include="Triangulation\DTriangulator.cs" />
+    <Compile Include="Triangulation\DMesher.cs" />
     <Compile Include="Triangulation\Domain.cs" />
     <Compile Include="Triangulation\Edge.cs" />
-    <Compile Include="Triangulation\FTriangulator.cs" />
+    <Compile Include="Triangulation\FMesher.cs" />
     <Compile Include="Triangulation\ISimplex.cs" />
     <Compile Include="Triangulation\Mesh.cs" />
     <Compile Include="Triangulation\Node.cs" />

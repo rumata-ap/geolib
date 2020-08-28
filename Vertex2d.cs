@@ -59,7 +59,7 @@ namespace Geo
 
       public static Vertex2d Copy (Vertex2d pt)
       {
-         return new Vertex2d { X = pt.X, Y = pt.Y, Pos = pt.Pos, Nref = pt.Nref };
+         return new Vertex2d { X = pt.X, Y = pt.Y, Pos = pt.Pos, Nref = pt.Nref, Bulge = pt.Bulge };
       }
 
       void GetAngle()

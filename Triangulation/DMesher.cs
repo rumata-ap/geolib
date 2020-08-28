@@ -5,7 +5,7 @@ using System.Text;
 
 namespace Geo.Triangulation
 {
-   public static class DTriangulator
+   public static class DMesher
    {
    }
 }

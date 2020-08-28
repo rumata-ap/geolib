@@ -99,7 +99,7 @@ namespace Geo
          CalcBB();
       }
 
-      public void AddVerticesNew(IEnumerable<ICoordinates> vertices, bool recalc = true)
+      public void AddPointsNew(IEnumerable<ICoordinates> vertices, bool recalc = true)
       {
          Open();
          List<ICoordinates> tmp = new List<ICoordinates>(vertices);
@@ -110,7 +110,16 @@ namespace Geo
          CalcBB();
          if (recalc) CalcVertices();
       }
-      
+
+      public void AddVerticesNew(IEnumerable<Vertex2d> vertices, bool recalc = true)
+      {
+         Open();
+         List<Vertex2d> tmp = new List<Vertex2d>(vertices);
+         foreach (Vertex2d item in tmp) vrtxs.Add(item);
+         CalcBB();
+         if (recalc) CalcVertices();
+      }
+
       public void AddVerticesNew(List<Vertex2d> vertices, bool recalc = true)
       {
          Open();
@@ -208,9 +217,9 @@ namespace Geo
 
       public void Open()
       {
-         if (vrtxs.Count < 2) { IsClosed = false; return; }
-
-         if (IsClosed)
+         if (!IsClosed) return;
+         else if (vrtxs.Count < 2) { IsClosed = false; return; }
+         else if (IsClosed)
          {
             vrtxs.Add(new Vertex2d(vrtxs[0]));
             CalcVertices();
@@ -380,11 +389,14 @@ namespace Geo
       /// <summary>
       ///Смена направления полилинии.
       /// </summary>
-      public void Inverse()
+      public virtual void Inverse()
       {
+         bool tmpClosed = IsClosed;
+         Open();
          vrtxs.Reverse();
+         for (int i = 1; i < vrtxs.Count; i++) vrtxs[i - 1].Bulge = -vrtxs[i].Bulge;         
          CalcVertices();
+         if (tmpClosed) Close();
       }
-
    }
 }

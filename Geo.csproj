@@ -76,6 +76,7 @@
     <Compile Include="Triangulation\Mesh.cs" />
     <Compile Include="Triangulation\Node.cs" />
     <Compile Include="Triangulation\Quad.cs" />
+    <Compile Include="Triangulation\Recombiner.cs" />
     <Compile Include="Triangulation\Tri.cs" />
     <Compile Include="Triangulation\WorkPlane.cs" />
     <Compile Include="Vertex2d.cs" />

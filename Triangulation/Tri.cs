@@ -12,6 +12,9 @@ namespace Geo.Triangulation
       public int A { get; private set; }
       public int B { get; private set; }
       public int C { get; private set; }
+      public Edge E1 { get; private set; }
+      public Edge E2 { get; private set; }
+      public Edge E3 { get; private set; }
 
       public SimplexType Type => SimplexType.tri;
 
@@ -20,6 +23,9 @@ namespace Geo.Triangulation
          A = node1;
          B = node2;
          C = node3;
+         E1 = new Edge(A, B);
+         E2 = new Edge(B, C);
+         E3 = new Edge(C, A);
       }
 
       public Triangle ToTriangle(IEnumerable<Node> stor)

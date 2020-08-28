@@ -14,6 +14,8 @@ namespace Geo.Triangulation
       public List<Node> Pathes { get; set; }
       public List<Node> Points { get; set; }
       public List<Edge> Edges { get; set; }
+      public List<Tri> Tris { get; set; }
+      public List<Quad> Quads { get; set; }
 
       public Mesh()
       {
@@ -51,6 +53,72 @@ namespace Geo.Triangulation
          }
       }
 
+      public void Recombine()
+      {
+         Tris = new List<Tri>(Simplexs.Count);
+         Quads = new List<Quad>();
+         foreach (ISimplex item in Simplexs) Tris.Add((Tri)item);
+         List<Tri> tempTris = new List<Tri>(Simplexs.Count);
+         foreach (Tri item in Tris)
+         {
+            Quads.Add(QuadMinA(item, out Tri del));           
+            Simplexs.Remove(item);
+            Simplexs.Remove(del);
+            Simplexs.Add(Quads.Last());
+         }
+      }
+
+      public void SmoothQuad(int number)
+      {
+         List<Node> nodes = new List<Node>(Nodes);
+         nodes.AddRange(Out);
+         for (int i = 0; i < number; i++)
+         {
+            foreach (Node item in Nodes)
+            {
+               var sel = from s in Simplexs where ((Tri)s).A == item.Id || ((Tri)s).B == item.Id || ((Tri)s).C == item.Id select s;
+               List<ISimplex> simplices = new List<ISimplex>(sel);
+               double xc = 0;
+               double yc = 0;
+               Triangle tria;
+               foreach (Tri t in simplices)
+               {
+                  tria = t.ToTriangle(nodes);
+                  xc += tria.Xc;
+                  yc += tria.Yc;
+               }
+
+               item.X = xc / simplices.Count;
+               item.Y = yc / simplices.Count;
+            }
+         }
+      }
+
+      Quad QuadMinA(Tri tri, out Tri neighbor)
+      {
+         List<Tri> neighbors = (from t in Tris where IsNeighbor(tri, t) select t).ToList();
+         Triangle t1 = tri.ToTriangle(Nodes);
+         //List<Triangle> neighborsT = new List<Triangle>(neighbors.Count);
+         List<Quadrangle> neighborsQ = new List<Quadrangle>(neighbors.Count);
+         foreach (Tri item in neighbors) neighborsQ.Add(new Quadrangle(t1, item.ToTriangle(Nodes)) { Id = item.Id });
+         List<Quadrangle> sortQ = (from q in neighborsQ orderby q.MaxAngleDeg select q).ToList();
+         Quadrangle q1 = sortQ[0];
+         neighbor = null;
+         foreach (Tri item in neighbors) if (item.Id == q1.Id) neighbor = item;
+
+         return new Quad(((Node)q1.Vertex1).Id, ((Node)q1.Vertex2).Id, ((Node)q1.Vertex3).Id, ((Node)q1.Vertex4).Id);
+      }
+
+      bool IsNeighbor(Tri t, Tri o)
+      {
+         if ((t.E1.IsMatch(o.E1) || t.E1.IsMatch(o.E2) || t.E1.IsMatch(o.E3)) ||
+            (t.E2.IsMatch(o.E1) || t.E2.IsMatch(o.E2) || t.E2.IsMatch(o.E3)) ||
+            (t.E3.IsMatch(o.E1) || t.E3.IsMatch(o.E2) || t.E3.IsMatch(o.E3)))
+         {
+            return true;
+         }
+         else return false;
+      }
 
    }
 }

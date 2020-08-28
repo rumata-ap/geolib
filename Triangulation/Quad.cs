@@ -15,6 +15,10 @@ namespace Geo.Triangulation
       public int B { get; private set; }
       public int C { get; private set; }
       public int D { get; }
+      public Edge E1 { get; private set; }
+      public Edge E2 { get; private set; }
+      public Edge E3 { get; private set; }
+      public Edge E4 { get; private set; }
 
       public SimplexType Type => SimplexType.quad;
 
@@ -24,6 +28,10 @@ namespace Geo.Triangulation
          B = node2;
          C = node3;
          D = node4;
+         E1 = new Edge(A, B);
+         E2 = new Edge(B, C);
+         E3 = new Edge(C, D);
+         E4 = new Edge(D, A);
       }
 
       public Quadrangle ToQuadrangle(IEnumerable<Node> stor)

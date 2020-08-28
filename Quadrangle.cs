@@ -7,6 +7,8 @@ namespace Geo
 {
    public class Quadrangle
    {
+      public int Id { get; set; }
+
       private ICoordinates vertex1;
       private ICoordinates vertex2;
       private ICoordinates vertex3;

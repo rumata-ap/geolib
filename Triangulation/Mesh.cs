@@ -76,20 +76,27 @@ namespace Geo.Triangulation
          {
             foreach (Node item in Nodes)
             {
-               var sel = from s in Simplexs where ((Tri)s).A == item.Id || ((Tri)s).B == item.Id || ((Tri)s).C == item.Id select s;
-               List<ISimplex> simplices = new List<ISimplex>(sel);
+               List<Tri> selT = (from t in Tris where t.A == item.Id || t.B == item.Id || t.C == item.Id select t).ToList();
+               List<Quad> selQ = (from q in Quads where q.A == item.Id || q.B == item.Id || q.C == item.Id || q.D == item.Id select q).ToList();
                double xc = 0;
                double yc = 0;
-               Triangle tria;
-               foreach (Tri t in simplices)
+               Triangle tria;              
+               foreach (Tri t in selT)
                {
                   tria = t.ToTriangle(nodes);
                   xc += tria.Xc;
                   yc += tria.Yc;
                }
+               Quadrangle quadr;
+               foreach (Quad q in selQ)
+               {
+                  quadr = q.ToQuadrangle(nodes);
+                  xc += quadr.Xc;
+                  yc += quadr.Yc;
+               }
 
-               item.X = xc / simplices.Count;
-               item.Y = yc / simplices.Count;
+               item.X = xc / (selT.Count + selQ.Count);
+               item.Y = yc / (selT.Count + selQ.Count);
             }
          }
       }

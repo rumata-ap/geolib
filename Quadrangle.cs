@@ -1,4 +1,6 @@
-﻿using System;
+﻿using Geo.Triangulation;
+
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -29,19 +31,43 @@ namespace Geo
       {
          List<ICoordinates> l1 = new List<ICoordinates> { trg1.Vertex1, trg1.Vertex2, trg1.Vertex3 };
          List<ICoordinates> l2 = new List<ICoordinates> { trg2.Vertex1, trg2.Vertex2, trg2.Vertex3 };
-
+         List<ICoordinates> pt = new List<ICoordinates>(2);
          for (int i = 0; i < 3; i++)
          {
             for (int j = 0; j < 3; j++)
             {
-               if (l1[i].IsMatch(l2[j])) l2.RemoveAt(j);
+               if (l1[i].IsMatch(l2[j])) pt.Add(l2[j]);
             }
          }
+         l2.Remove(pt[0]);
+         l2.Remove(pt[1]);
+         
          if (l2.Count != 1) throw new ArgumentException("Не возможно создать четырехугольник из заданных треугольников.");
-         vertex1 = l1[0];
-         vertex2 = l1[1];
-         vertex3 = l2[0];
-         vertex4 = l1[2];
+         l1.Add(l2[0]);
+         List<ICoordinates> selx = l1.OrderBy(t => t.X).ToList();         
+         vertex1 = selx[0];
+         vertex3 = selx[3];
+         selx.Remove(vertex1);
+         selx.Remove(vertex3);
+         List<ICoordinates> sely = selx.OrderByDescending(t => t.Y).ToList();
+         vertex2 = sely[0];        
+         vertex4 = sely[1];
+         Line2d lin2 = new Line2d(new Point2d(vertex2.ToArray()), new Point2d(vertex3.ToArray()));
+         Line2d lin4 = new Line2d(new Point2d(vertex4.ToArray()), new Point2d(vertex1.ToArray()));
+         Line2d lin1 = new Line2d(new Point2d(vertex1.ToArray()), new Point2d(vertex2.ToArray()));
+         Line2d lin3 = new Line2d(new Point2d(vertex3.ToArray()), new Point2d(vertex4.ToArray()));
+         lin2.IntersectionSegments(lin4, out IntersectResult intersect);
+         lin1.IntersectionSegments(lin3, out IntersectResult intersect1);
+         if (intersect.res)
+         {
+            vertex4 = vertex3;
+            vertex3 = sely[1];
+         }
+         if (intersect1.res)
+         {
+            vertex2 = vertex3;
+            vertex3 = sely[0];
+         }
          Tri1 = trg1;
          Tri2 = trg2;
          CalcQuadrangle();
@@ -61,20 +87,20 @@ namespace Geo
       public void CalcQuadrangle()
       {
          ICoordinates[] verts = new ICoordinates[] { vertex1, vertex2, vertex3, vertex4 };
-         var selx = from v in verts select v.X;
-         var sely = from v in verts select v.Y;
+         //var selx = from v in verts select v.X;
+         //var sely = from v in verts select v.Y;
 
-         if (selx.Distinct().Count() < 4 && sely.Distinct().Count() < 4)
-         {
-            throw new ArgumentException("Найдены совпадающие вершины. Не возможно создать цетырехугольник.");
-         }
+         //if (selx.Distinct().Count() < 4 && sely.Distinct().Count() < 4)
+         //{
+         //   throw new ArgumentException("Найдены совпадающие вершины. Не возможно создать цетырехугольник.");
+         //}
 
          Polygon2d polygon = new Polygon2d(verts);
+         if (!polygon.IsClockwise()) polygon.Inverse();
          Area = polygon.Area;
          Xc = polygon.Centroid.X;
          Yc = polygon.Centroid.Y;
-         var sel = from v in polygon.Vertices orderby v.AngleDeg select v.AngleDeg;
-         MaxAngleDeg = sel.Last();
+         MaxAngleDeg = polygon.MaxAngleDeg();
       }
 
       public bool IsPointIn(ICoordinates pt)

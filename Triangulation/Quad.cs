@@ -39,7 +39,7 @@ namespace Geo.Triangulation
          var v1 = from i in stor where i.Id == A select i;
          var v2 = from i in stor where i.Id == B select i;
          var v3 = from i in stor where i.Id == C select i;
-         var v4 = from i in stor where i.Id == C select i;
+         var v4 = from i in stor where i.Id == D select i;
 
          return new Quadrangle(v1.First(), v2.First(), v3.First(), v4.First());
       }

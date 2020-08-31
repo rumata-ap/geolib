@@ -57,9 +57,9 @@ namespace Geo
          for (int i = 0; i < vrtxs.Count - 1; i++)
          {
             ICoordinates arrTemp = vrtxs[i]; ICoordinates arrTemp1 = vrtxs[i + 1];
-            tempX = tempX + (Math.Pow(arrTemp.X, 2) + arrTemp.X * arrTemp1.X + Math.Pow(arrTemp1.X, 2)) * 
+            tempX += (Math.Pow(arrTemp.X, 2) + arrTemp.X * arrTemp1.X + Math.Pow(arrTemp1.X, 2)) * 
                (arrTemp.X * arrTemp1.Y - arrTemp.Y * arrTemp1.X);
-            tempY = tempY + (Math.Pow(arrTemp.Y, 2) + arrTemp.Y * arrTemp1.Y + Math.Pow(arrTemp1.Y, 2)) * 
+            tempY += (Math.Pow(arrTemp.Y, 2) + arrTemp.Y * arrTemp1.Y + Math.Pow(arrTemp1.Y, 2)) * 
                (arrTemp.X * arrTemp1.Y - arrTemp.Y * arrTemp1.X);
          }
          ix = tempX / 12;

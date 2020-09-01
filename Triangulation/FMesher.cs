@@ -280,7 +280,7 @@ namespace Geo.Triangulation
                   }
                   else
                   {
-                     msh.Nodes.Add(node);
+                     msh.In.Add(node);
                      msh.Simplexs.Add(new Tri(v.Nref, v.Next.Nref, jn) { Id = it });
                      it++;
                      msh.Simplexs.Add(new Tri(v.Nref, jn, v.Prev.Nref) { Id = it });
@@ -313,6 +313,9 @@ namespace Geo.Triangulation
                it++;
             }
          }
+
+         msh.Nodes = new List<Node>(msh.Out);
+         msh.Nodes.AddRange(msh.In);
 
          return msh;
       }
@@ -404,7 +407,7 @@ namespace Geo.Triangulation
                   }
                   else
                   {
-                     msh.Nodes.Add(node);
+                     msh.In.Add(node);
                      msh.Simplexs.Add(new Tri(v.Nref, v.Next.Nref, v.Prev.Nref) { Id = it });
                      it++;
                      msh.Simplexs.Add(new Tri(v.Next.Nref, jn, v.Prev.Nref) { Id = it });
@@ -452,7 +455,7 @@ namespace Geo.Triangulation
                   }
                   else
                   {
-                     msh.Nodes.Add(node);
+                     msh.In.Add(node);
                      msh.Simplexs.Add(new Tri(v.Nref, v.Next.Nref, jn) { Id = it });
                      it++;
                      msh.Simplexs.Add(new Tri(v.Nref, jn, v.Prev.Nref) { Id = it });
@@ -498,7 +501,7 @@ namespace Geo.Triangulation
                   }
                   else
                   {
-                     msh.Nodes.Add(node);
+                     msh.In.Add(node);
                      msh.Simplexs.Add(new Tri(v.Nref, v.Next.Nref, jn) { Id = it });
                      it++;
                      msh.Simplexs.Add(new Tri(v.Nref, jn, v.Prev.Nref) { Id = it });
@@ -544,6 +547,9 @@ namespace Geo.Triangulation
                it++;
             }
          }
+
+         msh.Nodes = new List<Node>(msh.Out);
+         msh.Nodes.AddRange(msh.In);
 
          return msh;
       }

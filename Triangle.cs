@@ -18,7 +18,7 @@ namespace Geo
       public double Area { get; private set; }
       public double Xc { get; private set; }
       public double Yc { get; private set; }
-      //public double MaxAngleDeg { get; private set; }
+      public double MaxAngleDeg { get; private set; }
       public ICoordinates Vertex1 { get => vertex1; set { vertex1 = value; CalcTriangle(); } }
       public ICoordinates Vertex2 { get => vertex2; set { vertex2 = value; CalcTriangle(); } }
       public ICoordinates Vertex3 { get => vertex3; set { vertex3 = value; CalcTriangle(); } }
@@ -33,11 +33,14 @@ namespace Geo
 
       public void CalcTriangle()
       {
-         //double ang1, ang2, ang3;
-         //ang1 = vertex1.AngleTo(vertex3, vertex2);
-         //ang2 = vertex2.AngleTo(vertex1, vertex3);
-         //ang3 = vertex3.AngleTo(vertex2, vertex1);
-         //MaxAngleDeg = Math.Max(Math.Max(ang1, ang2), ang3);
+         Vertex2d v1 = new Vertex2d(vertex1);
+         Vertex2d v2 = new Vertex2d(vertex2);
+         Vertex2d v3 = new Vertex2d(vertex3);
+         v1.Prev = v3; v1.Next = v2;
+         v2.Prev = v1; v2.Next = v3;
+         v3.Prev = v2; v2.Next = v1;
+
+         MaxAngleDeg = Math.Max(Math.Max(v1.AngleDeg, v2.AngleDeg), v3.AngleDeg);
 
          Xc = (vertex1.X + vertex2.X + vertex3.X) / 3;
          Yc = (vertex1.Y + vertex2.Y + vertex3.Y) / 3;

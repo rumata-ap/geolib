@@ -7,6 +7,7 @@ namespace Geo.Triangulation
 {
    public class Mesh
    {
+      public List<Node> In { get; set; }
       public List<Node> Nodes { get; set; }
       public List<ISimplex> Simplexs { get; set; }
       public List<Node> Out { get; set; }
@@ -19,7 +20,7 @@ namespace Geo.Triangulation
 
       public Mesh()
       {
-         Nodes = new List<Node>();
+         In = new List<Node>();
          Simplexs = new List<ISimplex>();
       }
 
@@ -29,11 +30,11 @@ namespace Geo.Triangulation
       /// <param name="number">Число циклов сглаживания.</param>
       public void SmoothTri(int number)
       {
-         List<Node> nodes = new List<Node>(Nodes);
+         List<Node> nodes = new List<Node>(In);
          nodes.AddRange(Out);
          for (int i = 0; i < number; i++)
          {
-            foreach (Node item in Nodes)
+            foreach (Node item in In)
             {
                var sel = from s in Simplexs where ((Tri)s).A == item.Id || ((Tri)s).B == item.Id || ((Tri)s).C == item.Id select s;
                List<ISimplex> simplices = new List<ISimplex>(sel);
@@ -57,24 +58,36 @@ namespace Geo.Triangulation
       {
          Tris = new List<Tri>(Simplexs.Count);
          Quads = new List<Quad>();
-         foreach (ISimplex item in Simplexs) Tris.Add((Tri)item);
-         List<Tri> tempTris = new List<Tri>(Simplexs.Count);
-         foreach (Tri item in Tris)
+         foreach (ISimplex item in Simplexs)
          {
-            Quads.Add(QuadMinA(item, out Tri del));           
-            Simplexs.Remove(item);
-            Simplexs.Remove(del);
-            Simplexs.Add(Quads.Last());
+            Tris.Add((Tri)item);
+            //triangles.Add(Tris.Last().ToTriangle(nodes));
+            //triangles.Last().Id = Tris.Last().Id;
+         }
+
+         List<Tri> selTrias = (from t in Tris orderby Math.Abs(t.ToTriangle(Nodes).MaxAngleDeg - 90) select t).ToList();
+
+         foreach (Tri item in selTrias)
+         {
+            if (!Tris.Contains(item)) continue;
+            Quad q = QuadMinA(item, out Tri del);
+            if (q != null)
+            {
+               Quads.Add(q);
+               Simplexs.Remove(item);
+               Simplexs.Remove(del);
+               Simplexs.Add(Quads.Last());
+               Tris.Remove(item);
+               Tris.Remove(del);
+            }           
          }
       }
 
       public void SmoothQuad(int number)
       {
-         List<Node> nodes = new List<Node>(Nodes);
-         nodes.AddRange(Out);
          for (int i = 0; i < number; i++)
          {
-            foreach (Node item in Nodes)
+            foreach (Node item in In)
             {
                List<Tri> selT = (from t in Tris where t.A == item.Id || t.B == item.Id || t.C == item.Id select t).ToList();
                List<Quad> selQ = (from q in Quads where q.A == item.Id || q.B == item.Id || q.C == item.Id || q.D == item.Id select q).ToList();
@@ -83,14 +96,14 @@ namespace Geo.Triangulation
                Triangle tria;              
                foreach (Tri t in selT)
                {
-                  tria = t.ToTriangle(nodes);
+                  tria = t.ToTriangle(Nodes);
                   xc += tria.Xc;
                   yc += tria.Yc;
                }
                Quadrangle quadr;
                foreach (Quad q in selQ)
                {
-                  quadr = q.ToQuadrangle(nodes);
+                  quadr = q.ToQuadrangle(Nodes);
                   xc += quadr.Xc;
                   yc += quadr.Yc;
                }
@@ -104,6 +117,11 @@ namespace Geo.Triangulation
       Quad QuadMinA(Tri tri, out Tri neighbor)
       {
          List<Tri> neighbors = (from t in Tris where IsNeighbor(tri, t) select t).ToList();
+         if (neighbors.Count == 0)
+         {
+            neighbor = null;
+            return null;
+         }
          Triangle t1 = tri.ToTriangle(Nodes);
          //List<Triangle> neighborsT = new List<Triangle>(neighbors.Count);
          List<Quadrangle> neighborsQ = new List<Quadrangle>(neighbors.Count);
@@ -118,6 +136,7 @@ namespace Geo.Triangulation
 
       bool IsNeighbor(Tri t, Tri o)
       {
+         if (t.Equals(o)) return false;
          if ((t.E1.IsMatch(o.E1) || t.E1.IsMatch(o.E2) || t.E1.IsMatch(o.E3)) ||
             (t.E2.IsMatch(o.E1) || t.E2.IsMatch(o.E2) || t.E2.IsMatch(o.E3)) ||
             (t.E3.IsMatch(o.E1) || t.E3.IsMatch(o.E2) || t.E3.IsMatch(o.E3)))

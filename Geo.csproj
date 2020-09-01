@@ -41,6 +41,7 @@
   <ItemGroup>
     <Compile Include="Arc2d.cs" />
     <Compile Include="BoundingBox2d.cs" />
+    <Compile Include="Calc\Calc.cs" />
     <Compile Include="Calc\MatrixL.cs" />
     <Compile Include="Calc\Range.cs" />
     <Compile Include="GMSH\CircleG.cs" />

@@ -109,7 +109,7 @@ namespace Geo.Calc
       }
 
       /// <summary>
-      /// Gets the identity matrix.
+      /// Получение единичной матрицы.
       /// </summary>
       public static Matrix Identity
       {

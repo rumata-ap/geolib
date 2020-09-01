@@ -498,6 +498,79 @@ namespace Geo.Calc
       }
 
       /// <summary>
+      /// Вычисление пересечения линии и сферы.
+      /// </summary>
+      /// <param name="p1">Начальная точка линии.</param>
+      /// <param name="p2">Конечная точка линии.</param>
+      /// <param name="sc">Центр сферы.</param>
+      /// <param name="r">Радиус сферы.</param>
+      /// <param name="res1">Первая точка пересечения.</param>
+      /// <param name="res2">Вторая точка пересечения.</param>
+      /// <remarks> 
+      ///  Отрезок определяется от p1 до p2.
+      ///  Сфера определяется радиусом r с центром в sc.
+      ///  Есть потенциально две точки пересечения.
+      /// </remarks>
+      /// <returns>FALSE, если линия не пересекает сферу.</returns>
+      public static bool FindIntersection(ICoordinates p1, ICoordinates p2, ICoordinates sc, double r, out Point3d res1, out Point3d res2)
+      {
+         return FindIntersection(p1, p2, sc, r, out res1, out res2, epsilon);
+      }
+
+      /// <summary>
+      /// Вычисление пересечения линии и сферы.
+      /// </summary>
+      /// <param name="p1">Начальная точка линии.</param>
+      /// <param name="p2">Конечная точка линии.</param>
+      /// <param name="sc">Центр сферы.</param>
+      /// <param name="r">Радиус сферы.</param>
+      /// <param name="res1">Первая точка пересечения.</param>
+      /// <param name="res2">Вторая точка пересечения.</param>
+      /// <param name="threshold">Допуск.</param>
+      /// <remarks> 
+      ///  Отрезок определяется от p1 до p2.
+      ///  Сфера определяется радиусом r с центром в sc.
+      ///  Есть потенциально две точки пересечения.
+      /// </remarks>
+      /// <returns>FALSE, если линия не пересекает сферу.</returns>
+      public static bool FindIntersection(ICoordinates p1, ICoordinates p2, 
+                                          ICoordinates sc, double r, 
+                                          out Point3d res1, out Point3d res2, 
+                                          double threshold)
+      {
+         double a, b, c, bb4ac, mu1, mu2;
+         Vector3d dp = p2.ToVector3d() - p1.ToVector3d();
+
+         a = dp.Norma;
+         b = 2 * (dp.Vx * (p1.X - sc.X) + dp.Vy * (p1.Y - sc.Y) + dp.Vz * (p1.Z - sc.Z));
+         c = sc.ToVector3d().Norma;
+         c += p1.ToVector3d().Norma;
+         c -= 2 * (sc.X * p1.X + sc.Y * p1.Y + sc.Z * p1.Z);
+         c -= r * r;
+         bb4ac = b * b - 4 * a * c;
+         if (Math.Abs(a) < threshold || bb4ac < 0)
+         {
+            res1 = null;
+            res2 = null;
+            return false;
+         }
+         else if (bb4ac > 0 && bb4ac <= threshold)
+         {
+            mu1 = -b / (2 * a);
+            res1 = (p1.ToVector3d() + (p2.ToVector3d() - p1.ToVector3d()) * mu1).ToPoint3d();
+            res2 = null;
+            return false;
+         }
+
+         mu1 = (-b + Math.Sqrt(bb4ac)) / (2 * a);
+         mu2 = (-b - Math.Sqrt(bb4ac)) / (2 * a);
+         res1 = (p1.ToVector3d() + (p2.ToVector3d() - p1.ToVector3d()) * mu1).ToPoint3d();
+         res2 = (p1.ToVector3d() + (p2.ToVector3d() - p1.ToVector3d()) * mu2).ToPoint3d();
+
+         return true;
+      }
+
+      /// <summary>
       /// Normalizes the value of an angle in degrees between [0, 360[.
       /// </summary>
       /// <param name="angle">Angle in degrees.</param>

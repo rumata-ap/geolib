@@ -44,6 +44,7 @@
     <Compile Include="Calc\Calcs.cs" />
     <Compile Include="Calc\MatrixL.cs" />
     <Compile Include="Calc\Range.cs" />
+    <Compile Include="Circle2d.cs" />
     <Compile Include="GMSH\CircleG.cs" />
     <Compile Include="GMSH\IEntityG.cs" />
     <Compile Include="GMSH\LineG.cs" />

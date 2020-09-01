@@ -16,6 +16,7 @@
    public enum CurveType
    {
       line,
-      arc
+      arc,
+      circle
    }
 }

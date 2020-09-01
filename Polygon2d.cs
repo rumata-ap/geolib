@@ -281,5 +281,10 @@ namespace Geo
          var sel = from i in vrtxs orderby i.AngleDeg select i;
          return sel.Last().AngleDeg;
       }
+
+      public bool IsSelfIntersection()
+      {
+
+      }
    }
 }

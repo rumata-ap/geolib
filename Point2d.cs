@@ -1,11 +1,12 @@
 ﻿using Geo.Calc;
 
 using System;
+using System.Collections.Generic;
 
 namespace Geo
 {
    [Serializable]
-   public class Point2d:ICoordinates
+   public class Point2d : ICoordinates
    {
       double[] arr = new double[2];
 
@@ -13,6 +14,7 @@ namespace Geo
       public double X { get => arr[0]; set => arr[0] = value; }
       public double Y { get => arr[1]; set => arr[1] = value; }
       public double Z { get; set; }
+      public Dictionary<string, object> Attr { get; set; }
 
       public Point2d()
       {
@@ -134,22 +136,7 @@ namespace Geo
 
       public bool IsMatch(ICoordinates pt)
       {
-         bool check = false;
-         if (X == pt.X && Y == pt.Y)
-         {
-            check = true;
-         }
-         return check;
-      }
-
-      public bool NotMath(ICoordinates pt)
-      {
-         bool check = false;
-         if (X != pt.X || Y != pt.Y)
-         {
-            check = true;
-         }
-         return check;
+         return Calcs.IsEqual(this, pt);
       }
 
       public double LengthTo(ICoordinates target)
@@ -157,6 +144,11 @@ namespace Geo
          double dx = X - target.X;
          double dy = Y - target.Y;
          return Math.Sqrt(dx * dx + dy * dy);
+      }
+
+      public bool IsNaN()
+      {
+         return double.IsNaN(X) || double.IsNaN(Y) || double.IsNaN(Z);
       }
    }
 }

@@ -109,6 +109,68 @@ namespace Geo
          else return (-A * x - C) / B;
       }
 
+      /// <summary>
+      /// Вычисляет минимальное расстояние до точки.
+      /// </summary>
+      /// <param name="p">Точка.</param>
+      /// <returns>Минимальное расстояние между точкой и линией.</returns>
+      public double DistanceToPoint(ICoordinates p)
+      {
+         double t = Directive.ToVector3d() / (p.ToVector3d() - StartPoint.ToVector3d());
+         Vector3d pPrime = StartPoint.ToVector3d() + Directive.ToVector3d() * t;
+         Vector3d vec = p.ToVector3d() - pPrime;
+         double distanceSquared = vec.Norma;
+         return Math.Sqrt(distanceSquared);
+      }
+
+      /// <summary>
+      /// Проверяет, находится ли точка внутри области, определяемой линейным сегментом.
+      /// </summary>
+      /// <param name="p">Точка.</param>
+      /// <param name="start">Начальная точка сегмента.</param>
+      /// <param name="end">Конечная точка сегмента.</param>
+      /// <returns>
+      /// 0, если точка находится внутри сегмента, 
+      /// 1, если точка находится после конечной точки, и 
+      /// -1, если точка находится перед начальной точкой.</returns>
+      /// <remarks>
+      /// Для целей тестирования точка считается внутри сегмента, 
+      /// если она попадает в область от начала до конца сегмента, которая простирается бесконечно перпендикулярно его направлению.
+      /// Позже, если необходимо, вы можете использовать метод PointLineDistance для определеня расстояния от точки до сегмента. 
+      /// Если это расстояние равно нулю, то точка находится вдоль линии, определяемой начальной и конечной точками.
+      /// </remarks>
+      public int PointInSegment(ICoordinates p)
+      {
+         Vector3d dir = EndPoint.ToVector3d() - StartPoint.ToVector3d();
+         Vector3d pPrime = p.ToVector3d() - StartPoint.ToVector3d();
+         double t = dir / pPrime;
+         if (t < 0)
+         {
+            return -1;
+         }
+         double dot = dir / dir;
+         if (t > dot)
+         {
+            return 1;
+         }
+         return 0;
+      }
+
+      /// <summary>
+      /// Вычисление точки прересечения c линией.
+      /// </summary>
+      /// <param name="line">Линия.</param>
+      /// <returns>Точка прересечения двух плоских линий.</returns>
+      public Point2d Intersection(Line2d line)
+      {
+         return Calcs.FindIntersection(StartPoint.ToPoint2d(), Directive, line.StartPoint.ToPoint2d(), line.Directive, 1e-12);
+      }
+
+      /// <summary>
+      /// Вычисление точки прересечения c линией.
+      /// </summary>
+      /// <param name="line">Плоская иния.</param>
+      /// <param name="res">Ссылка на объект результата.</param>
       public void Intersection(Line2d line, out IntersectResult res)
       {
          res = new IntersectResult();
@@ -130,6 +192,35 @@ namespace Geo
          res.res = true;
       }
 
+      /// <summary>
+      /// 
+      /// </summary>
+      /// <param name="line"></param>
+      /// <param name="pi"></param>
+      /// <returns></returns>
+      public bool IntersectionInBonds(Line2d line, out Point2d pi)
+      {
+         pi = Intersection(line);
+         if (pi.IsNaN()) return false;
+         int ch1 = Calcs.PointInSegment(pi, startPoint, endPoint);
+         if (ch1 != 0) return false;
+         double d = Calcs.PointLineDistance(pi, startPoint, directive.ToVector3d());
+
+         return Calcs.IsZero(d);
+      }
+      
+      public bool IntersectionNoBonds(Line2d line, out Point2d pi)
+      {
+         pi = Intersection(line);
+         if (pi.IsNaN()) return false;
+         int ch1 = Calcs.PointInSegmentNoBounds(pi, startPoint, endPoint);
+         if (ch1 != 0) return false;
+         double d = Calcs.PointLineDistance(pi, startPoint, directive.ToVector3d());
+
+         return Calcs.IsZero(d);
+      }
+
+      [Obsolete("Используйте IntersectionNoBonds(line, pi) или IntersectionInBonds(line, pi) вместо этого метода.")]
       public void IntersectionSegments(Line2d line, out IntersectResult res)
       {
          res = new IntersectResult();

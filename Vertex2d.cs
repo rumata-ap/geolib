@@ -107,31 +107,6 @@ namespace Geo
          else return new Vector2d((dir1 + dir2).Unit);
       }
 
-      static double RadToDeg(double radians)
-      {
-         return radians * 180 / System.Math.PI;
-      }
-
-      public bool IsMatch(ICoordinates pt)
-      {
-         bool check = false;
-         if (Math.Round(X, 4) == Math.Round(pt.X, 4) && Math.Round(Y, 4) == Math.Round(pt.Y, 4) && Math.Round(Z, 4) == Math.Round(pt.Z, 4))
-         {
-            check = true;
-         }
-         return (check);
-      }
-
-      public bool NotMath(ICoordinates pt)
-      {
-         bool check = false;
-         if (X != pt.X || Y != pt.Y || Z != pt.Z)
-         {
-            check = true;
-         }
-         return (check);
-      }
-
       public double[] ToArray()
       {
          return new double[] { x, y, z };
@@ -139,7 +114,7 @@ namespace Geo
 
       public Vector3d ToVector3d()
       {
-         throw new NotImplementedException();
+         return new Vector3d(x, y, z);
       }
 
       public Point3d ToPoint3d()
@@ -152,6 +127,11 @@ namespace Geo
          double dx = X - target.X;
          double dy = Y - target.Y;
          return Math.Sqrt(dx * dx + dy * dy);
+      }
+
+      public bool IsNaN()
+      {
+         return double.IsNaN(X) || double.IsNaN(Y) || double.IsNaN(Z);
       }
 
       public static Vector3d operator -(Vertex2d pt1, Vertex2d pt2)
@@ -188,6 +168,16 @@ namespace Geo
          res[1] = pt1.Y - v2[1];
          res[2] = pt1.Z - v2[2];
          return res;
+      }
+
+      static double RadToDeg(double radians)
+      {
+         return radians * 180 / Math.PI;
+      }
+
+      public bool IsMatch(ICoordinates pt)
+      {
+         return Calcs.IsEqual(this, pt);
       }
    }
 

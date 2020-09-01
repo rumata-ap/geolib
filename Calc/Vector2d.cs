@@ -89,6 +89,11 @@ namespace Geo.Calc
          return new Point2d(Vx, Vy);
       }
 
+      public static bool IsNaN(Vector2d u)
+      {
+         return double.IsNaN(u.Vx) || double.IsNaN(u.Vy);
+      }
+
       /// <summary>
       /// Checks if two vectors are perpendicular.
       /// </summary>
@@ -97,7 +102,7 @@ namespace Geo.Calc
       /// <returns>True if are perpendicular or false in any other case.</returns>
       public static bool ArePerpendicular(Vector2d u, Vector2d v)
       {
-         return ArePerpendicular(u, v, Calc.Epsilon);
+         return ArePerpendicular(u, v, Calcs.Epsilon);
       }
 
       /// <summary>
@@ -109,7 +114,7 @@ namespace Geo.Calc
       /// <returns>True if are perpendicular or false in any other case.</returns>
       public static bool ArePerpendicular(Vector2d u, Vector2d v, double threshold)
       {
-         return Calc.IsZero(u / v, threshold);
+         return Calcs.IsZero(u / v, threshold);
       }
 
       /// <summary>
@@ -120,7 +125,7 @@ namespace Geo.Calc
       /// <returns>True if are parallel or false in any other case.</returns>
       public static bool AreParallel(Vector2d u, Vector2d v)
       {
-         return AreParallel(u, v, Calc.Epsilon);
+         return AreParallel(u, v, Calcs.Epsilon);
       }
 
       /// <summary>
@@ -132,7 +137,7 @@ namespace Geo.Calc
       /// <returns>True if are parallel or false in any other case.</returns>
       public static bool AreParallel(Vector2d u, Vector2d v, double threshold)
       {
-         return Calc.IsZero(u % v, threshold);
+         return Calcs.IsZero(u % v, threshold);
       }
 
       /// <summary>

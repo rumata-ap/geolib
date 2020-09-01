@@ -106,6 +106,11 @@ namespace Geo.Calc
          return new Point2d(Vx, Vy);
       }
 
+      public static bool IsNaN(Vector3d u)
+      {
+         return double.IsNaN(u.Vx) || double.IsNaN(u.Vy) || double.IsNaN(u.Vz);
+      }
+
       /// <summary>
       /// Нулевой вектор.
       /// </summary>

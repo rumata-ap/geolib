@@ -9,7 +9,7 @@ namespace Geo
       double Z { get; set; }
 
       bool IsMatch(ICoordinates pt);
-      bool NotMath(ICoordinates pt);
+      bool IsNaN();
       double[] ToArray();
       Vector3d ToVector3d();
       double LengthTo(ICoordinates target);

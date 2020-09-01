@@ -157,44 +157,9 @@ namespace Geo
          return res;
       }
 
-      //public static bool operator ==(Point3d p1, Point3d p2)
-      //{
-      //   bool check = false;
-      //   if (p1.X == p2.X && p1.Y == p2.Y && p1.Z == p2.Z)
-      //   {
-      //      check = true;
-      //   }
-      //   return (check);
-      //}
-
-      //public static bool operator !=(Point3d p1, Point3d p2)
-      //{
-      //   bool check = true;
-      //   if (p1.X == p2.X && p1.Y == p2.Y && p1.Z == p2.Z)
-      //   {
-      //      check = false;
-      //   }
-      //   return (check);
-      //}
-
       public bool IsMatch(ICoordinates pt)
       {
-         bool check = false;
-         if (X == pt.X && Y == pt.Y && Z == pt.Z)
-         {
-            check = true;
-         }
-         return check;
-      }
-
-      public bool NotMath(ICoordinates pt)
-      {
-         bool check = false;
-         if (X != pt.X || Y != pt.Y || Z != pt.Z)
-         {
-            check = true;
-         }
-         return check;
+         return Calcs.IsEqual(this, pt);
       }
 
       public double LengthTo(ICoordinates target)
@@ -203,6 +168,11 @@ namespace Geo
          double dy = Y - target.Y;
          double dz = Z - target.Z;
          return Math.Sqrt(dx * dx + dy * dy + dz * dz);
+      }
+
+      public bool IsNaN()
+      {
+         return double.IsNaN(X) || double.IsNaN(Y) || double.IsNaN(Z);
       }
    }
 }

@@ -7,7 +7,7 @@ namespace Geo.Calc
    /// <summary>
    /// Служебные математические функции и константы.
    /// </summary>
-   public static class Calc
+   public static class Calcs
    {
       #region constants
 
@@ -135,7 +135,7 @@ namespace Geo.Calc
       }
 
       /// <summary>
-      /// Checks if a number is close to zero.
+      /// Проверяет, близко ли число к нулю.
       /// </summary>
       /// <param name="number">Double precision number.</param>
       /// <returns>True if its close to one or false in any other case.</returns>
@@ -145,7 +145,7 @@ namespace Geo.Calc
       }
 
       /// <summary>
-      /// Checks if a number is close to zero.
+      /// Проверяет, близко ли число к нулю.
       /// </summary>
       /// <param name="number">Double precision number.</param>
       /// <param name="threshold">Tolerance.</param>
@@ -156,7 +156,30 @@ namespace Geo.Calc
       }
 
       /// <summary>
-      /// Checks if a number is equal to another.
+      /// Проверяет, близость координат точечного объекта к нулю.
+      /// </summary>
+      /// <param name="point">Координаты точечного объекта.</param>
+      /// <returns>True if its close to one or false in any other case.</returns>
+      public static bool IsZero(ICoordinates point)
+      {
+         return IsZero(point, Epsilon);
+      }
+
+      /// <summary>
+      /// Проверяет, близость координат точечного объекта к нулю.
+      /// </summary>
+      /// <param name="point">Координаты точечного объекта.</param>
+      /// <param name="threshold">Допуск.</param>
+      /// <returns>True if its close to one or false in any other case.</returns>
+      public static bool IsZero(ICoordinates point, double threshold)
+      {
+         return point.X >= -threshold && point.X <= threshold &&
+                point.Y >= -threshold && point.Y <= threshold &&
+                point.Z >= -threshold && point.Z <= threshold;
+      }
+
+      /// <summary>
+      /// Проверяет, совпадает ли одно число с другим.
       /// </summary>
       /// <param name="a">Double precision number.</param>
       /// <param name="b">Double precision number.</param>
@@ -167,15 +190,38 @@ namespace Geo.Calc
       }
 
       /// <summary>
-      /// Checks if a number is equal to another.
+      /// Проверяет, совпадает ли одно число с другим.
       /// </summary>
-      /// <param name="a">Double precision number.</param>
-      /// <param name="b">Double precision number.</param>
-      /// <param name="threshold">Tolerance.</param>
+      /// <param name="a">Число двойной точности.</param>
+      /// <param name="b">Число двойной точности.</param>
+      /// <param name="threshold">Допуск.</param>
       /// <returns>True if its close to one or false in any other case.</returns>
       public static bool IsEqual(double a, double b, double threshold)
       {
          return IsZero(a - b, threshold);
+      }
+
+      /// <summary>
+      /// Проверяет, совпадают ли координаты точечных объектов.
+      /// </summary>
+      /// <param name="a">Координаты точечного объекта.</param>
+      /// <param name="b">Координаты точечного объекта.</param>
+      /// <returns>True if its close to one or false in any other case.</returns>
+      public static bool IsEqual(ICoordinates a, ICoordinates b)
+      {
+         return IsEqual(a, b, Epsilon);
+      }
+
+      /// <summary>
+      /// Проверяет, совпадают ли координаты точечных объектов.
+      /// </summary>
+      /// <param name="a">Координаты точечного объекта.</param>
+      /// <param name="b">Координаты точечного объекта.</param>
+      /// <param name="threshold">Tolerance.</param>
+      /// <returns>True if its close to one or false in any other case.</returns>
+      public static bool IsEqual(ICoordinates a, ICoordinates b, double threshold)
+      {
+         return IsZero((a.ToVector3d() - b.ToVector3d()).ToPoint3d(), threshold);
       }
 
       /// <summary>
@@ -188,7 +234,7 @@ namespace Geo.Calc
       /// <returns>Преобразованноя точка.</returns>
       public static Vector2d Transform(Vector2d point, double rotation, CoordinateSystem from, CoordinateSystem to)
       {
-         // если поворот равен 0, преобразование не требуется, матрица преобразования является тождественной
+         // если поворот равен 0, преобразование не требуется, матрица преобразования является идентичной
          if (IsZero(rotation))
             return point;
 
@@ -218,7 +264,7 @@ namespace Geo.Calc
          if (points == null)
             throw new ArgumentNullException(nameof(points));
 
-         // if the rotation is 0 no transformation is needed the transformation matrix is the identity
+         //  если поворот равен 0, преобразование не требуется, матрица преобразования является идентичной
          if (IsZero(rotation))
             return new List<Vector2d>(points);
 
@@ -255,11 +301,11 @@ namespace Geo.Calc
       /// <param name="from">Point coordinate system.</param>
       /// <param name="to">Coordinate system of the transformed point.</param>
       /// <returns>Transformed point.</returns>
-      public static Point3d Transform(Point3d point, Vector3d zAxis, CoordinateSystem from, CoordinateSystem to)
+      public static Point3d Transform(ICoordinates point, Vector3d zAxis, CoordinateSystem from, CoordinateSystem to)
       {
          // if the normal is (0,0,1) no transformation is needed the transformation matrix is the identity
          if (zAxis.Equals(Vector3d.UnitZ))
-            return point;
+            return new Point3d(point);
 
          Matrix trans = ArbitraryAxis(zAxis);
          if (from == CoordinateSystem.World && to == CoordinateSystem.Object)
@@ -271,7 +317,7 @@ namespace Geo.Calc
          {
             return (trans * point.ToVector3d()).ToPoint3d();
          }
-         return point;
+         return new Point3d(point);
       }
 
       /// <summary>
@@ -357,16 +403,20 @@ namespace Geo.Calc
       }
 
       /// <summary>
-      /// Проверяет, находится ли точка внутри линейного сегмента.
+      /// Проверяет, находится ли точка внутри области, определяемой линейным сегментом.
       /// </summary>
       /// <param name="p">Точка.</param>
       /// <param name="start">Начальная точка сегмента.</param>
       /// <param name="end">Конечная точка сегмента.</param>
-      /// <returns>Ноль, если точка находится внутри сегмента, 1, если точка находится после конечной точки, и -1, если точка находится перед начальной точкой.</returns>
+      /// <returns>
+      /// 0, если точка находится внутри сегмента, 
+      /// 1, если точка находится после конечной точки, и 
+      /// -1, если точка находится перед начальной точкой.</returns>
       /// <remarks>
-      /// For testing purposes a point is considered inside a segment,
-      /// if it falls inside the volume from start to end of the segment that extends infinitely perpendicularly to its direction.
-      /// Later, if needed, you can use the PointLineDistance method, if the distance is zero the point is along the line defined by the start and end points.
+      /// Для целей тестирования точка считается внутри сегмента, 
+      /// если она попадает в область от начала до конца сегмента, которая простирается бесконечно перпендикулярно его направлению.
+      /// Позже, если необходимо, вы можете использовать метод PointLineDistance для определеня расстояния от точки до сегмента. 
+      /// Если это расстояние равно нулю, то точка находится вдоль линии, определяемой начальной и конечной точками.
       /// </remarks>
       public static int PointInSegment(ICoordinates p, ICoordinates start, ICoordinates end)
       {
@@ -384,32 +434,56 @@ namespace Geo.Calc
          }
          return 0;
       }
+      
+      /// <summary>
+      /// Проверяет, находится ли точка внутри области, определяемой линейным сегментом.
+      /// </summary>
+      /// <param name="p">Точка.</param>
+      /// <param name="start">Начальная точка сегмента.</param>
+      /// <param name="end">Конечная точка сегмента.</param>
+      /// <returns>
+      /// 0, если точка находится внутри сегмента, 
+      /// 1, если точка находится после конечной точки, и 
+      /// -1, если точка находится перед начальной точкой.</returns>
+      /// <remarks>
+      /// Для целей тестирования точка считается внутри сегмента, 
+      /// если она попадает в область от начала до конца сегмента, которая простирается бесконечно перпендикулярно его направлению.
+      /// Позже, если необходимо, вы можете использовать метод PointLineDistance для определеня расстояния от точки до сегмента. 
+      /// Если это расстояние равно нулю, то точка находится вдоль линии, определяемой начальной и конечной точками.
+      /// </remarks>
+      public static int PointInSegmentNoBounds(ICoordinates p, ICoordinates start, ICoordinates end)
+      {
+         Vector3d dir = end.ToVector3d() - start.ToVector3d();
+         Vector3d pPrime = p.ToVector3d() - start.ToVector3d();
+         double t = dir / pPrime;
+         if (t < 0 || IsZero(t)) return -1;
 
+         double dot = dir / dir;
+         if (t > dot || IsEqual(t, dot)) return 1;
+
+         return 0;
+      }
 
       /// <summary>
-      /// Calculates the intersection point of two lines.
+      /// Вычисление точки прересечения двух плоских линий.
       /// </summary>
-      /// <param name="point0">First line origin point.</param>
-      /// <param name="dir0">First line direction.</param>
-      /// <param name="point1">Second line origin point.</param>
-      /// <param name="dir1">Second line direction.</param>
-      /// <returns>The intersection point between the two lines.</returns>
-      /// <remarks>If the lines are parallel the method will return a <see cref="Vector2.NaN">Vector2.NaN</see>.</remarks>
-      public static Point2d FindIntersection(Line2d l1, Line2d l2, Point2d dir1)
+      /// <param name="l1">Первая линия.</param>
+      /// <param name="l2">Вторая линия.</param>
+      /// <returns>Точка прересечения двух плоских линий.</returns>
+      public static Point2d FindIntersection(Line2d l1, Line2d l2)
       {
          return FindIntersection(l1.StartPoint.ToPoint2d(), l1.Directive, l2.StartPoint.ToPoint2d(), l2.Directive, Epsilon);
       }
 
       /// <summary>
-      /// Calculates the intersection point of two lines.
+      /// Вычисление точки прересечения двух плоских линий.
       /// </summary>
-      /// <param name="point0">First line origin point.</param>
-      /// <param name="dir0">First line direction.</param>
-      /// <param name="point1">Second line origin point.</param>
-      /// <param name="dir1">Second line direction.</param>
-      /// <param name="threshold">Tolerance.</param>
-      /// <returns>The intersection point between the two lines.</returns>
-      /// <remarks>If the lines are parallel the method will return a <see cref="Vector2.NaN">Vector2.NaN</see>.</remarks>
+      /// <param name="point0">Точка определяющая превую линию.</param>
+      /// <param name="dir0">Направляющий вектор первой линии.</param>
+      /// <param name="point1">Точка определяющая вторую линию.</param>
+      /// <param name="dir1">Направляющий вектор второй линии.</param>
+      /// <param name="threshold">Допуск.</param>
+      /// <returns>Точка прересечения двух плоских линий.</returns>
       public static Point2d FindIntersection(Point2d point0, Vector2d dir0, Point2d point1, Vector2d dir1, double threshold)
       {
          // Проверка на параллельность.

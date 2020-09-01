@@ -63,11 +63,6 @@ namespace Geo.Calc
          }
       }
 
-      public static double CosAngleBetVectors(Vector2d v1, Vector2d v2)
-      {
-         return (v1.Vx * v2.Vx + v1.Vy * v2.Vy) / (Sqrt(v1.Vx * v1.Vx + v1.Vy * v1.Vy) * Sqrt(v2.Vx * v2.Vx + v2.Vy * v2.Vy));
-      }
-
       public double[] ToArray()
       {
          return arr;
@@ -94,18 +89,129 @@ namespace Geo.Calc
          return new Point2d(Vx, Vy);
       }
 
-
-      public static Vector3d operator ^(Vector2d v1, Vector2d v2)
+      /// <summary>
+      /// Checks if two vectors are perpendicular.
+      /// </summary>
+      /// <param name="u">Vector2.</param>
+      /// <param name="v">Vector2.</param>
+      /// <returns>True if are perpendicular or false in any other case.</returns>
+      public static bool ArePerpendicular(Vector2d u, Vector2d v)
       {
-         Vector3d tempV1 = new Vector3d(v1); Vector3d tempV2 = new Vector3d(v2);
+         return ArePerpendicular(u, v, Calc.Epsilon);
+      }
+
+      /// <summary>
+      /// Checks if two vectors are perpendicular.
+      /// </summary>
+      /// <param name="u">Vector2.</param>
+      /// <param name="v">Vector2.</param>
+      /// <param name="threshold">Tolerance used.</param>
+      /// <returns>True if are perpendicular or false in any other case.</returns>
+      public static bool ArePerpendicular(Vector2d u, Vector2d v, double threshold)
+      {
+         return Calc.IsZero(u / v, threshold);
+      }
+
+      /// <summary>
+      /// Checks if two vectors are parallel.
+      /// </summary>
+      /// <param name="u">Vector2.</param>
+      /// <param name="v">Vector2.</param>
+      /// <returns>True if are parallel or false in any other case.</returns>
+      public static bool AreParallel(Vector2d u, Vector2d v)
+      {
+         return AreParallel(u, v, Calc.Epsilon);
+      }
+
+      /// <summary>
+      /// Checks if two vectors are parallel.
+      /// </summary>
+      /// <param name="u">Vector2.</param>
+      /// <param name="v">Vector2.</param>
+      /// <param name="threshold">Tolerance used.</param>
+      /// <returns>True if are parallel or false in any other case.</returns>
+      public static bool AreParallel(Vector2d u, Vector2d v, double threshold)
+      {
+         return Calc.IsZero(u % v, threshold);
+      }
+
+      /// <summary>
+      /// Rounds the components of a vector.
+      /// </summary>
+      /// <param name="u">Vector2.</param>
+      /// <param name="numDigits">Number of decimal places in the return value.</param>
+      /// <returns>Vector2.</returns>
+      public static Vector2d Round(Vector2d u, int numDigits)
+      {
+         return new Vector2d(Math.Round(u.Vx, numDigits), Math.Round(u.Vy, numDigits));
+      }
+
+      /// <summary>
+      /// Возвращает косинус угла между векторами.
+      /// </summary>
+      /// <param name="v1">Двумерный вектор.</param>
+      /// <param name="v2">Двумерный вектор.</param>
+      /// <returns>Косинус угла между векторами.</returns>
+      public static double CosAngleBetVectors(Vector2d v1, Vector2d v2)
+      {
+         return (v1.Vx * v2.Vx + v1.Vy * v2.Vy) / (Sqrt(v1.Vx * v1.Vx + v1.Vy * v1.Vy) * Sqrt(v2.Vx * v2.Vx + v2.Vy * v2.Vy));
+      }
+
+      /// <summary>
+      /// Возвращает угол между векторами.
+      /// </summary>
+      /// <param name="v1">Двумерный вектор.</param>
+      /// <param name="v2">Двумерный вектор.</param>
+      /// <returns>Угол между векторами в радианах.</returns>
+      public static double AngleBetVectors(Vector2d v1, Vector2d v2)
+      {
+         return Acos(CosAngleBetVectors(v1, v2));
+      }
+
+      /// <summary>
+      /// Возвращает скалярное произведение двух векторов.
+      /// </summary>
+      /// <param name="u">Двумерный вектор.</param>
+      /// <param name="v">Двумерный вектор.</param>
+      /// <returns>Точечный продукт.</returns>
+      public static double operator /(Vector2d u, Vector2d v)
+      {
+         return u.Vx * v.Vx + u.Vy * v.Vy;
+      }
+
+      /// <summary>
+      /// Возвращает векторное произведение двух векторов.
+      /// </summary>
+      /// <param name="v1">Двумерный вектор.</param>
+      /// <param name="v2">Двумерный вектор.</param>
+      /// <returns>Число (кросс-продукт).</returns>
+      public static double operator %(Vector2d u, Vector2d v)
+      {
+         return u.Vx * v.Vy - u.Vy * v.Vx;
+      }
+
+      /// <summary>
+      /// Возвращает векторное произведение двух векторов.
+      /// </summary>
+      /// <param name="u">Двумерный вектор.</param>
+      /// <param name="v">Двумерный вектор.</param>
+      /// <returns>Трехмерный вектор (нормаль).</returns>
+      public static Vector3d operator ^(Vector2d u, Vector2d v)
+      {
          return new Vector3d
          {
-            Vx = tempV1.Vy * tempV2.Vz - tempV1.Vz * tempV2.Vy,
-            Vy = tempV1.Vz * tempV2.Vx - tempV1.Vx * tempV2.Vz,
-            Vz = tempV1.Vx * tempV2.Vy - tempV1.Vy * tempV2.Vx
+            Vx = 0,
+            Vy = 0,
+            Vz = u.Vx * v.Vy - u.Vy * v.Vx
          };
       }
 
+      /// <summary>
+      /// Возвращает поэлементное произведение двух векторов.
+      /// </summary>
+      /// <param name="v1">Двумерный вектор.</param>
+      /// <param name="v2">Двумерный вектор.</param>
+      /// <returns>Двумерный вектор.</returns>
       public static Vector2d operator *(Vector2d v1, Vector2d v2)
       {
          return new Vector2d
@@ -114,7 +220,13 @@ namespace Geo.Calc
             Vy = v1.Vy * v2.Vy
          };
       }
-      
+
+      /// <summary>
+      /// Умножение вектора на число.
+      /// </summary>
+      /// <param name="v1">Двумерный вектор.</param>
+      /// <param name="v2">Число.</param>
+      /// <returns>Двумерный вектор.</returns>
       public static Vector2d operator *(Vector2d v1, int v2)
       {
          return new Vector2d
@@ -123,7 +235,13 @@ namespace Geo.Calc
             Vy = v1.Vy * v2
          };
       }
-            
+
+      /// <summary>
+      /// Умножение вектора на число.
+      /// </summary>
+      /// <param name="v1">Двумерный вектор.</param>
+      /// <param name="v2">Число.</param>
+      /// <returns>Двумерный вектор.</returns>
       public static Vector2d operator *(Vector2d v1, double v2)
       {
          return new Vector2d
@@ -133,6 +251,12 @@ namespace Geo.Calc
          };
       }
 
+      /// <summary>
+      /// Возвращает сумму двух векторов.
+      /// </summary>
+      /// <param name="v1">Двумерный вектор.</param>
+      /// <param name="v2">Двумерный вектор.</param>
+      /// <returns>Двумерный вектор.</returns>
       public static Vector2d operator +(Vector2d v1, Vector2d v2)
       {
          return new Vector2d
@@ -142,6 +266,12 @@ namespace Geo.Calc
          };
       }
 
+      /// <summary>
+      /// Возвращает разность двух векторов.
+      /// </summary>
+      /// <param name="v1">Двумерный вектор.</param>
+      /// <param name="v2">Двумерный вектор.</param>
+      /// <returns>Двумерный вектор.</returns>
       public static Vector2d operator -(Vector2d v1, Vector2d v2)
       {
          return new Vector2d

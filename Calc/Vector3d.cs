@@ -106,6 +106,38 @@ namespace Geo.Calc
          return new Point2d(Vx, Vy);
       }
 
+      /// <summary>
+      /// Нулевой вектор.
+      /// </summary>
+      public static Vector3d Zero
+      {
+         get { return new Vector3d(0, 0, 0); }
+      }
+
+      /// <summary>
+      /// Единичный X вектор.
+      /// </summary>
+      public static Vector3d UnitX
+      {
+         get { return new Vector3d(1, 0, 0); }
+      }
+
+      /// <summary>
+      /// Единичный Y вектор.
+      /// </summary>
+      public static Vector3d UnitY
+      {
+         get { return new Vector3d(0, 1, 0); }
+      }
+
+      /// <summary>
+      /// Единичный Z вектор.
+      /// </summary>
+      public static Vector3d UnitZ
+      {
+         get { return new Vector3d(0, 0, 1); }
+      }
+
       public bool IsMatch(Vector3d vector)
       {
          if (Vx == vector.Vx && Vy == vector.Vy && Vz == vector.Vz) return true;
@@ -116,6 +148,17 @@ namespace Geo.Calc
       {
          if (Vx == -vector.Vx && Vy == -vector.Vy && Vz == -vector.Vz) return true;
          else return false;
+      }
+
+      /// <summary>
+      /// Возвращает скалярное произведение двух векторов.
+      /// </summary>
+      /// <param name="u">Двумерный вектор.</param>
+      /// <param name="v">Двумерный вектор.</param>
+      /// <returns>Точечный продукт.</returns>
+      public static double operator /(Vector3d u, Vector3d v)
+      {
+         return u.Vx * v.Vx + u.Vy * v.Vy + u.Vz * v.Vz;
       }
 
       /// <summary>

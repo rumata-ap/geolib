@@ -98,6 +98,33 @@ namespace Geo.Calc
       }
 
       /// <summary>
+      /// Получение нулевой матрицы.
+      /// </summary>
+      public static Matrix Zero
+      {
+         get
+         {
+            return new Matrix(3,3);
+         }
+      }
+
+      /// <summary>
+      /// Gets the identity matrix.
+      /// </summary>
+      public static Matrix Identity
+      {
+         get
+         {
+            Matrix res = new Matrix(3, 3);
+            for (int i = 0; i < res.N; i++)
+            {
+               res[i, i] = 1;
+            }
+            return res;
+         }
+      }
+
+      /// <summary>
       /// Mетод, позволяющий выполнить какое-либо действие над всеми элементами матрицы.
       /// </summary>
       /// <param name="func"></param>

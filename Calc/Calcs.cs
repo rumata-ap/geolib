@@ -621,6 +621,36 @@ namespace Geo.Calc
          }
       }
 
+      /// <summary>
+      /// Вычисление линии пересечения двух плоскостей.
+      /// </summary>
+      /// <param name="p1">Первая точка, определяющая 1-ю плоскость.</param>
+      /// <param name="p2">Вторая точка, определяющая 1-ю плоскость.</param>
+      /// <param name="p3">Третья точка, определяющая 1-ю плоскость.</param>
+      /// <param name="p4">Первая точка, определяющая 2-ю плоскость.</param>
+      /// <param name="p5">Вторая точка, определяющая 2-ю плоскость.</param>
+      /// <param name="p6">Третья точка, определяющая 2-ю плоскость.</param>
+      /// <param name="res">Результирующая прямая.</param>
+      /// <returns>TRUE, если линия пересечения найдена.</returns>
+      public static bool FindIntersection(ICoordinates p1, ICoordinates p2, ICoordinates p3,
+                                          ICoordinates p4, ICoordinates p5, ICoordinates p6,
+                                          out Line3d res)
+      {
+         return FindIntersection(p1, p2, p3, p4, p5, p6, out res, epsilon);
+      }
+      
+      /// <summary>
+      /// Вычисление линии пересечения двух плоскостей.
+      /// </summary>
+      /// <param name="p1">Первая точка, определяющая 1-ю плоскость.</param>
+      /// <param name="p2">Вторая точка, определяющая 1-ю плоскость.</param>
+      /// <param name="p3">Третья точка, определяющая 1-ю плоскость.</param>
+      /// <param name="p4">Первая точка, определяющая 2-ю плоскость.</param>
+      /// <param name="p5">Вторая точка, определяющая 2-ю плоскость.</param>
+      /// <param name="p6">Третья точка, определяющая 2-ю плоскость.</param>
+      /// <param name="res">Результирующая прямая.</param>
+      /// <param name="threshold">Допуск определения параллельности плоскостей.</param>
+      /// <returns>TRUE, если линия пересечения найдена.</returns>
       public static bool FindIntersection(ICoordinates p1, ICoordinates p2, ICoordinates p3,
                                           ICoordinates p4, ICoordinates p5, ICoordinates p6,
                                           out Line3d res, double threshold)
@@ -634,12 +664,21 @@ namespace Geo.Calc
          }
          else
          {
-            Vector3d d = n1 ^ n2 ^ n1;
-            Vector3d dp1 = p1.ToVector3d();
-            Vector3d dp2 = p1.ToVector3d() + d;
-            FindIntersection(p4, p5, p6, dp1.ToPoint3d(), dp2.ToPoint3d(), out Point3d ip1, out double t, threshold);
-            Point3d ip2 = ip1 + (n1 ^ n2);
-            res = new Line3d(ip1, ip2);
+            //Vector3d d = n1 ^ n2 ^ n1;
+            //Vector3d dp1 = p1.ToVector3d();
+            //Vector3d dp2 = p1.ToVector3d() + d;
+            //FindIntersection(p4, p5, p6, dp1.ToPoint3d(), dp2.ToPoint3d(), out Point3d ip1, out double t, threshold);
+            //Point3d ip2 = ip1 + (n1 ^ n2);
+
+            double det = (n1 / n1) * (n2 / n2) - Math.Pow(n1 / n2, 2);
+            double d1 = n1 / p1.ToVector3d();
+            double d2 = n2 / p4.ToVector3d();
+            double c1 = (d1 * (n2 / n2) - d2 * (n1 / n2)) / det;
+            double c2 = (d2 * (n1 / n1) - d1 * (n1 / n2)) / det;
+
+            Vector3d ip1 = c1 * n1 + c2 * n2;
+            Vector3d ip2 = c1 * n1 + c2 * n2 + (n1 ^ n2); 
+            res = new Line3d(ip1.ToPoint3d(), ip2.ToPoint3d());
             return true;
          }
       }

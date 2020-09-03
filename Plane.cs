@@ -60,6 +60,8 @@ namespace Geo
          c = v1.Vx * v2.Vy - v1.Vy * v2.Vx;
          d = -a * pt1.X - b * pt1.Y - c * pt1.Z;
 
+         Normal = new Vector3d(a, b, c);
+
          //CalcPlane();
          //RadToDeg();
 
@@ -76,6 +78,8 @@ namespace Geo
          b = v1.Vz * v2.Vx - v1.Vx * v2.Vz;
          c = v1.Vx * v2.Vy - v1.Vy * v2.Vx;
          d = -a * pt1.X - b * pt1.Y - c * pt1.Z;
+
+         Normal = new Vector3d(a, b, c);
 
          //CalcPlane();
          //RadToDeg();
@@ -97,8 +101,8 @@ namespace Geo
       /// <returns>TRUE, если пересечение существует.</returns>
       public bool Intersection(Line3d line, out Point3d ip)
       {
-         double nom = Normal.Unit / (line.EndPoint - line.StartPoint);
-         double denom = Normal.Unit / (Basis - line.StartPoint);
+         double denom = Normal / (line.EndPoint - line.StartPoint);
+         double nom = Normal / (Basis - line.StartPoint);
          if (Calcs.IsZero(denom))
          {
             ip = null;
@@ -106,7 +110,8 @@ namespace Geo
          }
          else
          {
-            ip = line.StartPoint + (nom / denom) * (line.EndPoint - line.StartPoint);
+            double u = nom / denom;
+            ip = line.StartPoint + (line.EndPoint - line.StartPoint) * u;
             return true;
          }
       }

@@ -571,6 +571,80 @@ namespace Geo.Calc
       }
 
       /// <summary>
+      /// Вычисление точки пересечения прямой с плоскостью.
+      /// </summary>
+      /// <param name="p1">Первая точка, определяющая плоскость.</param>
+      /// <param name="p2">Вторая точка, определяющая плоскость.</param>
+      /// <param name="p3">Третья точка, определяющая плоскость.</param>
+      /// <param name="p4">Первая точка, определяющая прямую.</param>
+      /// <param name="p5">Вторая точка, определяющая прямую.</param>
+      /// <param name="res">Результирующая точка пересечения.</param>
+      /// <param name="t">Параметр, результирующей точки пересечения</param>
+      /// <returns>TRUE, если точка пересечения найдена.</returns>
+      public static bool FindIntersection(ICoordinates p1, ICoordinates p2, ICoordinates p3,
+                                          ICoordinates p4, ICoordinates p5,
+                                          out Point3d res, out double t)
+      {
+         return FindIntersection(p1, p2, p3, p4, p5, out res, out t, epsilon);
+      }
+      
+      /// <summary>
+      /// Вычисление точки пересечения прямой с плоскостью.
+      /// </summary>
+      /// <param name="p1">Первая точка, определяющая плоскость.</param>
+      /// <param name="p2">Вторая точка, определяющая плоскость.</param>
+      /// <param name="p3">Третья точка, определяющая плоскость.</param>
+      /// <param name="p4">Первая точка, определяющая прямую.</param>
+      /// <param name="p5">Вторая точка, определяющая прямую.</param>
+      /// <param name="res">Результирующая точка пересечения.</param>
+      /// <param name="t">Параметр, результирующей точки пересечения</param>
+      /// <param name="threshold">Допуск.</param>
+      /// <returns>TRUE, если точка пересечения найдена.</returns>
+      public static bool FindIntersection(ICoordinates p1, ICoordinates p2, ICoordinates p3,
+                                          ICoordinates p4, ICoordinates p5,
+                                          out Point3d res, out double t, double threshold)
+      {
+         Vector3d normal = (p2.ToVector3d() - p1.ToVector3d()) ^ (p3.ToVector3d() - p1.ToVector3d());
+         double denom = normal / (p5.ToVector3d() - p4.ToVector3d());
+         double nom = normal / (p1.ToVector3d() - p4.ToVector3d());
+         if (IsZero(denom, threshold))
+         {
+            res = null;
+            t = double.NaN;
+            return false;
+         }
+         else
+         {
+            t = nom / denom;
+            res = new Point3d(p4.ToVector3d() + (p5.ToVector3d() - p4.ToVector3d()) * t);
+            return true;
+         }
+      }
+
+      public static bool FindIntersection(ICoordinates p1, ICoordinates p2, ICoordinates p3,
+                                          ICoordinates p4, ICoordinates p5, ICoordinates p6,
+                                          out Line3d res, double threshold)
+      {
+         Vector3d n1 = (p2.ToVector3d() - p1.ToVector3d()) ^ (p3.ToVector3d() - p1.ToVector3d());
+         Vector3d n2 = (p5.ToVector3d() - p4.ToVector3d()) ^ (p6.ToVector3d() - p4.ToVector3d());
+         if (Vector3d.AreParallel(n1, n2, threshold))
+         {
+            res = null;
+            return false;
+         }
+         else
+         {
+            Vector3d d = n1 ^ n2 ^ n1;
+            Vector3d dp1 = p1.ToVector3d();
+            Vector3d dp2 = p1.ToVector3d() + d;
+            FindIntersection(p4, p5, p6, dp1.ToPoint3d(), dp2.ToPoint3d(), out Point3d ip1, out double t, threshold);
+            Point3d ip2 = ip1 + (n1 ^ n2);
+            res = new Line3d(ip1, ip2);
+            return true;
+         }
+      }
+
+      /// <summary>
       /// Normalizes the value of an angle in degrees between [0, 360[.
       /// </summary>
       /// <param name="angle">Angle in degrees.</param>

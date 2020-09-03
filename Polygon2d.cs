@@ -284,7 +284,7 @@ namespace Geo
 
       public bool IsSelfIntersection()
       {
-
+         return false;
       }
    }
 }

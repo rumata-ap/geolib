@@ -143,6 +143,101 @@ namespace Geo.Calc
          get { return new Vector3d(0, 0, 1); }
       }
 
+      /// <summary>
+      /// Вычисление средней точки.
+      /// </summary>
+      /// <returns>Vector3d.</returns>
+      public static Vector3d MidPoint(Vector3d u, Vector3d v)
+      {
+         return new Vector3d((v.Vx + u.Vx) * 0.5, (v.Vy + u.Vy) * 0.5, (v.Vz + u.Vz) * 0.5);
+      }
+
+      /// <summary>
+      /// Проверка на перепендикулярность c вектором.
+      /// </summary>
+      /// <returns>TRUE если векторы прерпендикулярны.</returns>
+      public bool ArePerpendicular(Vector3d v)
+      {
+         return ArePerpendicular(this, v, Calcs.Epsilon);
+      }
+      
+      /// <summary>
+      /// Проверка двух векторов на перепендикулярность.
+      /// </summary>
+      /// <returns>TRUE если векторы прерпендикулярны.</returns>
+      public static bool ArePerpendicular(Vector3d u, Vector3d v)
+      {
+         return ArePerpendicular(u, v, Calcs.Epsilon);
+      }
+
+      /// <summary>
+      /// Проверка двух векторов на перепендикулярность.
+      /// </summary>
+      /// <param name="threshold">Пользовательская точностью</param>
+      /// <returns>TRUE если векторы прерпендикулярны.</returns>
+      public static bool ArePerpendicular(Vector3d u, Vector3d v, double threshold)
+      {
+         return Calcs.IsZero(u / v, threshold);
+      }
+
+      /// <summary>
+      /// Проверка на параллельность с вектором.
+      /// </summary>
+      /// <returns>TRUE если векторы прараллельны.</returns>
+      public bool AreParallel(Vector3d u)
+      {
+         return AreParallel(u, this, Calcs.Epsilon);
+      }
+      
+      /// <summary>
+      /// Проверка двух векторов на параллельность.
+      /// </summary>
+      /// <returns>TRUE если векторы прараллельны.</returns>
+      public static bool AreParallel(Vector3d u, Vector3d v)
+      {
+         return AreParallel(u, v, Calcs.Epsilon);
+      }
+
+      /// <summary>
+      /// Проверка двух векторов на параллельность.
+      /// </summary>
+      /// <param name="threshold">Tolerance used.</param>
+      /// <returns>TRUE если векторы прараллельны.</returns>
+      public static bool AreParallel(Vector3d u, Vector3d v, double threshold)
+      {
+         Vector3d cross = u ^ v;
+
+         if (!Calcs.IsZero(cross.Vx, threshold))
+            return false;
+         if (!Calcs.IsZero(cross.Vy, threshold))
+            return false;
+         if (!Calcs.IsZero(cross.Vz, threshold))
+            return false;
+         return true;
+      }
+
+      /// <summary>
+      /// Округление значений компонентов ветора.
+      /// </summary>
+      /// <param name="u">Округляемый вектор.</param>
+      /// <param name="numDigits">Количество десятичных знаков в возвращаемом значении.</param>
+      /// <returns>Округленный вектор.</returns>
+      public static Vector3d Round(Vector3d u, int numDigits)
+      {
+         return new Vector3d(Math.Round(u.Vx, numDigits), Math.Round(u.Vy, numDigits), Math.Round(u.Vz, numDigits));
+      }
+      
+      /// <summary>
+      /// Округление значений компонентов ветора.
+      /// </summary>
+      /// <param name="numDigits">Количество десятичных знаков в возвращаемом значении.</param>
+      public void Round(int numDigits)
+      {
+         Math.Round(Vx, numDigits); 
+         Math.Round(Vy, numDigits); 
+         Math.Round(Vz, numDigits);
+      }
+
       public bool IsMatch(Vector3d vector)
       {
          if (Vx == vector.Vx && Vy == vector.Vy && Vz == vector.Vz) return true;

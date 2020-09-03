@@ -14,7 +14,7 @@ namespace Geo.Calc
       public double Vy { get => arr[1]; set => arr[1] = value; }
       public double Vz { get => arr[2]; set => arr[2] = value; }
       public double Norma { get => Sqrt(Pow(Vx, 2) + Pow(Vy, 2) + Pow(Vz, 2)); }
-      public double[] Unit { get => new double[] { Vx / Norma, Vy / Norma, Vz / Norma }; }
+      public Vector3d Unit { get => new Vector3d(Vx / Norma, Vy / Norma, Vz / Norma ); }
       public int N { get => n; }
 
       public Vector3d()

@@ -163,33 +163,33 @@ namespace Geo
       /// <param name="line">The second line</param>
       /// <param name="ip">The point where both lines intersect (if they do).</param>
       /// <returns></returns>
-      /// <remarks>See http://local.wasp.uwa.edu.au/~pbourke/geometry/lineline2d/ </remarks>
-      public bool Intersect(Line2d line1, Line2d line, out Point2d ip, int bounds=0, double prec=1e-12)
+      /// <remarks></remarks>
+      public bool Intersect(Line2d line, out Point2d ip, int bounds = 0, double prec = 1e-12)
       {
          ip = null;
 
          // Знаменатель для ua и ub одинаков, поэтому сохраняем этот вычисление
-         double d = 
-            (line.endPoint.Y - line.startPoint.Y) * (endPoint.X - startPoint.X) 
+         double d =
+            (line.endPoint.Y - line.startPoint.Y) * (endPoint.X - startPoint.X)
             -
             (line.endPoint.X - line.startPoint.X) * (endPoint.Y - startPoint.Y);
 
          //n_a и n_b рассчитываются как отдельные значения для удобочитаемости
          double n_a =
-            (line.endPoint.X - line.startPoint.X) * (startPoint.Y - startPoint.Y)
+            (line.endPoint.X - line.startPoint.X) * (startPoint.Y - line.startPoint.Y)
             -
-            (line.endPoint.Y - line.startPoint.Y) * (startPoint.X - startPoint.X);
+            (line.endPoint.Y - line.startPoint.Y) * (startPoint.X - line.startPoint.X);
 
          double n_b =
-            (line1.endPoint.X - line1.startPoint.X) * (startPoint.Y - startPoint.Y)
+            (endPoint.X - startPoint.X) * (startPoint.Y - line.startPoint.Y)
             -
-            (line1.endPoint.Y - line1.startPoint.Y) * (startPoint.X - startPoint.X);
+            (endPoint.Y - startPoint.Y) * (startPoint.X - line.startPoint.X);
 
          // Убедитесь, что нет деления на ноль - это также означает, что линии параллельны.
          // Если бы n_a и n_b были равны нулю, строки были бы 
          // друг над другом (совпадение). Эта проверка не выполняется, потому что 
          // она не требуется для данной реализации (это учитывается параллельной проверкой).
-         if (d == 0) return false;
+         if (Calcs.IsZero(d, prec)) return false;
 
          // Вычисление промежуточной дробной точки, которую потенциально пересекают линии.
          double ua = n_a / d;

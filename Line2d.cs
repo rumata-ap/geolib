@@ -105,7 +105,7 @@ namespace Geo
       }
       public double Interpolation(double x)
       {
-         if (B == 0) return double.PositiveInfinity;
+         if (B == 0) return double.NaN;
          else return (-A * x - C) / B;
       }
 
@@ -116,7 +116,7 @@ namespace Geo
       /// <returns>Минимальное расстояние между точкой и линией.</returns>
       public double DistanceToPoint(ICoordinates p)
       {
-         double t = Directive.ToVector3d() / (p.ToVector3d() - StartPoint.ToVector3d());
+         double t = Directive.ToVector3d() % (p.ToVector3d() - StartPoint.ToVector3d());
          Vector3d pPrime = StartPoint.ToVector3d() + Directive.ToVector3d() * t;
          Vector3d vec = p.ToVector3d() - pPrime;
          double distanceSquared = vec.Norma;
@@ -124,44 +124,111 @@ namespace Geo
       }
 
       /// <summary>
-      /// Проверяет, находится ли точка внутри области, определяемой линейным сегментом.
+      /// Проверяет, находится ли точка внутри отрезка, определенного начальной и конечной точками прямой.
       /// </summary>
-      /// <param name="p">Точка.</param>
-      /// <param name="start">Начальная точка сегмента.</param>
-      /// <param name="end">Конечная точка сегмента.</param>
+      /// <param name="p">Проверяемая точка.</param>
+      /// <param name="bounds">Учет совпадения с начальной и конечной точками отрезка.</param>
+      /// <param name="threshold">Точность определения.</param>
       /// <returns>
-      /// 0, если точка находится внутри сегмента, 
-      /// 1, если точка находится после конечной точки, и 
-      /// -1, если точка находится перед начальной точкой.</returns>
-      /// <remarks>
-      /// Для целей тестирования точка считается внутри сегмента, 
-      /// если она попадает в область от начала до конца сегмента, которая простирается бесконечно перпендикулярно его направлению.
-      /// Позже, если необходимо, вы можете использовать метод PointLineDistance для определеня расстояния от точки до сегмента. 
-      /// Если это расстояние равно нулю, то точка находится вдоль линии, определяемой начальной и конечной точками.
-      /// </remarks>
-      public int PointInSegment(ICoordinates p)
+      /// TRUE, если точка находится внутри отрезка.</returns>
+
+      public bool PointInSegment(ICoordinates p, bool bounds = false, double threshold = 1e-12)
       {
-         Vector3d dir = EndPoint.ToVector3d() - StartPoint.ToVector3d();
-         Vector3d pPrime = p.ToVector3d() - StartPoint.ToVector3d();
-         double t = dir / pPrime;
-         if (t < 0)
-         {
-            return -1;
-         }
-         double dot = dir / dir;
-         if (t > dot)
-         {
-            return 1;
-         }
-         return 0;
+         double tx, ty, t;
+         tx = Calcs.IsZero((endPoint - startPoint).Vx, threshold) ? 
+            (p.ToVector3d() - startPoint.ToVector3d()).Vx / (endPoint - startPoint).Vx : double.NaN;
+         ty = Calcs.IsZero((endPoint - startPoint).Vy, threshold) ?
+            (p.ToVector3d() - startPoint.ToVector3d()).Vy / (endPoint - startPoint).Vy : double.NaN;
+
+         if (double.IsNaN(tx)) t = ty;
+         else if (double.IsNaN(ty)) t = tx;
+         else if (double.IsNaN(tx) && double.IsNaN(ty)) return false;
+         else if (Calcs.IsEqual(tx, ty, threshold)) t = tx;
+         else return false;
+
+         if (t > 0 && t < 1) return true;
+         else if (!bounds && (Calcs.IsZero(t, threshold) || Calcs.IsOne(t, threshold))) return false;
+         else if (bounds && (Calcs.IsZero(t, threshold) || Calcs.IsOne(t, threshold))) return true;
+         else return false;
       }
 
       /// <summary>
-      /// Вычисление точки прересечения c линией.
+      /// This is based off an explanation and expanded math presented by Paul Bourke:
+      /// 
+      /// It takes two lines as inputs and returns true if they intersect, false if they 
+      /// don't.
+      /// If they do, ptIntersection returns the point where the two lines intersect.  
       /// </summary>
-      /// <param name="line">Линия.</param>
+      /// <param name="line1">The first line</param>
+      /// <param name="line">The second line</param>
+      /// <param name="ip">The point where both lines intersect (if they do).</param>
+      /// <returns></returns>
+      /// <remarks>See http://local.wasp.uwa.edu.au/~pbourke/geometry/lineline2d/ </remarks>
+      public bool Intersect(Line2d line1, Line2d line, out Point2d ip, int bounds=0, double prec=1e-12)
+      {
+         ip = null;
+
+         // Знаменатель для ua и ub одинаков, поэтому сохраняем этот вычисление
+         double d = 
+            (line.endPoint.Y - line.startPoint.Y) * (endPoint.X - startPoint.X) 
+            -
+            (line.endPoint.X - line.startPoint.X) * (endPoint.Y - startPoint.Y);
+
+         //n_a и n_b рассчитываются как отдельные значения для удобочитаемости
+         double n_a =
+            (line.endPoint.X - line.startPoint.X) * (startPoint.Y - startPoint.Y)
+            -
+            (line.endPoint.Y - line.startPoint.Y) * (startPoint.X - startPoint.X);
+
+         double n_b =
+            (line1.endPoint.X - line1.startPoint.X) * (startPoint.Y - startPoint.Y)
+            -
+            (line1.endPoint.Y - line1.startPoint.Y) * (startPoint.X - startPoint.X);
+
+         // Убедитесь, что нет деления на ноль - это также означает, что линии параллельны.
+         // Если бы n_a и n_b были равны нулю, строки были бы 
+         // друг над другом (совпадение). Эта проверка не выполняется, потому что 
+         // она не требуется для данной реализации (это учитывается параллельной проверкой).
+         if (d == 0) return false;
+
+         // Вычисление промежуточной дробной точки, которую потенциально пересекают линии.
+         double ua = n_a / d;
+         double ub = n_b / d;
+
+         if (ua > 0 && ua < 1 && ub > 0 && ub < 1)
+         {
+            ip = (startPoint + (ua * (endPoint - startPoint))).ToPoint2d();
+            return true;
+         }
+
+         // Точка деления будет между 0 и 1 включительно, если линии 
+         // пересекаются. Если дробное вычисление больше 1 или меньше 
+         // 0, линии должны быть длиннее для пересечения.
+         switch (bounds)
+         {
+            case 0:
+               ip = (startPoint + (ua * (endPoint - startPoint))).ToPoint2d();
+               return true;
+            case 1:
+               if (Calcs.IsZero(ua, prec) || Calcs.IsOne(ua, prec) || Calcs.IsZero(ub, prec) || Calcs.IsOne(ub, prec))
+               {
+                  ip = (startPoint + (ua * (endPoint - startPoint))).ToPoint2d();
+                  return true;
+               }
+               break;
+            default:
+               break;
+         }
+
+         return false;
+      }
+
+      /// <summary>
+      /// Вычисление точки прересечения c заданной линией.
+      /// </summary>
+      /// <param name="line">Заданная линия.</param>
       /// <returns>Точка прересечения двух плоских линий.</returns>
-      public Point2d Intersection(Line2d line)
+      public Point2d Intersection(Line2d line, double threshold = 1e-12)
       {
          return Calcs.FindIntersection(StartPoint.ToPoint2d(), Directive, line.StartPoint.ToPoint2d(), line.Directive, 1e-12);
       }
@@ -196,15 +263,15 @@ namespace Geo
       /// 
       /// </summary>
       /// <param name="line"></param>
-      /// <param name="pi"></param>
+      /// <param name="ip"></param>
       /// <returns></returns>
-      public bool IntersectionInBonds(Line2d line, out Point2d pi)
+      public bool IntersectionInBonds(Line2d line, out Point2d ip)
       {
-         pi = Intersection(line);
-         if (pi.IsNaN()) return false;
-         int ch1 = Calcs.PointInSegment(pi, startPoint, endPoint);
+         ip = Intersection(line);
+         if (ip.IsNaN()) return false;
+         int ch1 = Calcs.PointInSegment(ip, startPoint, endPoint);
          if (ch1 != 0) return false;
-         double d = Calcs.PointLineDistance(pi, startPoint, directive.ToVector3d());
+         double d = Calcs.PointLineDistance(ip, startPoint, directive.ToVector3d());
 
          return Calcs.IsZero(d);
       }

@@ -78,7 +78,6 @@ namespace Geo.Calc
          return new Vector3d(arr);
       }
 
-
       public Point3d ToPoint3d()
       {
          return new Point3d(Vx, Vy);
@@ -112,20 +111,9 @@ namespace Geo.Calc
       /// <param name="v">Vector2.</param>
       /// <param name="threshold">Tolerance used.</param>
       /// <returns>True if are perpendicular or false in any other case.</returns>
-      public static bool ArePerpendicular(Vector2d u, Vector2d v, double threshold)
+      public static bool ArePerpendicular(Vector2d u, Vector2d v, double threshold = 1e-12)
       {
-         return Calcs.IsZero(u / v, threshold);
-      }
-
-      /// <summary>
-      /// Checks if two vectors are parallel.
-      /// </summary>
-      /// <param name="u">Vector2.</param>
-      /// <param name="v">Vector2.</param>
-      /// <returns>True if are parallel or false in any other case.</returns>
-      public static bool AreParallel(Vector2d u, Vector2d v)
-      {
-         return AreParallel(u, v, Calcs.Epsilon);
+         return Calcs.IsZero(u % v, threshold);
       }
 
       /// <summary>
@@ -135,9 +123,31 @@ namespace Geo.Calc
       /// <param name="v">Vector2.</param>
       /// <param name="threshold">Tolerance used.</param>
       /// <returns>True if are parallel or false in any other case.</returns>
-      public static bool AreParallel(Vector2d u, Vector2d v, double threshold)
+      public static bool AreParallel(Vector2d u, Vector2d v, double threshold = 1e-12)
       {
-         return Calcs.IsZero(u % v, threshold);
+         return Calcs.IsZero(Cross(u, v), threshold);
+      }
+
+      /// <summary>
+      /// роверка на перпендикулярность с заданным вектором.
+      /// </summary>
+      /// <param name="v">Заданный вектор.</param>
+      /// <param name="threshold">Заданная точность определения.</param>
+      /// <returns>TRUE, если вектор перпендикулярен.</returns>
+      public bool IsPerpendicular(Vector2d v, double threshold = 1e-12)
+      {
+         return Calcs.IsZero(this % v, threshold);
+      }
+
+      /// <summary>
+      /// Проверка на параллельность с заданным вектором.
+      /// </summary>
+      /// <param name="v">Заданный вектор.</param>
+      /// <param name="threshold">Заданная точность определения.</param>
+      /// <returns>TRUE, если вектор параллелен.</returns>
+      public bool IsParallel(Vector2d v, double threshold = 1e-12)
+      {
+         return Calcs.IsZero(Cross(this, v), threshold);
       }
 
       /// <summary>
@@ -179,7 +189,7 @@ namespace Geo.Calc
       /// <param name="u">Двумерный вектор.</param>
       /// <param name="v">Двумерный вектор.</param>
       /// <returns>Точечный продукт.</returns>
-      public static double operator /(Vector2d u, Vector2d v)
+      public static double operator %(Vector2d u, Vector2d v)
       {
          return u.Vx * v.Vx + u.Vy * v.Vy;
       }
@@ -190,7 +200,7 @@ namespace Geo.Calc
       /// <param name="v1">Двумерный вектор.</param>
       /// <param name="v2">Двумерный вектор.</param>
       /// <returns>Число (кросс-продукт).</returns>
-      public static double operator %(Vector2d u, Vector2d v)
+      public static double Cross(Vector2d u, Vector2d v)
       {
          return u.Vx * v.Vy - u.Vy * v.Vx;
       }

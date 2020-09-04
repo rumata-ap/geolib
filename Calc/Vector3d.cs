@@ -256,7 +256,7 @@ namespace Geo.Calc
       /// <param name="u">Двумерный вектор.</param>
       /// <param name="v">Двумерный вектор.</param>
       /// <returns>Точечный продукт.</returns>
-      public static double operator /(Vector3d u, Vector3d v)
+      public static double operator %(Vector3d u, Vector3d v)
       {
          return u.Vx * v.Vx + u.Vy * v.Vy + u.Vz * v.Vz;
       }
@@ -326,6 +326,17 @@ namespace Geo.Calc
          for (int i = 0; i < 3; i++)
          {
             res[i] = v1[i] - v2[i];
+         }
+
+         return new Vector3d(res);
+      }
+
+      public static Vector3d operator /(Vector3d v1, double prime)
+      {
+         double[] res = new double[v1.n];
+         for (int i = 0; i < v1.n; i++)
+         {
+            res[i] = v1[i] / prime;
          }
 
          return new Vector3d(res);

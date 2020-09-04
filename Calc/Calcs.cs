@@ -395,7 +395,7 @@ namespace Geo.Calc
       /// <returns>Минимальное расстояние между точкой и линией.</returns>
       public static double PointLineDistance(ICoordinates p, ICoordinates origin, Vector3d dir)
       {
-         double t = dir / (p.ToVector3d() - origin.ToVector3d());
+         double t = dir % (p.ToVector3d() - origin.ToVector3d());
          Vector3d pPrime = origin.ToVector3d() + dir * t;
          Vector3d vec = p.ToVector3d() - pPrime;
          double distanceSquared = vec.Norma;
@@ -422,12 +422,12 @@ namespace Geo.Calc
       {
          Vector3d dir = end.ToVector3d() - start.ToVector3d();
          Vector3d pPrime = p.ToVector3d() - start.ToVector3d();
-         double t = dir / pPrime;
+         double t = dir % pPrime;
          if (t < 0)
          {
             return -1;
          }
-         double dot = dir / dir;
+         double dot = dir % dir;
          if (t > dot)
          {
             return 1;
@@ -455,10 +455,10 @@ namespace Geo.Calc
       {
          Vector3d dir = end.ToVector3d() - start.ToVector3d();
          Vector3d pPrime = p.ToVector3d() - start.ToVector3d();
-         double t = dir / pPrime;
+         double t = dir % pPrime;
          if (t < 0 || IsZero(t)) return -1;
 
-         double dot = dir / dir;
+         double dot = dir % dir;
          if (t > dot || IsEqual(t, dot)) return 1;
 
          return 0;
@@ -605,8 +605,8 @@ namespace Geo.Calc
                                           out Point3d res, out double t, double threshold)
       {
          Vector3d normal = (p2.ToVector3d() - p1.ToVector3d()) ^ (p3.ToVector3d() - p1.ToVector3d());
-         double denom = normal / (p5.ToVector3d() - p4.ToVector3d());
-         double nom = normal / (p1.ToVector3d() - p4.ToVector3d());
+         double denom = normal % (p5.ToVector3d() - p4.ToVector3d());
+         double nom = normal % (p1.ToVector3d() - p4.ToVector3d());
          if (IsZero(denom, threshold))
          {
             res = null;
@@ -670,17 +670,70 @@ namespace Geo.Calc
             //FindIntersection(p4, p5, p6, dp1.ToPoint3d(), dp2.ToPoint3d(), out Point3d ip1, out double t, threshold);
             //Point3d ip2 = ip1 + (n1 ^ n2);
 
-            double det = (n1 / n1) * (n2 / n2) - Math.Pow(n1 / n2, 2);
-            double d1 = n1 / p1.ToVector3d();
-            double d2 = n2 / p4.ToVector3d();
-            double c1 = (d1 * (n2 / n2) - d2 * (n1 / n2)) / det;
-            double c2 = (d2 * (n1 / n1) - d1 * (n1 / n2)) / det;
+            double det = (n1 % n1) * (n2 % n2) - Math.Pow(n1 % n2, 2);
+            double d1 = n1 % p1.ToVector3d();
+            double d2 = n2 % p4.ToVector3d();
+            double c1 = (d1 * (n2 % n2) - d2 * (n1 % n2)) / det;
+            double c2 = (d2 * (n1 % n1) - d1 * (n1 % n2)) / det;
 
             Vector3d ip1 = c1 * n1 + c2 * n2;
             Vector3d ip2 = c1 * n1 + c2 * n2 + (n1 ^ n2); 
             res = new Line3d(ip1.ToPoint3d(), ip2.ToPoint3d());
             return true;
          }
+      }
+
+      /// <summary>
+      /// Вычисляет отрезок линии пересечения между 2 линиями (не отрезками).
+      /// </summary>
+      /// <returns>Возвращает FALSE, если решение не найдено.</returns>
+      public static bool FindIntersection(ICoordinates line1Point1, ICoordinates line1Point2,
+                                          ICoordinates line2Point1, ICoordinates line2Point2,
+                                          out Point3d resultSegmentPoint1, out Point3d resultSegmentPoint2,
+                                          double threshold = 1e-12)
+      {
+         // Algorithm is ported from the C algorithm of 
+         // Paul Bourke at http://local.wasp.uwa.edu.au/~pbourke/geometry/lineline3d/
+         resultSegmentPoint1 = null;
+         resultSegmentPoint2 = null;
+
+         Vector3d p1 = line1Point1.ToVector3d();
+         Vector3d p2 = line1Point2.ToVector3d();
+         Vector3d p3 = line2Point1.ToVector3d();
+         Vector3d p4 = line2Point2.ToVector3d();
+         Vector3d p13 = p1 - p3;
+         Vector3d p43 = p4 - p3;
+
+         if (p43.Norma < threshold)
+         {
+            return false;
+         }
+         Vector3d p21 = p2 - p1;
+         if (p21.Norma < threshold)
+         {
+            return false;
+         }
+
+         double d1343 = p13 % p43;
+         double d4321 = p43 % p21;
+         double d1321 = p13 % p21;
+         double d4343 = p43 % p43;
+         double d2121 = p21 % p21;
+
+         double denom = d2121 * d4343 - d4321 * d4321;
+         if (Math.Abs(denom) < threshold)
+         {
+            return false;
+         }
+         double numer = d1343 * d4321 - d1321 * d4343;
+
+         double mua = numer / denom;
+         double mub = (d1343 + d4321 * (mua)) / d4343;
+
+         resultSegmentPoint1 = (p1 + mua * p21).ToPoint3d();
+         resultSegmentPoint2 = (p3 + mub * p43).ToPoint3d();
+
+         return true;
       }
 
       /// <summary>

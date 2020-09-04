@@ -177,7 +177,7 @@ namespace Geo.Calc
       /// <returns>TRUE если векторы прерпендикулярны.</returns>
       public static bool ArePerpendicular(Vector3d u, Vector3d v, double threshold)
       {
-         return Calcs.IsZero(u / v, threshold);
+         return Calcs.IsZero(u % v, threshold);
       }
 
       /// <summary>

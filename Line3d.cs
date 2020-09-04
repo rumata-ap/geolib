@@ -79,11 +79,11 @@ namespace Geo
       {
          double tx, ty, tz, t;
          tx = Calcs.IsZero((endPoint - startPoint).Vx, threshold) ?
-            (p.ToVector3d() - startPoint.ToVector3d()).Vx / (endPoint - startPoint).Vx : double.NaN;
+            double.NaN : (p.ToVector3d() - startPoint.ToVector3d()).Vx / (endPoint - startPoint).Vx;
          ty = Calcs.IsZero((endPoint - startPoint).Vy, threshold) ?
-            (p.ToVector3d() - startPoint.ToVector3d()).Vy / (endPoint - startPoint).Vy : double.NaN;
+            double.NaN : (p.ToVector3d() - startPoint.ToVector3d()).Vy / (endPoint - startPoint).Vy;
          tz = Calcs.IsZero((endPoint - startPoint).Vz, threshold) ?
-            (p.ToVector3d() - startPoint.ToVector3d()).Vz / (endPoint - startPoint).Vz : double.NaN;
+            double.NaN : (p.ToVector3d() - startPoint.ToVector3d()).Vz / (endPoint - startPoint).Vz;
 
          if (double.IsNaN(tx) && Calcs.IsEqual(tz, ty, threshold)) t = ty;
          else if (double.IsNaN(ty) && Calcs.IsEqual(tx, tz, threshold)) t = tx;

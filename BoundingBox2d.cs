@@ -5,8 +5,8 @@ namespace Geo
    [Serializable]
    public class BoundingBox2d
    {
-      Point2d min;
-      Point2d max;
+      private Point2d min;
+      private Point2d max;
 
       public Point2d Min { get => min; private set => min = value; }
       public Point2d Max { get => max; private set => max = value; }
@@ -27,6 +27,5 @@ namespace Geo
       {
          return false;
       }
-
    }
 }

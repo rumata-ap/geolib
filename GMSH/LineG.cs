@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-
-namespace Geo.GMSH
+﻿namespace Geo.GMSH
 {
    public class LineG : Line3d, IEntityG
    {
@@ -21,7 +16,7 @@ namespace Geo.GMSH
          P2 = (int)pt2.Id;
       }
 
-      string GetGeoString()
+      private string GetGeoString()
       {
          return $"Line({Id}) = " + "{" + $"{P1}, {P2}" + "};";
       }

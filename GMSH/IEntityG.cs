@@ -7,5 +7,5 @@
       string GeoString { get; }
    }
 
-   public enum EntityGType { line, arc, loop, surf, point, phcurve, phsurf}
+   public enum EntityGType { line, arc, loop, surf, point, phcurve, phsurf }
 }

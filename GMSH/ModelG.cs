@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+﻿using System.Collections.Generic;
 
 namespace Geo.GMSH
 {
@@ -31,21 +28,27 @@ namespace Geo.GMSH
             case EntityGType.line:
                Lines.Add((LineG)entity);
                break;
+
             case EntityGType.arc:
                Circles.Add((CircleG)entity);
                break;
+
             case EntityGType.loop:
                Loops.Add((LoopG)entity);
                break;
+
             case EntityGType.surf:
                Surfaces.Add((PlaneSurface)entity);
                break;
+
             case EntityGType.phsurf:
                PhySurfaces.Add((PhysicalSurface)entity);
                break;
+
             case EntityGType.phcurve:
                PhyCurves.Add((PhysicalCurve)entity);
                break;
+
             case EntityGType.point:
                Points.Add((PointG)entity);
                break;
@@ -58,22 +61,28 @@ namespace Geo.GMSH
          {
             case EntityGType.point:
                return Points[id];
+
             case EntityGType.line:
                return Lines[id];
+
             case EntityGType.arc:
                return Circles[id];
+
             case EntityGType.loop:
                return Loops[id];
+
             case EntityGType.surf:
                return Surfaces[id];
+
             case EntityGType.phsurf:
                return PhySurfaces[id];
+
             case EntityGType.phcurve:
                return PhyCurves[id];
+
             default:
                return null;
          }
       }
-
    }
 }

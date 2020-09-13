@@ -1,4 +1,5 @@
 ﻿using System;
+
 using static System.Math;
 
 namespace Geo.Calc
@@ -6,15 +7,15 @@ namespace Geo.Calc
    [Serializable]
    public class Vector3d
    {
-      double[] arr;
-      int n = 3;
+      private double[] arr;
+      private int n = 3;
 
       public double this[int i] { get => arr[i]; set => arr[i] = value; }
       public double Vx { get => arr[0]; set => arr[0] = value; }
       public double Vy { get => arr[1]; set => arr[1] = value; }
       public double Vz { get => arr[2]; set => arr[2] = value; }
       public double Norma { get => Sqrt(Pow(Vx, 2) + Pow(Vy, 2) + Pow(Vz, 2)); }
-      public Vector3d Unit { get => new Vector3d(Vx / Norma, Vy / Norma, Vz / Norma ); }
+      public Vector3d Unit { get => new Vector3d(Vx / Norma, Vy / Norma, Vz / Norma); }
       public int N { get => n; }
 
       public Vector3d()
@@ -68,7 +69,7 @@ namespace Geo.Calc
          }
       }
 
-      public Vector3d(double vx,double vy, double vz = 0)
+      public Vector3d(double vx, double vy, double vz = 0)
       {
          arr = new double[3];
          arr[0] = vx;
@@ -100,7 +101,7 @@ namespace Geo.Calc
       {
          return new Point3d(Vx, Vy, Vz);
       }
-      
+
       public Point2d ToPoint2d()
       {
          return new Point2d(Vx, Vy);
@@ -160,7 +161,7 @@ namespace Geo.Calc
       {
          return ArePerpendicular(this, v, Calcs.Epsilon);
       }
-      
+
       /// <summary>
       /// Проверка двух векторов на перепендикулярность.
       /// </summary>
@@ -188,7 +189,7 @@ namespace Geo.Calc
       {
          return AreParallel(u, this, Calcs.Epsilon);
       }
-      
+
       /// <summary>
       /// Проверка двух векторов на параллельность.
       /// </summary>
@@ -226,15 +227,15 @@ namespace Geo.Calc
       {
          return new Vector3d(Math.Round(u.Vx, numDigits), Math.Round(u.Vy, numDigits), Math.Round(u.Vz, numDigits));
       }
-      
+
       /// <summary>
       /// Округление значений компонентов ветора.
       /// </summary>
       /// <param name="numDigits">Количество десятичных знаков в возвращаемом значении.</param>
       public void Round(int numDigits)
       {
-         Math.Round(Vx, numDigits); 
-         Math.Round(Vy, numDigits); 
+         Math.Round(Vx, numDigits);
+         Math.Round(Vy, numDigits);
          Math.Round(Vz, numDigits);
       }
 
@@ -243,7 +244,7 @@ namespace Geo.Calc
          if (Vx == vector.Vx && Vy == vector.Vy && Vz == vector.Vz) return true;
          else return false;
       }
-      
+
       public bool IsMatchAbs(Vector3d vector)
       {
          if (Vx == -vector.Vx && Vy == -vector.Vy && Vz == -vector.Vz) return true;

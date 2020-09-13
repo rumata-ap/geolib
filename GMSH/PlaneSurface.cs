@@ -1,6 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
+﻿using System.Collections.Generic;
 using System.Text;
 
 namespace Geo.GMSH
@@ -18,7 +16,7 @@ namespace Geo.GMSH
          Id = id;
          CurvIds = ids;
       }
-      
+
       public PlaneSurface(int id, IEnumerable<IEntityG> entities)
       {
          Id = id;
@@ -31,10 +29,10 @@ namespace Geo.GMSH
          CurvIds = ids;
       }
 
-      string GetGeoString()
+      private string GetGeoString()
       {
          StringBuilder sb = null;
-         if (CurvIds!=null)
+         if (CurvIds != null)
          {
             sb = new StringBuilder($"Plane Surface({Id}) = " + "{");
             foreach (int item in CurvIds)
@@ -45,7 +43,7 @@ namespace Geo.GMSH
             sb.Remove(sb.Length - 2, 2);
             sb.Append("};");
          }
-         else if (Loops!=null)
+         else if (Loops != null)
          {
             sb = new StringBuilder($"Plane Surface({Id}) = " + "{");
             foreach (IEntityG item in Loops)

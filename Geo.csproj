@@ -54,6 +54,7 @@
     <Compile Include="GMSH\PhysicalSurface.cs" />
     <Compile Include="GMSH\PlaneSurface.cs" />
     <Compile Include="GMSH\PointG.cs" />
+    <Compile Include="kDTree.cs" />
     <Compile Include="Polygon2d.cs" />
     <Compile Include="ICoordinates.cs" />
     <Compile Include="ICurve2d.cs" />

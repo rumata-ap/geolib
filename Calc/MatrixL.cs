@@ -1,16 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 
 namespace Geo.Calc
 {
    public class MatrixL<T>
    {
-      List<List<T>> src;
-      T init;
-      int r;
-      int c;
+      private List<List<T>> src;
+      private T init;
+      private int r;
+      private int c;
+
       public int R
       {
          get
@@ -19,6 +18,7 @@ namespace Geo.Calc
             else return -1;
          }
       }
+
       public int C
       {
          get
@@ -27,12 +27,13 @@ namespace Geo.Calc
             else return -1;
          }
       }
+
       public T this[int i, int j]
       {
          get
          {
             if (r > 0 && c > 0)
-               if (i > -1 && j > -1) return src[i] [j];
+               if (i > -1 && j > -1) return src[i][j];
                else throw new ArgumentException("Неверно задана индексация");
             else throw new ArgumentException("Не задана матрица");
          }
@@ -67,7 +68,7 @@ namespace Geo.Calc
       /// </summary>
       /// <param name="idxR">Индекс строки для извлечения.</param>
       /// <returns></returns>
-      public List<T> Row (int idxR)
+      public List<T> Row(int idxR)
       {
          if (r == 0 || idxR < 0 || idxR > r) throw new ArgumentException("Матрица пустая либо не верно указан индекс строки.");
 
@@ -79,10 +80,10 @@ namespace Geo.Calc
       /// </summary>
       /// <param name="idxC">Индекс столбца для извлечения.</param>
       /// <returns></returns>
-      public List<T> Col (int idxC)
+      public List<T> Col(int idxC)
       {
          if (c == 0 || idxC < 0 || idxC > c) throw new ArgumentException("Матрица пустая либо не верно указан индекс столбца.");
-         
+
          List<T> res = new List<T>(r);
          foreach (List<T> item in src) res.Add(item[idxC]);
 
@@ -157,11 +158,10 @@ namespace Geo.Calc
             {
                //src[j].Insert(idxC, col[i]);
                if (j >= n) continue;
-               src[j][idxC] = col[i];              
+               src[j][idxC] = col[i];
             }
          }
       }
-
 
       public void RemoveRowAt(int idxR)
       {
@@ -169,14 +169,13 @@ namespace Geo.Calc
          else throw new ArgumentException("Матрица пустая либо не верно указан индекс строки для удаления.");
       }
 
-
       public void RemoveColAt(int idxC)
       {
-         if (c > 0 && idxC >= 0 && idxC<=c)
-         {          
+         if (c > 0 && idxC >= 0 && idxC <= c)
+         {
             foreach (List<T> item in src)
             {
-               item.RemoveAt(idxC);               
+               item.RemoveAt(idxC);
             }
             c--;
          }
@@ -210,7 +209,7 @@ namespace Geo.Calc
                   res[i, j] = (double)(object)src[i][j];
                }
             }
-         }       
+         }
 
          return res;
       }

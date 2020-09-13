@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-
-namespace Geo.GMSH
+﻿namespace Geo.GMSH
 {
    public class CircleG : IEntityG
    {
@@ -21,7 +16,7 @@ namespace Geo.GMSH
          P2 = (int)pt2.Id;
          P3 = (int)pt3.Id;
       }
-      
+
       public CircleG(int id, int pt1, int pt2, int pt3)
       {
          Id = id;
@@ -29,7 +24,7 @@ namespace Geo.GMSH
          P2 = pt2;
          P3 = pt3;
       }
-            
+
       public CircleG(int id, Arc2d arc, int pt1, int pt2, int idpt3, out PointG pt3)
       {
          Id = id;
@@ -39,7 +34,7 @@ namespace Geo.GMSH
          P3 = idpt3;
       }
 
-      string GetGeoString()
+      private string GetGeoString()
       {
          return $"Line({Id}) = " + "{" + $"{P1}, {P2}" + "};";
       }

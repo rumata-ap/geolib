@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Runtime.Remoting.Messaging;
 
 namespace Geo.Calc
 {
@@ -51,7 +50,7 @@ namespace Geo.Calc
       /// </summary>
       public const double TwoPI = 2 * Math.PI;
 
-      #endregion
+      #endregion constants
 
       #region public properties
 
@@ -74,7 +73,7 @@ namespace Geo.Calc
          }
       }
 
-      #endregion
+      #endregion public properties
 
       #region static methods
 
@@ -409,13 +408,13 @@ namespace Geo.Calc
       /// <param name="start">Начальная точка сегмента.</param>
       /// <param name="end">Конечная точка сегмента.</param>
       /// <returns>
-      /// 0, если точка находится внутри сегмента, 
-      /// 1, если точка находится после конечной точки, и 
+      /// 0, если точка находится внутри сегмента,
+      /// 1, если точка находится после конечной точки, и
       /// -1, если точка находится перед начальной точкой.</returns>
       /// <remarks>
-      /// Для целей тестирования точка считается внутри сегмента, 
+      /// Для целей тестирования точка считается внутри сегмента,
       /// если она попадает в область от начала до конца сегмента, которая простирается бесконечно перпендикулярно его направлению.
-      /// Позже, если необходимо, вы можете использовать метод PointLineDistance для определеня расстояния от точки до сегмента. 
+      /// Позже, если необходимо, вы можете использовать метод PointLineDistance для определеня расстояния от точки до сегмента.
       /// Если это расстояние равно нулю, то точка находится вдоль линии, определяемой начальной и конечной точками.
       /// </remarks>
       public static int PointInSegment(ICoordinates p, ICoordinates start, ICoordinates end)
@@ -434,7 +433,7 @@ namespace Geo.Calc
          }
          return 0;
       }
-      
+
       /// <summary>
       /// Проверяет, находится ли точка внутри области, определяемой линейным сегментом.
       /// </summary>
@@ -442,13 +441,13 @@ namespace Geo.Calc
       /// <param name="start">Начальная точка сегмента.</param>
       /// <param name="end">Конечная точка сегмента.</param>
       /// <returns>
-      /// 0, если точка находится внутри сегмента, 
-      /// 1, если точка находится после конечной точки, и 
+      /// 0, если точка находится внутри сегмента,
+      /// 1, если точка находится после конечной точки, и
       /// -1, если точка находится перед начальной точкой.</returns>
       /// <remarks>
-      /// Для целей тестирования точка считается внутри сегмента, 
+      /// Для целей тестирования точка считается внутри сегмента,
       /// если она попадает в область от начала до конца сегмента, которая простирается бесконечно перпендикулярно его направлению.
-      /// Позже, если необходимо, вы можете использовать метод PointLineDistance для определеня расстояния от точки до сегмента. 
+      /// Позже, если необходимо, вы можете использовать метод PointLineDistance для определеня расстояния от точки до сегмента.
       /// Если это расстояние равно нулю, то точка находится вдоль линии, определяемой начальной и конечной точками.
       /// </remarks>
       public static int PointInSegmentNoBounds(ICoordinates p, ICoordinates start, ICoordinates end)
@@ -506,7 +505,7 @@ namespace Geo.Calc
       /// <param name="r">Радиус сферы.</param>
       /// <param name="res1">Первая точка пересечения.</param>
       /// <param name="res2">Вторая точка пересечения.</param>
-      /// <remarks> 
+      /// <remarks>
       ///  Отрезок определяется от p1 до p2.
       ///  Сфера определяется радиусом r с центром в sc.
       ///  Есть потенциально две точки пересечения.
@@ -527,15 +526,15 @@ namespace Geo.Calc
       /// <param name="res1">Первая точка пересечения.</param>
       /// <param name="res2">Вторая точка пересечения.</param>
       /// <param name="threshold">Допуск.</param>
-      /// <remarks> 
+      /// <remarks>
       ///  Отрезок определяется от p1 до p2.
       ///  Сфера определяется радиусом r с центром в sc.
       ///  Есть потенциально две точки пересечения.
       /// </remarks>
       /// <returns>FALSE, если линия не пересекает сферу.</returns>
-      public static bool FindIntersection(ICoordinates p1, ICoordinates p2, 
-                                          ICoordinates sc, double r, 
-                                          out Point3d res1, out Point3d res2, 
+      public static bool FindIntersection(ICoordinates p1, ICoordinates p2,
+                                          ICoordinates sc, double r,
+                                          out Point3d res1, out Point3d res2,
                                           double threshold)
       {
          double a, b, c, bb4ac, mu1, mu2;
@@ -587,7 +586,7 @@ namespace Geo.Calc
       {
          return FindIntersection(p1, p2, p3, p4, p5, out res, out t, epsilon);
       }
-      
+
       /// <summary>
       /// Вычисление точки пересечения прямой с плоскостью.
       /// </summary>
@@ -638,7 +637,7 @@ namespace Geo.Calc
       {
          return FindIntersection(p1, p2, p3, p4, p5, p6, out res, epsilon);
       }
-      
+
       /// <summary>
       /// Вычисление линии пересечения двух плоскостей.
       /// </summary>
@@ -677,7 +676,7 @@ namespace Geo.Calc
             double c2 = (d2 * (n1 % n1) - d1 * (n1 % n2)) / det;
 
             Vector3d ip1 = c1 * n1 + c2 * n2;
-            Vector3d ip2 = c1 * n1 + c2 * n2 + (n1 ^ n2); 
+            Vector3d ip2 = c1 * n1 + c2 * n2 + (n1 ^ n2);
             res = new Line3d(ip1.ToPoint3d(), ip2.ToPoint3d());
             return true;
          }
@@ -692,7 +691,7 @@ namespace Geo.Calc
                                           out Point3d resultSegmentPoint1, out Point3d resultSegmentPoint2,
                                           double threshold = 1e-12)
       {
-         // Algorithm is ported from the C algorithm of 
+         // Algorithm is ported from the C algorithm of
          // Paul Bourke at http://local.wasp.uwa.edu.au/~pbourke/geometry/lineline3d/
          resultSegmentPoint1 = null;
          resultSegmentPoint2 = null;
@@ -802,7 +801,7 @@ namespace Geo.Calc
          obj2 = tmp;
       }
 
-      #endregion
+      #endregion static methods
    }
 
    /// <summary>

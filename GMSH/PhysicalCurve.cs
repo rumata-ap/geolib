@@ -1,6 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
+﻿using System.Collections.Generic;
 using System.Text;
 
 namespace Geo.GMSH
@@ -31,7 +29,7 @@ namespace Geo.GMSH
          CurvIds = ids;
       }
 
-      string GetGeoString()
+      private string GetGeoString()
       {
          StringBuilder sb = null;
          if (CurvIds != null)
@@ -59,6 +57,5 @@ namespace Geo.GMSH
 
          return sb.ToString();
       }
-
    }
 }

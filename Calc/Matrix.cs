@@ -9,7 +9,8 @@ namespace Geo.Calc
       private double precalculatedDeterminant = double.NaN;
 
       public double[,] arr { get; private set; }
-      int m, n;
+      private int m, n;
+
       public int N
       {
          get
@@ -18,6 +19,7 @@ namespace Geo.Calc
             else return -1;
          }
       }
+
       public int M
       {
          get
@@ -26,6 +28,7 @@ namespace Geo.Calc
             else return -1;
          }
       }
+
       public double this[int i, int j]
       {
          get
@@ -104,7 +107,7 @@ namespace Geo.Calc
       {
          get
          {
-            return new Matrix(3,3);
+            return new Matrix(3, 3);
          }
       }
 
@@ -230,7 +233,7 @@ namespace Geo.Calc
          int m = args[0].M;
          for (int i = 1; i < args.Length; i++)
          {
-            if (args[i].M != m || args[i]==null) return null;
+            if (args[i].M != m || args[i] == null) return null;
             n += args[i].N;
          }
          Matrix res = new Matrix(n, m);
@@ -251,11 +254,11 @@ namespace Geo.Calc
 
       public static void PrintConsole(Matrix matrix, int digit)
       {
-         if (matrix == null) 
+         if (matrix == null)
          {
             Console.WriteLine("Матрица не существует");
             return;
-         } 
+         }
 
          int max = 0;
          for (int i = 0; i < matrix.N; i++)
@@ -263,7 +266,7 @@ namespace Geo.Calc
             for (int j = 0; j < matrix.M; j++)
             {
                string s = Math.Round(matrix[i, j], digit).ToString();
-               if (s.Length > max) max = s.Length;             
+               if (s.Length > max) max = s.Length;
             }
          }
          string opt = "{0," + max + "}";
@@ -272,8 +275,8 @@ namespace Geo.Calc
          {
             for (int j = 0; j < matrix.M; j++)
             {
-               Console.Write(String.Format(opt, Math.Round(matrix[i, j],digit)));
-            }             
+               Console.Write(String.Format(opt, Math.Round(matrix[i, j], digit)));
+            }
             Console.WriteLine();
          }
       }
@@ -339,7 +342,7 @@ namespace Geo.Calc
       public static Matrix operator *(Matrix A, Matrix B)
       {
          if (A.M != B.N) { throw new System.ArgumentException("Не совпадают размерности матриц"); } //Нужно только одно соответствие
-         Matrix C = new Matrix(A.N, B.M); //Столько же строк, сколько в А; столько столбцов, сколько в B 
+         Matrix C = new Matrix(A.N, B.M); //Столько же строк, сколько в А; столько столбцов, сколько в B
          for (int i = 0; i < A.N; ++i)
          {
             for (int j = 0; j < B.M; ++j)
@@ -398,7 +401,6 @@ namespace Geo.Calc
          }
          return new Vector3d(res);
       }
-
 
       public static Matrix operator *(Matrix A, double B)
       {

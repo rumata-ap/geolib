@@ -1,9 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+﻿using Geo.Calc;
 
-using Geo.Calc;
+using System;
+using System.Collections.Generic;
 
 namespace Geo
 {
@@ -52,7 +50,6 @@ namespace Geo
          CalcArc();
       }
 
-
       public Arc2d(Point3d pt1, Point3d pt2, double bulge)
       {
          startPoint = pt1;
@@ -75,7 +72,6 @@ namespace Geo
          Angle0 = 0.5 * Math.PI - 0.5 * Angle;
          Length = Radius * Angle;
       }
-      
 
       public Arc2d(Vertex2d pt1, Vertex2d pt2, double bulge)
       {
@@ -100,7 +96,7 @@ namespace Geo
          Length = Radius * Angle;
       }
 
-      void CalcArc()
+      private void CalcArc()
       {
          Vector3d p = EndPoint - StartPoint;
          double l = Math.Sqrt(p[0] * p[0] + p[1] * p[1]);
@@ -197,5 +193,5 @@ namespace Geo
       }
    }
 
-   public enum ParamType { rel, abs}
+   public enum ParamType { rel, abs }
 }

@@ -7,7 +7,7 @@ namespace Geo.Calc
    [Serializable]
    public class Vector2d
    {
-      double[] arr = new double[2];
+      private double[] arr = new double[2];
 
       public double this[int i] { get => arr[i]; set => arr[i] = value; }
       public double Vx { get => arr[0]; set => arr[0] = value; }
@@ -31,7 +31,7 @@ namespace Geo.Calc
          arr = new double[3];
          arr = (double[])source.arr.Clone();
       }
-      
+
       public Vector2d(ICoordinates source)
       {
          arr = new double[2];
@@ -295,6 +295,5 @@ namespace Geo.Calc
             Vy = v1.Vy - v2.Vy
          };
       }
-
    }
 }

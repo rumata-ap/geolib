@@ -1,9 +1,6 @@
 ﻿using Geo.Calc;
 
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 
 namespace Geo
 {
@@ -45,7 +42,7 @@ namespace Geo
       /// <param name="r">Радиус сферы.</param>
       /// <param name="mu1">Первый результирующий параметр.</param>
       /// <param name="mu2">Второй результирующий параметр.</param>
-      /// <remarks> 
+      /// <remarks>
       ///  Отрезок определяется от p1 до p2.
       ///  Сфера определяется радиусом r с центром в sc.
       ///  Есть потенциально две точки пересечения, заданные
@@ -71,7 +68,7 @@ namespace Geo
             mu2 = double.NaN;
             return false;
          }
-         else if(bb4ac > 0 && bb4ac <= 1e-12)
+         else if (bb4ac > 0 && bb4ac <= 1e-12)
          {
             mu1 = -b / (2 * a);
             mu2 = double.NaN;
@@ -83,7 +80,6 @@ namespace Geo
 
          return true;
       }
-
 
       public Pline2d TesselationByNumber(int nDiv, bool start = true, bool end = true)
       {

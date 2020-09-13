@@ -6,8 +6,8 @@ namespace Geo.Calc
    [Serializable]
    public class Vector
    {
-      double[] arr;
-      int n;
+      private double[] arr;
+      private int n;
 
       public int N { get => n; }
       public double this[int i] { get => arr[i]; set => arr[i] = value; }
@@ -59,7 +59,7 @@ namespace Geo.Calc
 
       public Matrix ToMatrix(int r, int c)
       {
-         if (r*c != n) { throw new System.ArgumentException("Размерность вектора не соответствует размерности матрицы."); }
+         if (r * c != n) { throw new System.ArgumentException("Размерность вектора не соответствует размерности матрицы."); }
          Matrix res = new Matrix(r, c);
          int k = 0;
          for (int i = 0; i < r; i++)
@@ -94,7 +94,7 @@ namespace Geo.Calc
       public static Matrix operator *(Vector v1, Matrix v2T)
       {
          if (v1.n != v2T.M) { throw new ArgumentException("Не совпадают размерности векторов."); }
-         double[,] res = new double[v1.n,v2T.M];
+         double[,] res = new double[v1.n, v2T.M];
          for (int i = 0; i < v1.n; ++i)
          {
             for (int j = 0; j < v2T.M; ++j)
@@ -164,7 +164,6 @@ namespace Geo.Calc
          return new Vector(res);
       }
 
-
       public static Vector operator +(Vector v1, double prime)
       {
          double[] res = new double[v1.n];
@@ -187,7 +186,6 @@ namespace Geo.Calc
 
          return new Vector(res);
       }
-
 
       public static Vector operator -(Vector v1, double prime)
       {

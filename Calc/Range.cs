@@ -7,8 +7,8 @@ namespace Geo.Calc
    /// </summary>
    public class Range
    {
-      double s;
-      double e;
+      private double s;
+      private double e;
 
       /// <summary>
       /// Конструктор класса
@@ -33,7 +33,7 @@ namespace Geo.Calc
          double le = Math.Abs(e - arg);
          return ls <= l && le <= l;
       }
-      
+
       /// <summary>
       /// Проверка на попадание заданного значения внутрь диапазона
       /// </summary>
@@ -44,7 +44,7 @@ namespace Geo.Calc
          double l = Math.Abs(e - s);
          double ls = Math.Abs(s - arg);
          double le = Math.Abs(e - arg);
-         return Math.Round(ls,prec) < Math.Round(l, prec) && Math.Round(le, prec) < Math.Round(l, prec);
+         return Math.Round(ls, prec) < Math.Round(l, prec) && Math.Round(le, prec) < Math.Round(l, prec);
       }
 
       /// <summary>
@@ -70,7 +70,7 @@ namespace Geo.Calc
          else if (!first && last)
          {
             res = new Vector(ndiv);
-            for (int i = 0; i < ndiv; i++) res[i] = s + step * (i+1);
+            for (int i = 0; i < ndiv; i++) res[i] = s + step * (i + 1);
          }
          else if (first && !last)
          {
@@ -80,7 +80,7 @@ namespace Geo.Calc
          else
          {
             res = new Vector(ndiv - 1);
-            for (int i = 0; i < ndiv-1; i++) res[i] = s + step * (i + 1);
+            for (int i = 0; i < ndiv - 1; i++) res[i] = s + step * (i + 1);
          }
          return res;
       }
@@ -140,8 +140,8 @@ namespace Geo.Calc
             else if (!first && last)
             {
                res = new Vector(ndiv);
-               for (int i = 0; i < ndiv; i++) res[i] = s + step * (i+1);
-               res[ndiv-1] = e;
+               for (int i = 0; i < ndiv; i++) res[i] = s + step * (i + 1);
+               res[ndiv - 1] = e;
             }
             else if (first && !last)
             {
@@ -154,7 +154,7 @@ namespace Geo.Calc
                for (int i = 0; i < ndiv - 1; i++) res[i] = s + step * (i + 1);
             }
          }
-         
+
          return res;
       }
 
@@ -171,7 +171,7 @@ namespace Geo.Calc
          Vector res = null;
          double diff = e - s;
          if (step <= 0 || step > diff) return res;
-         
+
          int ndiv = (int)Math.Floor(diff / step);
          double balance = diff - ndiv * step;
 
@@ -188,7 +188,7 @@ namespace Geo.Calc
             else if (!first && last)
             {
                res = new Vector(ndiv);
-               for (int i = 0; i < ndiv; i++) res[i] = s + step * (i+1);
+               for (int i = 0; i < ndiv; i++) res[i] = s + step * (i + 1);
             }
             else if (first && !last)
             {
@@ -198,7 +198,7 @@ namespace Geo.Calc
             else
             {
                res = new Vector(ndiv - 1);
-               for (int i = 0; i < ndiv - 1; i++) res[i] = s + step * (i+1);
+               for (int i = 0; i < ndiv - 1; i++) res[i] = s + step * (i + 1);
             }
          }
          else
@@ -219,7 +219,7 @@ namespace Geo.Calc
             else if (first && !last)
             {
                res = new Vector(ndiv + 1);
-               for (int i = 0; i < ndiv+1; i++) res[i] = s + step * i;
+               for (int i = 0; i < ndiv + 1; i++) res[i] = s + step * i;
             }
             else
             {
@@ -227,7 +227,7 @@ namespace Geo.Calc
                for (int i = 0; i < ndiv + 1; i++) res[i] = s + 0.5 * balance + step * i;
             }
          }
-         
+
          return res;
       }
    }

@@ -105,7 +105,7 @@ namespace Geo
       }
       public double Interpolation(double x)
       {
-         if (B == 0) return double.PositiveInfinity;
+         if (B == 0) return double.NaN;
          else return (-A * x - C) / B;
       }
 
@@ -116,7 +116,7 @@ namespace Geo
       /// <returns>Минимальное расстояние между точкой и линией.</returns>
       public double DistanceToPoint(ICoordinates p)
       {
-         double t = Directive.ToVector3d() / (p.ToVector3d() - StartPoint.ToVector3d());
+         double t = Directive.ToVector3d() % (p.ToVector3d() - StartPoint.ToVector3d());
          Vector3d pPrime = StartPoint.ToVector3d() + Directive.ToVector3d() * t;
          Vector3d vec = p.ToVector3d() - pPrime;
          double distanceSquared = vec.Norma;
@@ -124,46 +124,98 @@ namespace Geo
       }
 
       /// <summary>
-      /// Проверяет, находится ли точка внутри области, определяемой линейным сегментом.
+      /// Проверяет, находится ли точка внутри отрезка, определенного начальной и конечной точками прямой.
       /// </summary>
-      /// <param name="p">Точка.</param>
-      /// <param name="start">Начальная точка сегмента.</param>
-      /// <param name="end">Конечная точка сегмента.</param>
+      /// <param name="p">Проверяемая точка.</param>
+      /// <param name="bounds">Учет совпадения с начальной и конечной точками отрезка.</param>
+      /// <param name="threshold">Точность определения.</param>
       /// <returns>
-      /// 0, если точка находится внутри сегмента, 
-      /// 1, если точка находится после конечной точки, и 
-      /// -1, если точка находится перед начальной точкой.</returns>
-      /// <remarks>
-      /// Для целей тестирования точка считается внутри сегмента, 
-      /// если она попадает в область от начала до конца сегмента, которая простирается бесконечно перпендикулярно его направлению.
-      /// Позже, если необходимо, вы можете использовать метод PointLineDistance для определеня расстояния от точки до сегмента. 
-      /// Если это расстояние равно нулю, то точка находится вдоль линии, определяемой начальной и конечной точками.
-      /// </remarks>
-      public int PointInSegment(ICoordinates p)
+      /// TRUE, если точка находится внутри отрезка.</returns>
+
+      public bool PointInSegment(ICoordinates p, bool bounds = false, double threshold = 1e-12)
       {
-         Vector3d dir = EndPoint.ToVector3d() - StartPoint.ToVector3d();
-         Vector3d pPrime = p.ToVector3d() - StartPoint.ToVector3d();
-         double t = dir / pPrime;
-         if (t < 0)
-         {
-            return -1;
-         }
-         double dot = dir / dir;
-         if (t > dot)
-         {
-            return 1;
-         }
-         return 0;
+         double tx, ty, t;
+         tx = Calcs.IsZero((endPoint - startPoint).Vx, threshold) ? 
+            double.NaN : (p.ToVector3d() - startPoint.ToVector3d()).Vx / (endPoint - startPoint).Vx;
+         ty = Calcs.IsZero((endPoint - startPoint).Vy, threshold) ?
+            double.NaN : (p.ToVector3d() - startPoint.ToVector3d()).Vy / (endPoint - startPoint).Vy;
+
+         if (double.IsNaN(tx)) t = ty;
+         else if (double.IsNaN(ty)) t = tx;
+         else if (double.IsNaN(tx) && double.IsNaN(ty)) return false;
+         else if (Calcs.IsEqual(tx, ty, threshold)) t = tx;
+         else return false;
+
+         if (t > 0 && t < 1) return true;
+         else if (!bounds && (Calcs.IsZero(t, threshold) || Calcs.IsOne(t, threshold))) return false;
+         else if (bounds && (Calcs.IsZero(t, threshold) || Calcs.IsOne(t, threshold))) return true;
+         else return false;
       }
 
       /// <summary>
-      /// Вычисление точки прересечения c линией.
+      /// Вычисление точки прересечения c заданной линией.
       /// </summary>
-      /// <param name="line">Линия.</param>
-      /// <returns>Точка прересечения двух плоских линий.</returns>
-      public Point2d Intersection(Line2d line)
+      /// <param name="line">Заданная линия.</param>
+      /// <param name="ip">Точка пересечения обеих линий (если они пересекаются).</param>
+      /// <param name="bounds">Учет совпадения вычисленной точки пересечения с начальной и конечной точками отрезков прямых.
+      /// 0 - если проверка попадания точки пересечения внутрь отрезков обеих прямых не требуется, 
+      /// 1 - если требуется проверка попадания точки пересечения внутрь или на границы отрезков обеих прямых, 
+      /// 2 - если требуется проверка попадания точки пересечения только внутрь отрезков обеих прямых.
+      /// </param>
+      /// <param name="prec">Предопределенная точность вычислений.</param>
+      /// <returns>TRUE, если точка пересечения найдена.</returns>
+      /// <remarks></remarks>
+      public bool Intersection(Line2d line, out Point2d ip, int bounds = 0, double prec = 1e-12)
       {
-         return Calcs.FindIntersection(StartPoint.ToPoint2d(), Directive, line.StartPoint.ToPoint2d(), line.Directive, 1e-12);
+         ip = null;
+
+         // Знаменатель для ua и ub одинаков, поэтому сохраняем этот вычисление
+         double d =
+            (line.endPoint.Y - line.startPoint.Y) * (endPoint.X - startPoint.X)
+            -
+            (line.endPoint.X - line.startPoint.X) * (endPoint.Y - startPoint.Y);
+
+         //n_a и n_b рассчитываются как отдельные значения для удобочитаемости
+         double n_a =
+            (line.endPoint.X - line.startPoint.X) * (startPoint.Y - line.startPoint.Y)
+            -
+            (line.endPoint.Y - line.startPoint.Y) * (startPoint.X - line.startPoint.X);
+
+         double n_b =
+            (endPoint.X - startPoint.X) * (startPoint.Y - line.startPoint.Y)
+            -
+            (endPoint.Y - startPoint.Y) * (startPoint.X - line.startPoint.X);
+
+         // Убедитесь, что нет деления на ноль - это также означает, что линии параллельны.
+         // Если бы n_a и n_b были равны нулю, строки были бы 
+         // друг над другом (совпадение). Эта проверка не выполняется, потому что 
+         // она не требуется для данной реализации (это учитывается параллельной проверкой).
+         if (Calcs.IsZero(d, prec)) return false;
+
+         // Вычисление промежуточной дробной точки, которую потенциально пересекают линии.
+         double ua = n_a / d;
+         double ub = n_b / d;
+         ip = (startPoint + (ua * (endPoint - startPoint))).ToPoint2d();
+
+         if (ua > 0 && ua < 1 && ub > 0 && ub < 1) return true;
+
+         // Точка деления будет между 0 и 1 включительно, если линии 
+         // пересекаются. Если дробное вычисление больше 1 или меньше 
+         // 0, линии должны быть длиннее для пересечения.
+         switch (bounds)
+         {
+            case 0:
+               return true;
+            case 1:
+               if ((ua > 0 || Calcs.IsZero(ua, prec)) && (ua <= 1 || Calcs.IsOne(ua, prec)) && 
+                   (ub > 0 || Calcs.IsZero(ub, prec)) && (ub < 1 || Calcs.IsOne(ub, prec)))
+               {
+                  return true;
+               }
+               break;
+         }
+         
+         return false;
       }
 
       /// <summary>
@@ -171,6 +223,7 @@ namespace Geo
       /// </summary>
       /// <param name="line">Плоская иния.</param>
       /// <param name="res">Ссылка на объект результата.</param>
+      [Obsolete("Используйте Intersection(line, ip, bounds, prec) вместо этого метода.")]
       public void Intersection(Line2d line, out IntersectResult res)
       {
          res = new IntersectResult();
@@ -192,35 +245,7 @@ namespace Geo
          res.res = true;
       }
 
-      /// <summary>
-      /// 
-      /// </summary>
-      /// <param name="line"></param>
-      /// <param name="pi"></param>
-      /// <returns></returns>
-      public bool IntersectionInBonds(Line2d line, out Point2d pi)
-      {
-         pi = Intersection(line);
-         if (pi.IsNaN()) return false;
-         int ch1 = Calcs.PointInSegment(pi, startPoint, endPoint);
-         if (ch1 != 0) return false;
-         double d = Calcs.PointLineDistance(pi, startPoint, directive.ToVector3d());
-
-         return Calcs.IsZero(d);
-      }
-      
-      public bool IntersectionNoBonds(Line2d line, out Point2d pi)
-      {
-         pi = Intersection(line);
-         if (pi.IsNaN()) return false;
-         int ch1 = Calcs.PointInSegmentNoBounds(pi, startPoint, endPoint);
-         if (ch1 != 0) return false;
-         double d = Calcs.PointLineDistance(pi, startPoint, directive.ToVector3d());
-
-         return Calcs.IsZero(d);
-      }
-
-      [Obsolete("Используйте IntersectionNoBonds(line, pi) или IntersectionInBonds(line, pi) вместо этого метода.")]
+      [Obsolete("Используйте Intersection(line, ip, bounds, prec) вместо этого метода.")]
       public void IntersectionSegments(Line2d line, out IntersectResult res)
       {
          res = new IntersectResult();

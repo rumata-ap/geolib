@@ -89,21 +89,22 @@ namespace Geo
 
       public double Interpolation(double x, double y)
       {
-         if (C == 0) return double.PositiveInfinity;
+         if (C == 0) return double.NaN;
          else return (-A * x - B * y - D) / C;
       }
 
       /// <summary>
-      ///Вычисление точки пересечения прямой с плоскостью
+      /// Вычисление точки пересечения прямой с плоскостью.
       /// </summary>
       /// <param name="line">Линия в пространстве.</param>
       /// <param name="ip">Результирующая точка пересечения.</param>
+      /// <param name="threshold">Допуск определения нулевого значения.</param>
       /// <returns>TRUE, если пересечение существует.</returns>
-      public bool Intersection(Line3d line, out Point3d ip)
+      public bool Intersection(Line3d line, out Point3d ip, double threshold = 1e-12)
       {
-         double denom = Normal / (line.EndPoint - line.StartPoint);
-         double nom = Normal / (Basis - line.StartPoint);
-         if (Calcs.IsZero(denom))
+         double denom = Normal % (line.EndPoint - line.StartPoint);
+         double nom = Normal % (Basis - line.StartPoint);
+         if (Calcs.IsZero(denom, threshold))
          {
             ip = null;
             return false;
@@ -112,6 +113,79 @@ namespace Geo
          {
             double u = nom / denom;
             ip = line.StartPoint + (line.EndPoint - line.StartPoint) * u;
+            return true;
+         }
+      }
+      
+      /// <summary>
+      /// Вычисление линии пересечения с заданной плоскостью.
+      /// </summary>
+      /// <param name="plane1">Плоскость, с которой ищется пересечение.</param>
+      /// <param name="il">Результирующая линия пересечения.</param>
+      /// <param name="threshold">Допуск определения параллельности плоскостей.</param>
+      /// <returns>TRUE, если пересечение существует.</returns>
+      public bool Intersection(Plane plane1, out Line3d il, double threshold = 1e-12)
+      {
+         if (Vector3d.AreParallel(Normal, plane1.Normal, threshold))
+         {
+            il = null;
+            return false;
+         }
+         else
+         {
+            Vector3d n1 = Normal;
+            Vector3d n2 = plane1.Normal;
+            double det = (n1 % n1) * (n2 % n2) - Math.Pow(n1 % n2, 2);
+            double d1 = n1 % Basis.ToVector3d();
+            double d2 = n2 % plane1.Basis.ToVector3d();
+            double c1 = (d1 * (n2 % n2) - d2 * (n1 % n2)) / det;
+            double c2 = (d2 * (n1 % n1) - d1 * (n1 % n2)) / det;
+
+            Vector3d ip1 = c1 * n1 + c2 * n2;
+            Vector3d ip2 = c1 * n1 + c2 * n2 + (n1 ^ n2);
+            il = new Line3d(ip1.ToPoint3d(), ip2.ToPoint3d());
+            return true;
+         }
+      }
+            
+      /// <summary>
+      /// Вычисление точки пересечения с 2-мя заданными плоскостями.
+      /// </summary>
+      /// <param name="plane1">Первая плоскость, с которой ищется пересечение.</param>
+      /// <param name="plane2">Вторая плоскость, с которой ищется пересечение.</param>
+      /// <param name="ip">Результирующая линия пересечения.</param>
+      /// <param name="threshold">Допуск определения параллельности плоскостей.</param>
+      /// <returns>TRUE, если пересечение существует.</returns>
+      public bool Intersection(Plane plane1,Plane plane2, out Point3d ip, double threshold = 1e-12)
+      {
+         if (Vector3d.AreParallel(plane1.Normal, plane2.Normal, threshold))
+         {
+            ip = null;
+            return false;
+         }
+         else if (Vector3d.AreParallel(Normal, plane1.Normal, threshold))
+         {
+            ip = null;
+            return false;
+         }
+         else if (Vector3d.AreParallel(Normal, plane2.Normal, threshold))
+         {
+            ip = null;
+            return false;
+         }
+         else
+         {
+            Vector3d n1 = Normal;
+            Vector3d n2 = plane1.Normal;
+            Vector3d n3 = plane2.Normal;
+
+            double d1 = n1 % Basis.ToVector3d();
+            double d2 = n2 % plane1.Basis.ToVector3d();
+            double d3 = n3 % plane2.Basis.ToVector3d();
+
+            Vector3d iv = d1 * (n2 ^ n3) + d2 * (n3 ^ n1) + d3 * (n1 ^ n2) / (n1 % (n2 ^ n3));
+
+            ip = iv.ToPoint3d();
             return true;
          }
       }

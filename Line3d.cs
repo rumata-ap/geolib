@@ -67,6 +67,87 @@ namespace Geo
       }
 
       /// <summary>
+      /// Проверяет, находится ли точка внутри отрезка, определенного начальной и конечной точками прямой.
+      /// </summary>
+      /// <param name="p">Проверяемая точка.</param>
+      /// <param name="bounds">Учет совпадения с начальной и конечной точками отрезка.</param>
+      /// <param name="threshold">Точность определения.</param>
+      /// <returns>
+      /// TRUE, если точка находится внутри отрезка.</returns>
+
+      public bool PointInSegment(ICoordinates p, bool bounds = false, double threshold = 1e-12)
+      {
+         double tx, ty, tz, t;
+         tx = Calcs.IsZero((endPoint - startPoint).Vx, threshold) ?
+            double.NaN : (p.ToVector3d() - startPoint.ToVector3d()).Vx / (endPoint - startPoint).Vx;
+         ty = Calcs.IsZero((endPoint - startPoint).Vy, threshold) ?
+            double.NaN : (p.ToVector3d() - startPoint.ToVector3d()).Vy / (endPoint - startPoint).Vy;
+         tz = Calcs.IsZero((endPoint - startPoint).Vz, threshold) ?
+            double.NaN : (p.ToVector3d() - startPoint.ToVector3d()).Vz / (endPoint - startPoint).Vz;
+
+         if (double.IsNaN(tx) && Calcs.IsEqual(tz, ty, threshold)) t = ty;
+         else if (double.IsNaN(ty) && Calcs.IsEqual(tx, tz, threshold)) t = tx;
+         else if (double.IsNaN(tz) && Calcs.IsEqual(tx, ty, threshold)) t = tx;
+         else if (double.IsNaN(tx) && double.IsNaN(ty) && double.IsNaN(tz)) return false;
+         else if (double.IsNaN(tx) && double.IsNaN(ty)) t = tx;
+         else if (double.IsNaN(tx) && double.IsNaN(tz)) t = ty;
+         else if (double.IsNaN(ty) && double.IsNaN(tz)) t = tx;
+         else if (Calcs.IsEqual(tx, ty, threshold) && Calcs.IsEqual(tx, tz, threshold)) t = tx;
+         else return false;
+
+         if (t > 0 && t < 1) return true;
+         else if (!bounds && (Calcs.IsZero(t, threshold) || Calcs.IsOne(t, threshold))) return false;
+         else if (bounds && (Calcs.IsZero(t, threshold) || Calcs.IsOne(t, threshold))) return true;
+         else return false;
+      }
+
+      /// <summary>
+      /// Вычисляет отрезок линии пересечения с заданной линией (не отрезком).
+      /// </summary>
+      /// <param name="line3D">Заданная линия.</param>
+      /// <param name="ip1">Первая результирующая точка пересечения.</param>
+      /// <param name="ip2">Вторая результирующая точка пересечения.</param>
+      /// <param name="threshold">Точность определения.</param>
+      /// <returns>Возвращает FALSE, если решение не найдено.</returns>
+      public bool Intersection(Line3d line3D, out Point3d ip1, out Point3d ip2, double threshold = 1e-12)
+      {
+         // Алгоритм портирован из C-алгоритма Пола Бурка на http://paulbourke.net/geometry/pointlineplane/lineline.c
+         ip1 = null;
+         ip2 = null;
+
+         Vector3d p1 = startPoint.ToVector3d();
+         Vector3d p2 = endPoint.ToVector3d();
+         Vector3d p3 = line3D.startPoint.ToVector3d();
+         Vector3d p4 = line3D.endPoint.ToVector3d();
+         Vector3d p13 = p1 - p3;
+         Vector3d p43 = p4 - p3;
+
+         if (p43.Norma < threshold) return false;
+
+         Vector3d p21 = p2 - p1;
+         if (p21.Norma < threshold) return false;
+
+         double d1343 = p13 % p43;
+         double d4321 = p43 % p21;
+         double d1321 = p13 % p21;
+         double d4343 = p43 % p43;
+         double d2121 = p21 % p21;
+
+         double denom = d2121 * d4343 - d4321 * d4321;
+         if (Math.Abs(denom) < threshold) return false;
+
+         double numer = d1343 * d4321 - d1321 * d4343;
+
+         double mua = numer / denom;
+         double mub = (d1343 + d4321 * mua) / d4343;
+
+         ip1 = (p1 + mua * p21).ToPoint3d();
+         ip2 = (p3 + mub * p43).ToPoint3d();
+
+         return true;
+      }
+
+      /// <summary>
       /// Получение точки на линии по заданнамо параметру.
       /// </summary>
       /// <param name="param">Параметр в долях единицы или абсолютное значение в диапазоне от -∞ до +∞</param>

@@ -32,7 +32,7 @@ namespace Geo.Calc
          arr = (double[])source.arr.Clone();
       }
 
-      public Vector2d(ICoordinates source)
+      public Vector2d(IXYZ source)
       {
          arr = new double[2];
          arr[0] = source.X;

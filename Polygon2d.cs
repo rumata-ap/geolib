@@ -20,7 +20,7 @@ namespace Geo
       public int Id { get; set; }
       public string Label { get; set; }
 
-      public Polygon2d(IEnumerable<ICoordinates> vertices) : base(vertices)
+      public Polygon2d(IEnumerable<IXYZ> vertices) : base(vertices)
       {
          Close();
          CalcPerimeter();
@@ -56,7 +56,7 @@ namespace Geo
          Open();
          for (int i = 0; i < vrtxs.Count - 1; i++)
          {
-            ICoordinates arrTemp = vrtxs[i]; ICoordinates arrTemp1 = vrtxs[i + 1];
+            IXYZ arrTemp = vrtxs[i]; IXYZ arrTemp1 = vrtxs[i + 1];
             tempX += (Math.Pow(arrTemp.X, 2) + arrTemp.X * arrTemp1.X + Math.Pow(arrTemp1.X, 2)) * 
                (arrTemp.X * arrTemp1.Y - arrTemp.Y * arrTemp1.X);
             tempY += (Math.Pow(arrTemp.Y, 2) + arrTemp.Y * arrTemp1.Y + Math.Pow(arrTemp1.Y, 2)) * 
@@ -70,10 +70,10 @@ namespace Geo
       protected void CalcCentroid()
       {
          Open();
-         ICoordinates temp = new Point3d();
+         IXYZ temp = new Point3d();
          for (int i = 0; i < vrtxs.Count - 1; i++)
          {
-            ICoordinates arrTemp = vrtxs[i]; ICoordinates arrTemp1 = vrtxs[i + 1];
+            IXYZ arrTemp = vrtxs[i]; IXYZ arrTemp1 = vrtxs[i + 1];
             temp.X = temp.X + 1 / (6 * area) * (arrTemp.X + arrTemp1.X) * 
                (arrTemp.X * arrTemp1.Y - arrTemp.Y * arrTemp1.X);
             temp.Y = temp.Y + 1 / (6 * area) * (arrTemp.Y + arrTemp1.Y) * 
@@ -89,7 +89,7 @@ namespace Geo
          double temp = 0;
          for (int i = 0; i < vrtxs.Count - 1; i++)
          {
-            ICoordinates arrTemp = vrtxs[i]; ICoordinates arrTemp1 = vrtxs[i + 1];
+            IXYZ arrTemp = vrtxs[i]; IXYZ arrTemp1 = vrtxs[i + 1];
             temp = temp + 0.5 * (arrTemp.X * arrTemp1.Y - arrTemp1.X * arrTemp.Y);
          }
          area = temp;

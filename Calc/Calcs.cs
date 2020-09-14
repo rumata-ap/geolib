@@ -159,7 +159,7 @@ namespace Geo.Calc
       /// </summary>
       /// <param name="point">Координаты точечного объекта.</param>
       /// <returns>True if its close to one or false in any other case.</returns>
-      public static bool IsZero(ICoordinates point)
+      public static bool IsZero(IXYZ point)
       {
          return IsZero(point, Epsilon);
       }
@@ -170,7 +170,7 @@ namespace Geo.Calc
       /// <param name="point">Координаты точечного объекта.</param>
       /// <param name="threshold">Допуск.</param>
       /// <returns>True if its close to one or false in any other case.</returns>
-      public static bool IsZero(ICoordinates point, double threshold)
+      public static bool IsZero(IXYZ point, double threshold)
       {
          return point.X >= -threshold && point.X <= threshold &&
                 point.Y >= -threshold && point.Y <= threshold &&
@@ -206,7 +206,7 @@ namespace Geo.Calc
       /// <param name="a">Координаты точечного объекта.</param>
       /// <param name="b">Координаты точечного объекта.</param>
       /// <returns>True if its close to one or false in any other case.</returns>
-      public static bool IsEqual(ICoordinates a, ICoordinates b)
+      public static bool IsEqual(IXYZ a, IXYZ b)
       {
          return IsEqual(a, b, Epsilon);
       }
@@ -218,7 +218,7 @@ namespace Geo.Calc
       /// <param name="b">Координаты точечного объекта.</param>
       /// <param name="threshold">Tolerance.</param>
       /// <returns>True if its close to one or false in any other case.</returns>
-      public static bool IsEqual(ICoordinates a, ICoordinates b, double threshold)
+      public static bool IsEqual(IXYZ a, IXYZ b, double threshold)
       {
          return IsZero((a.ToVector3d() - b.ToVector3d()).ToPoint3d(), threshold);
       }
@@ -300,7 +300,7 @@ namespace Geo.Calc
       /// <param name="from">Point coordinate system.</param>
       /// <param name="to">Coordinate system of the transformed point.</param>
       /// <returns>Transformed point.</returns>
-      public static Point3d Transform(ICoordinates point, Vector3d zAxis, CoordinateSystem from, CoordinateSystem to)
+      public static Point3d Transform(IXYZ point, Vector3d zAxis, CoordinateSystem from, CoordinateSystem to)
       {
          // if the normal is (0,0,1) no transformation is needed the transformation matrix is the identity
          if (zAxis.Equals(Vector3d.UnitZ))
@@ -327,30 +327,30 @@ namespace Geo.Calc
       /// <param name="from">Points coordinate system.</param>
       /// <param name="to">Coordinate system of the transformed points.</param>
       /// <returns>Transformed point list.</returns>
-      public static List<ICoordinates> Transform(IEnumerable<ICoordinates> points, Vector3d zAxis, CoordinateSystem from, CoordinateSystem to)
+      public static List<IXYZ> Transform(IEnumerable<IXYZ> points, Vector3d zAxis, CoordinateSystem from, CoordinateSystem to)
       {
          if (points == null)
             throw new ArgumentNullException(nameof(points));
 
-         if (zAxis.Equals(Vector3d.UnitZ)) return new List<ICoordinates>(points);
+         if (zAxis.Equals(Vector3d.UnitZ)) return new List<IXYZ>(points);
 
          Matrix trans = ArbitraryAxis(zAxis);
-         List<ICoordinates> transPoints;
+         List<IXYZ> transPoints;
          if (from == CoordinateSystem.World && to == CoordinateSystem.Object)
          {
-            transPoints = new List<ICoordinates>();
+            transPoints = new List<IXYZ>();
             trans = trans.Transpose();
-            foreach (ICoordinates p in points) transPoints.Add((trans * p.ToVector3d()).ToPoint3d());
+            foreach (IXYZ p in points) transPoints.Add((trans * p.ToVector3d()).ToPoint3d());
             return transPoints;
          }
          if (from == CoordinateSystem.Object && to == CoordinateSystem.World)
          {
-            transPoints = new List<ICoordinates>();
-            foreach (ICoordinates p in points) transPoints.Add((trans * p.ToVector3d()).ToPoint3d());
+            transPoints = new List<IXYZ>();
+            foreach (IXYZ p in points) transPoints.Add((trans * p.ToVector3d()).ToPoint3d());
             return transPoints;
          }
 
-         return new List<ICoordinates>(points);
+         return new List<IXYZ>(points);
       }
 
       /// <summary>
@@ -392,7 +392,7 @@ namespace Geo.Calc
       /// <param name="origin">Точка, определяющая линию.</param>
       /// <param name="dir">Направляющий вектор линии.</param>
       /// <returns>Минимальное расстояние между точкой и линией.</returns>
-      public static double PointLineDistance(ICoordinates p, ICoordinates origin, Vector3d dir)
+      public static double PointLineDistance(IXYZ p, IXYZ origin, Vector3d dir)
       {
          double t = dir % (p.ToVector3d() - origin.ToVector3d());
          Vector3d pPrime = origin.ToVector3d() + dir * t;
@@ -417,7 +417,7 @@ namespace Geo.Calc
       /// Позже, если необходимо, вы можете использовать метод PointLineDistance для определеня расстояния от точки до сегмента.
       /// Если это расстояние равно нулю, то точка находится вдоль линии, определяемой начальной и конечной точками.
       /// </remarks>
-      public static int PointInSegment(ICoordinates p, ICoordinates start, ICoordinates end)
+      public static int PointInSegment(IXYZ p, IXYZ start, IXYZ end)
       {
          Vector3d dir = end.ToVector3d() - start.ToVector3d();
          Vector3d pPrime = p.ToVector3d() - start.ToVector3d();
@@ -450,7 +450,7 @@ namespace Geo.Calc
       /// Позже, если необходимо, вы можете использовать метод PointLineDistance для определеня расстояния от точки до сегмента.
       /// Если это расстояние равно нулю, то точка находится вдоль линии, определяемой начальной и конечной точками.
       /// </remarks>
-      public static int PointInSegmentNoBounds(ICoordinates p, ICoordinates start, ICoordinates end)
+      public static int PointInSegmentNoBounds(IXYZ p, IXYZ start, IXYZ end)
       {
          Vector3d dir = end.ToVector3d() - start.ToVector3d();
          Vector3d pPrime = p.ToVector3d() - start.ToVector3d();
@@ -511,7 +511,7 @@ namespace Geo.Calc
       ///  Есть потенциально две точки пересечения.
       /// </remarks>
       /// <returns>FALSE, если линия не пересекает сферу.</returns>
-      public static bool FindIntersection(ICoordinates p1, ICoordinates p2, ICoordinates sc, double r, out Point3d res1, out Point3d res2)
+      public static bool FindIntersection(IXYZ p1, IXYZ p2, IXYZ sc, double r, out Point3d res1, out Point3d res2)
       {
          return FindIntersection(p1, p2, sc, r, out res1, out res2, epsilon);
       }
@@ -532,8 +532,8 @@ namespace Geo.Calc
       ///  Есть потенциально две точки пересечения.
       /// </remarks>
       /// <returns>FALSE, если линия не пересекает сферу.</returns>
-      public static bool FindIntersection(ICoordinates p1, ICoordinates p2,
-                                          ICoordinates sc, double r,
+      public static bool FindIntersection(IXYZ p1, IXYZ p2,
+                                          IXYZ sc, double r,
                                           out Point3d res1, out Point3d res2,
                                           double threshold)
       {
@@ -580,8 +580,8 @@ namespace Geo.Calc
       /// <param name="res">Результирующая точка пересечения.</param>
       /// <param name="t">Параметр, результирующей точки пересечения</param>
       /// <returns>TRUE, если точка пересечения найдена.</returns>
-      public static bool FindIntersection(ICoordinates p1, ICoordinates p2, ICoordinates p3,
-                                          ICoordinates p4, ICoordinates p5,
+      public static bool FindIntersection(IXYZ p1, IXYZ p2, IXYZ p3,
+                                          IXYZ p4, IXYZ p5,
                                           out Point3d res, out double t)
       {
          return FindIntersection(p1, p2, p3, p4, p5, out res, out t, epsilon);
@@ -599,8 +599,8 @@ namespace Geo.Calc
       /// <param name="t">Параметр, результирующей точки пересечения</param>
       /// <param name="threshold">Допуск.</param>
       /// <returns>TRUE, если точка пересечения найдена.</returns>
-      public static bool FindIntersection(ICoordinates p1, ICoordinates p2, ICoordinates p3,
-                                          ICoordinates p4, ICoordinates p5,
+      public static bool FindIntersection(IXYZ p1, IXYZ p2, IXYZ p3,
+                                          IXYZ p4, IXYZ p5,
                                           out Point3d res, out double t, double threshold)
       {
          Vector3d normal = (p2.ToVector3d() - p1.ToVector3d()) ^ (p3.ToVector3d() - p1.ToVector3d());
@@ -631,8 +631,8 @@ namespace Geo.Calc
       /// <param name="p6">Третья точка, определяющая 2-ю плоскость.</param>
       /// <param name="res">Результирующая прямая.</param>
       /// <returns>TRUE, если линия пересечения найдена.</returns>
-      public static bool FindIntersection(ICoordinates p1, ICoordinates p2, ICoordinates p3,
-                                          ICoordinates p4, ICoordinates p5, ICoordinates p6,
+      public static bool FindIntersection(IXYZ p1, IXYZ p2, IXYZ p3,
+                                          IXYZ p4, IXYZ p5, IXYZ p6,
                                           out Line3d res)
       {
          return FindIntersection(p1, p2, p3, p4, p5, p6, out res, epsilon);
@@ -650,8 +650,8 @@ namespace Geo.Calc
       /// <param name="res">Результирующая прямая.</param>
       /// <param name="threshold">Допуск определения параллельности плоскостей.</param>
       /// <returns>TRUE, если линия пересечения найдена.</returns>
-      public static bool FindIntersection(ICoordinates p1, ICoordinates p2, ICoordinates p3,
-                                          ICoordinates p4, ICoordinates p5, ICoordinates p6,
+      public static bool FindIntersection(IXYZ p1, IXYZ p2, IXYZ p3,
+                                          IXYZ p4, IXYZ p5, IXYZ p6,
                                           out Line3d res, double threshold)
       {
          Vector3d n1 = (p2.ToVector3d() - p1.ToVector3d()) ^ (p3.ToVector3d() - p1.ToVector3d());
@@ -686,8 +686,8 @@ namespace Geo.Calc
       /// Вычисляет отрезок линии пересечения между 2 линиями (не отрезками).
       /// </summary>
       /// <returns>Возвращает FALSE, если решение не найдено.</returns>
-      public static bool FindIntersection(ICoordinates line1Point1, ICoordinates line1Point2,
-                                          ICoordinates line2Point1, ICoordinates line2Point2,
+      public static bool FindIntersection(IXYZ line1Point1, IXYZ line1Point2,
+                                          IXYZ line2Point1, IXYZ line2Point2,
                                           out Point3d resultSegmentPoint1, out Point3d resultSegmentPoint2,
                                           double threshold = 1e-12)
       {

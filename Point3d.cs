@@ -5,7 +5,7 @@ using System.Collections.Generic;
 namespace Geo
 {
    [Serializable]
-   public class Point3d : ICoordinates
+   public class Point3d : IXYZ
    {
       double[] arr;
       //int n = 3;
@@ -14,7 +14,6 @@ namespace Geo
       public double X { get => arr[0]; set => arr[0] = value; }
       public double Y { get => arr[1]; set => arr[1] = value; }
       public double Z { get => arr[2]; set => arr[2] = value; }
-      public Dictionary<string, object> Attr { get; set; }
 
       public int N => 3;
 
@@ -57,7 +56,7 @@ namespace Geo
          arr = source.ToArray();
       }
 
-      public Point3d(ICoordinates src)
+      public Point3d(IXYZ src)
       {
          arr = new double[3];
          arr[0] = src.X; arr[1] = src.Y; arr[2] = src.Z;
@@ -157,12 +156,12 @@ namespace Geo
          return res;
       }
 
-      public bool IsMatch(ICoordinates pt)
+      public bool IsMatch(IXYZ pt)
       {
          return Calcs.IsEqual(this, pt);
       }
 
-      public double LengthTo(ICoordinates target)
+      public double DistanceTo(IXYZ target)
       {
          double dx = X - target.X;
          double dy = Y - target.Y;
@@ -173,6 +172,14 @@ namespace Geo
       public bool IsNaN()
       {
          return double.IsNaN(X) || double.IsNaN(Y) || double.IsNaN(Z);
+      }
+
+      public double DistanceSquaredTo(IXYZ target)
+      {
+         double dx = X - target.X;
+         double dy = Y - target.Y;
+         double dz = Z - target.Z;
+         return dx * dx + dy * dy + dz * dz;
       }
    }
 }

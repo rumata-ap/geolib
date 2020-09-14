@@ -20,12 +20,12 @@ namespace Geo
          vrtxs = new List<Vertex2d>();
       }
 
-      public Pline2d(IEnumerable<ICoordinates> vertices)
+      public Pline2d(IEnumerable<IXYZ> vertices)
       {
          vrtxs = new List<Vertex2d>(vertices.Count());
          if (vertices.Count() > 0)
          {
-            foreach (ICoordinates item in vertices)
+            foreach (IXYZ item in vertices)
             {
                vrtxs.Add(new Vertex2d(item));
             }
@@ -48,7 +48,7 @@ namespace Geo
          CalcVertices();
       }
 
-      protected void AddVertexNew(ICoordinates pt)
+      protected void AddVertexNew(IXYZ pt)
       {
          Open();
          vrtxs.Add(new Vertex2d(pt));
@@ -99,10 +99,10 @@ namespace Geo
          CalcBB();
       }
 
-      public void AddPointsNew(IEnumerable<ICoordinates> vertices, bool recalc = true)
+      public void AddPointsNew(IEnumerable<IXYZ> vertices, bool recalc = true)
       {
          Open();
-         List<ICoordinates> tmp = new List<ICoordinates>(vertices);
+         List<IXYZ> tmp = new List<IXYZ>(vertices);
          foreach (Vertex2d item in tmp)
          {
             vrtxs.Add(new Vertex2d(item));

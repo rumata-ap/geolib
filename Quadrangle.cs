@@ -11,15 +11,15 @@ namespace Geo
    {
       public int Id { get; set; }
 
-      private ICoordinates vertex1;
-      private ICoordinates vertex2;
-      private ICoordinates vertex3;
-      private ICoordinates vertex4;
+      private IXYZ vertex1;
+      private IXYZ vertex2;
+      private IXYZ vertex3;
+      private IXYZ vertex4;
 
-      public ICoordinates Vertex1 { get => vertex1; set { vertex1 = value; CalcQuadrangle(); } }
-      public ICoordinates Vertex2 { get => vertex2; set { vertex2 = value; CalcQuadrangle(); } }
-      public ICoordinates Vertex3 { get => vertex3; set { vertex3 = value; CalcQuadrangle(); } }
-      public ICoordinates Vertex4 { get => vertex4; set { vertex4 = value; CalcQuadrangle(); } }
+      public IXYZ Vertex1 { get => vertex1; set { vertex1 = value; CalcQuadrangle(); } }
+      public IXYZ Vertex2 { get => vertex2; set { vertex2 = value; CalcQuadrangle(); } }
+      public IXYZ Vertex3 { get => vertex3; set { vertex3 = value; CalcQuadrangle(); } }
+      public IXYZ Vertex4 { get => vertex4; set { vertex4 = value; CalcQuadrangle(); } }
       public Triangle Tri1 { get; private set; }
       public Triangle Tri2 { get; private set; }
       public double MaxAngleDeg { get; private set; }
@@ -29,9 +29,9 @@ namespace Geo
 
       public Quadrangle(Triangle trg1, Triangle trg2)
       {
-         List<ICoordinates> l1 = new List<ICoordinates> { trg1.Vertex1, trg1.Vertex2, trg1.Vertex3 };
-         List<ICoordinates> l2 = new List<ICoordinates> { trg2.Vertex1, trg2.Vertex2, trg2.Vertex3 };
-         List<ICoordinates> pt = new List<ICoordinates>(2);
+         List<IXYZ> l1 = new List<IXYZ> { trg1.Vertex1, trg1.Vertex2, trg1.Vertex3 };
+         List<IXYZ> l2 = new List<IXYZ> { trg2.Vertex1, trg2.Vertex2, trg2.Vertex3 };
+         List<IXYZ> pt = new List<IXYZ>(2);
          for (int i = 0; i < 3; i++)
          {
             for (int j = 0; j < 3; j++)
@@ -44,12 +44,12 @@ namespace Geo
          
          if (l2.Count != 1) throw new ArgumentException("Не возможно создать четырехугольник из заданных треугольников.");
          l1.Add(l2[0]);
-         List<ICoordinates> selx = l1.OrderBy(t => t.X).ToList();         
+         List<IXYZ> selx = l1.OrderBy(t => t.X).ToList();         
          vertex1 = selx[0];
          vertex3 = selx[3];
          selx.Remove(vertex1);
          selx.Remove(vertex3);
-         List<ICoordinates> sely = selx.OrderByDescending(t => t.Y).ToList();
+         List<IXYZ> sely = selx.OrderByDescending(t => t.Y).ToList();
          vertex2 = sely[0];        
          vertex4 = sely[1];
          Line2d lin2 = new Line2d(new Point2d(vertex2.ToArray()), new Point2d(vertex3.ToArray()));
@@ -73,7 +73,7 @@ namespace Geo
          CalcQuadrangle();
       }
 
-      public Quadrangle(ICoordinates node1, ICoordinates node2, ICoordinates node3, ICoordinates node4)
+      public Quadrangle(IXYZ node1, IXYZ node2, IXYZ node3, IXYZ node4)
       {
          vertex1 = node1;
          vertex2 = node2;
@@ -86,7 +86,7 @@ namespace Geo
 
       public void CalcQuadrangle()
       {
-         ICoordinates[] verts = new ICoordinates[] { vertex1, vertex2, vertex3, vertex4 };
+         IXYZ[] verts = new IXYZ[] { vertex1, vertex2, vertex3, vertex4 };
          //var selx = from v in verts select v.X;
          //var sely = from v in verts select v.Y;
 
@@ -103,7 +103,7 @@ namespace Geo
          MaxAngleDeg = polygon.MaxAngleDeg();
       }
 
-      public bool IsPointIn(ICoordinates pt)
+      public bool IsPointIn(IXYZ pt)
       {
          if (Tri1.IsPointIn(pt) && Tri2.IsPointIn(pt)) return true;
          else return false;

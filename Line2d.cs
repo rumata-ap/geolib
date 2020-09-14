@@ -114,7 +114,7 @@ namespace Geo
       /// </summary>
       /// <param name="p">Точка.</param>
       /// <returns>Минимальное расстояние между точкой и линией.</returns>
-      public double DistanceToPoint(ICoordinates p)
+      public double DistanceToPoint(IXYZ p)
       {
          double t = Directive.ToVector3d() % (p.ToVector3d() - StartPoint.ToVector3d());
          Vector3d pPrime = StartPoint.ToVector3d() + Directive.ToVector3d() * t;
@@ -132,7 +132,7 @@ namespace Geo
       /// <returns>
       /// TRUE, если точка находится внутри отрезка.</returns>
 
-      public bool PointInSegment(ICoordinates p, bool bounds = false, double threshold = 1e-12)
+      public bool PointInSegment(IXYZ p, bool bounds = false, double threshold = 1e-12)
       {
          double tx, ty, t;
          tx = Calcs.IsZero((endPoint - startPoint).Vx, threshold) ? 

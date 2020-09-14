@@ -23,7 +23,7 @@ namespace Geo
          max = maxPt;
       }
 
-      public bool IsContain(ICoordinates pt)
+      public bool IsContain(IXYZ pt)
       {
          return false;
       }

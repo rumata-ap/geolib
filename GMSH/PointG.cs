@@ -5,7 +5,7 @@ using System.Text;
 
 namespace Geo.GMSH
 {
-   public class PointG : Point3d, ICoordinates, IEntityG
+   public class PointG : Point3d, IXYZ, IEntityG
    {
       public object Id { get; set; }
       public string GeoString { get => GetGeoString(); }
@@ -18,7 +18,7 @@ namespace Geo.GMSH
          Id = id;
       }
 
-      public PointG(ICoordinates src, int id = 0, double st = 1000): base(src)
+      public PointG(IXYZ src, int id = 0, double st = 1000): base(src)
       {
          Step = st;
          Id = id;

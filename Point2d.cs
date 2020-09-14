@@ -6,16 +6,15 @@ using System.Collections.Generic;
 namespace Geo
 {
    [Serializable]
-   public class Point2d : ICoordinates
+   public class Point2d : IXYZ
    {
       double[] arr = new double[2];
 
       public double this[int i] { get => arr[i]; set => arr[i] = value; }
       public double X { get => arr[0]; set => arr[0] = value; }
       public double Y { get => arr[1]; set => arr[1] = value; }
-      public double Z { get; set; }
-      public Dictionary<string, object> Attr { get; set; }
-
+      public double Z { get => double.NaN;  set { } }
+      
       public Point2d()
       {
          arr = new double[2];
@@ -25,6 +24,12 @@ namespace Geo
       {
          arr = new double[2];
          arr[0] = x; arr[1] = y;
+      }
+
+      public Point2d(IXYZ source)
+      {
+         arr = new double[2];
+         arr[0] = source.X; arr[1] = source.Y;
       }
 
       public Point2d(Point2d source)
@@ -134,12 +139,12 @@ namespace Geo
          return base.GetHashCode();
       }
 
-      public bool IsMatch(ICoordinates pt)
+      public bool IsMatch(IXYZ pt)
       {
          return Calcs.IsEqual(this, pt);
       }
 
-      public double LengthTo(ICoordinates target)
+      public double DistanceTo(IXYZ target)
       {
          double dx = X - target.X;
          double dy = Y - target.Y;
@@ -149,6 +154,13 @@ namespace Geo
       public bool IsNaN()
       {
          return double.IsNaN(X) || double.IsNaN(Y) || double.IsNaN(Z);
+      }
+
+      public double DistanceSquaredTo(IXYZ target)
+      {
+         double dx = X - target.X;
+         double dy = Y - target.Y;
+         return dx * dx + dy * dy;
       }
    }
 }

@@ -53,6 +53,7 @@
   <ItemGroup>
     <Compile Include="LineTest.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="KdTreeTest.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

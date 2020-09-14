@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace Geo
+namespace Geo.Calc
 {
    public class KdTree
    {
@@ -13,7 +13,6 @@ namespace Geo
       private static readonly RectHV Container = new RectHV(0, 0, 1, 1);
 
       public bool IsEmpty => Size == 0;
-
       public int Size => size;
 
       public KdTree()
@@ -22,7 +21,7 @@ namespace Geo
          size = 0;
       }
 
-      public bool Contains(Point2D p)
+      public bool Contains(IXYZ p)
       {
          return Contains(root, p.X, p.Y);
       }
@@ -44,12 +43,18 @@ namespace Geo
          return Contains(node.Right, x, y);
       }
 
-      public void Insert(Point2D point)
+      public void Insert(IXYZ point)
       {
          root = Insert(root, point, vertical: true);
       }
 
-      private KdNode Insert(KdNode node, Point2D p, bool vertical)
+      public void Insert(IEnumerable<IXYZ> points)
+      {
+         List<IXYZ> pts = points.ToList();
+         pts.ForEach(Insert);
+      }
+
+      private KdNode Insert(KdNode node, IXYZ p, bool vertical)
       {
          if (node == null)
          {
@@ -71,14 +76,14 @@ namespace Geo
          return node;
       }
 
-      public IEnumerable<Point2D> Range(RectHV rect)
+      public IEnumerable<IXYZ> Range(RectHV rect)
       {
-         var queue = new Queue<Point2D>();
+         var queue = new Queue<IXYZ>();
          Range(root, Container, rect, queue);
          return queue;
       }
 
-      private void Range(KdNode node, RectHV nrect, RectHV rect, Queue<Point2D> queue)
+      private void Range(KdNode node, RectHV nrect, RectHV rect, Queue<IXYZ> queue)
       {
          if (node == null)
          {
@@ -86,7 +91,7 @@ namespace Geo
          }
          if (rect.Intersects(nrect))
          {
-            var p = new Point2D(node.X, node.Y);
+            var p = new Point2d(node.X, node.Y);
             if (rect.Contains(p))
             {
                queue.Enqueue(p);
@@ -114,12 +119,12 @@ namespace Geo
          return new RectHV(rect.Xmin, node.Y, rect.Xmax, rect.Ymax);
       }
 
-      public Point2D Nearest(Point2D p)
+      public IXYZ Nearest(IXYZ p)
       {
          return Nearest(root, Container, p.X, p.Y, null);
       }
 
-      private Point2D Nearest(KdNode node, RectHV rect, double x, double y, Point2D candidate)
+      private IXYZ Nearest(KdNode node, RectHV rect, double x, double y, IXYZ candidate)
       {
          if (node == null)
          {
@@ -127,7 +132,7 @@ namespace Geo
          }
          double dqn = 0;
          double drq = 0;
-         var query = new Point2D(x, y);
+         var query = new Point2d(x, y);
          var nearest = candidate;
 
          if (nearest != null)
@@ -138,7 +143,7 @@ namespace Geo
 
          if (nearest == null || dqn < drq)
          {
-            var point = new Point2D(node.X, node.Y);
+            var point = new Point2d(node.X, node.Y);
             if (nearest == null || dqn > query.DistanceSquaredTo(point))
             {
                nearest = point;
@@ -202,32 +207,6 @@ namespace Geo
 
    }
 
-   public class Point2D
-   {
-
-      public double X { get; private set; }
-
-      public double Y { get; private set; }
-
-      public Point2D(double x, double y)
-      {
-         X = x;
-         Y = y;
-      }
-
-      public double DistanceTo(Point2D that)
-      {
-         return Math.Sqrt(DistanceSquaredTo(that));
-      }
-
-      public double DistanceSquaredTo(Point2D that)
-      {
-         var dx = X - that.X;
-         var dy = Y - that.Y;
-         return dx * dx + dy * dy;
-      }
-   }
-
    public class RectHV
    {
 
@@ -250,13 +229,13 @@ namespace Geo
                 && that.Xmax >= Xmin && that.Ymax >= Ymin;
       }
 
-      public bool Contains(Point2D p)
+      public bool Contains(IXYZ p)
       {
          return (p.X >= Xmin && p.X <= Xmax)
                 && (p.Y >= Ymin && p.Y <= Ymax);
       }
 
-      public double DistanceSquaredTo(Point2D p)
+      public double DistanceSquaredTo(IXYZ p)
       {
          double dx = 0, dy = 0;
          if (p.X < Xmin)
@@ -278,7 +257,7 @@ namespace Geo
          return dx * dx + dy * dy;
       }
 
-      public double DistanceTo(Point2D p)
+      public double DistanceTo(IXYZ p)
       {
          return Math.Sqrt(DistanceSquaredTo(p));
       }

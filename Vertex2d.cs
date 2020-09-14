@@ -5,7 +5,7 @@ using System;
 namespace Geo
 {
    [Serializable]
-   public class Vertex2d : ICoordinates
+   public class Vertex2d : IXYZ
    {
       public int Id { get; set; }
       public int Nref { get; set; }
@@ -30,7 +30,7 @@ namespace Geo
 
       }
 
-      public Vertex2d(ICoordinates source)
+      public Vertex2d(IXYZ source)
       {
          X = source.X;
          Y = source.Y;
@@ -46,7 +46,7 @@ namespace Geo
          Pos = VertexPosition.Middle;
       }
 
-      public Vertex2d(ICoordinates pt, Vertex2d prev = null, Vertex2d next = null, VertexPosition pos = VertexPosition.Middle)
+      public Vertex2d(IXYZ pt, Vertex2d prev = null, Vertex2d next = null, VertexPosition pos = VertexPosition.Middle)
       {
          X = pt.X;
          Y = pt.Y;
@@ -81,7 +81,7 @@ namespace Geo
          if (double.IsNaN(AngleDeg)) AngleDeg = 180;
       }
 
-      public static double GetAngleDeg(ICoordinates vp, ICoordinates v, ICoordinates vn)
+      public static double GetAngleDeg(IXYZ vp, IXYZ v, IXYZ vn)
       {
          if (vp == null || vn == null) return 0;
          Vector3d pp = new Vector3d(vp.X - v.X, vp.Y - v.Y, vp.Z - v.Z);
@@ -122,7 +122,7 @@ namespace Geo
          return new Point3d(x, y, z);
       }
 
-      public double LengthTo(ICoordinates target)
+      public double DistanceTo(IXYZ target)
       {
          double dx = X - target.X;
          double dy = Y - target.Y;
@@ -143,7 +143,7 @@ namespace Geo
          return res;
       }
       
-      public static Vertex2d operator -(Vertex2d pt1, ICoordinates pt2)
+      public static Vertex2d operator -(Vertex2d pt1, IXYZ pt2)
       {
          Vertex2d res = new Vertex2d();
          res.X = pt1.X - pt2.X;
@@ -175,9 +175,17 @@ namespace Geo
          return radians * 180 / Math.PI;
       }
 
-      public bool IsMatch(ICoordinates pt)
+      public bool IsMatch(IXYZ pt)
       {
          return Calcs.IsEqual(this, pt);
+      }
+
+      public double DistanceSquaredTo(IXYZ target)
+      {
+         double dx = X - target.X;
+         double dy = Y - target.Y;
+         double dz = Z - target.Z;
+         return dx * dx + dy * dy + dz * dz;
       }
    }
 

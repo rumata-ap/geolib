@@ -14,14 +14,14 @@ namespace Geo
 
       public CurveType Type => CurveType.circle;
 
-      public Circle2d(ICoordinates cc, double r)
+      public Circle2d(IXYZ cc, double r)
       {
          Center = new Point3d(cc);
          Radius = r;
          Length = 2 * Radius * Math.PI;
       }
 
-      public Circle2d(ICoordinates p1, ICoordinates p2, ICoordinates p3)
+      public Circle2d(IXYZ p1, IXYZ p2, IXYZ p3)
       {
          double ma = (p2.Y - p1.Y) / (p2.X - p1.X);
          double mb = (p3.Y - p2.Y) / (p3.X - p2.X);
@@ -50,7 +50,7 @@ namespace Geo
       ///  p = p1 + mu2 (p2 - p1)
       /// </remarks>
       /// <returns>FALSE, если луч не пересекает сферу.</returns>
-      private bool RaySphere(ICoordinates p1, ICoordinates p2, ICoordinates sc, double r, out double mu1, out double mu2)
+      private bool RaySphere(IXYZ p1, IXYZ p2, IXYZ sc, double r, out double mu1, out double mu2)
       {
          double a, b, c, bb4ac;
          Vector3d dp = p2.ToVector3d() - p1.ToVector3d();

@@ -75,7 +75,7 @@ namespace Geo
       /// <returns>
       /// TRUE, если точка находится внутри отрезка.</returns>
 
-      public bool PointInSegment(ICoordinates p, bool bounds = false, double threshold = 1e-12)
+      public bool PointInSegment(IXYZ p, bool bounds = false, double threshold = 1e-12)
       {
          double tx, ty, tz, t;
          tx = Calcs.IsZero((endPoint - startPoint).Vx, threshold) ?
@@ -223,7 +223,7 @@ namespace Geo
          return new Pline2d(pts.ToArray());
       }
 
-      public bool IsMath(ICoordinates pt, int t = 6)
+      public bool IsMath(IXYZ pt, int t = 6)
       {
          if (Math.Round((pt.X - startPoint.X) / Directive.Vx, 6) == 
             Math.Round((pt.Y - startPoint.Y) / Directive.Vy, 6) &&
@@ -245,7 +245,7 @@ namespace Geo
          else return false;
       }
       
-      public bool IsContain(ICoordinates pt, int t = 6)
+      public bool IsContain(IXYZ pt, int t = 6)
       {
          if (pt.X >= startPoint.X && pt.X <= endPoint.X &&
             pt.Y >= startPoint.Y && pt.Y <= endPoint.Y &&

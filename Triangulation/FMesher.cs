@@ -48,7 +48,7 @@ namespace Geo.Triangulation
          sect.Remove(v.Prev);
 
          var sel = from i in sect where Vertex2d.GetAngleDeg(v.Prev, v, i) < v.AngleDeg select i;
-         sel = from i in sel where Vertex2d.GetAngleDeg(v.Prev, v, i) > 0 orderby i.LengthTo(v) select i;
+         sel = from i in sel where Vertex2d.GetAngleDeg(v.Prev, v, i) > 0 orderby i.DistanceTo(v) select i;
          o = sel.First();
          return tria.IsPointIn(o);
       }
@@ -62,7 +62,7 @@ namespace Geo.Triangulation
       static double GetLengthToSeg(Vertex2d v, ICurve2d e)
       {
          Line2d line = (Line2d)e;
-         return v.LengthTo(line.CenterPoint);
+         return v.DistanceTo(line.CenterPoint);
       }
 
       /// <summary>
@@ -95,7 +95,7 @@ namespace Geo.Triangulation
          {
             for (int i = 0; i < ds.Count; i++)
             {
-               if (t.Intersect(ds[i], out ICoordinates[] pts))
+               if (t.Intersect(ds[i], out IXYZ[] pts))
                {
                   res = true;
                   e = ds[i];
@@ -160,7 +160,7 @@ namespace Geo.Triangulation
          sect.Remove(v.Prev.Prev);
 
          var sel = from i in sect where Math.Round(Vertex2d.GetAngleDeg(v.Prev, v, i), 3) < Math.Round(v.AngleDeg, 3) select i;
-         sel = from i in sel where Math.Round(Vertex2d.GetAngleDeg(v.Prev, v, i), 3) > 0 orderby i.LengthTo(v) select i;
+         sel = from i in sel where Math.Round(Vertex2d.GetAngleDeg(v.Prev, v, i), 3) > 0 orderby i.DistanceTo(v) select i;
 
          if (sel.Count() > 0) o = sel.First();
          else o = null;
@@ -172,8 +172,8 @@ namespace Geo.Triangulation
          }
          else inTria = false;
 
-         double maxL = Math.Max(v.LengthTo(v.Prev), v.LengthTo(v.Next));
-         if (o != null && (o.LengthTo(v) < maxL || o.LengthTo(v) < maxL)) return true;
+         double maxL = Math.Max(v.DistanceTo(v.Prev), v.DistanceTo(v.Next));
+         if (o != null && (o.DistanceTo(v) < maxL || o.DistanceTo(v) < maxL)) return true;
          else return false;
       }
 

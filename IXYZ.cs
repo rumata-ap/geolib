@@ -2,16 +2,17 @@
 
 namespace Geo
 {
-   public interface ICoordinates
+   public interface IXYZ
    {
       double X { get; set; }
       double Y { get; set; }
       double Z { get; set; }
 
-      bool IsMatch(ICoordinates pt);
+      bool IsMatch(IXYZ pt);
       bool IsNaN();
       double[] ToArray();
       Vector3d ToVector3d();
-      double LengthTo(ICoordinates target);
+      double DistanceTo(IXYZ target);
+      double DistanceSquaredTo(IXYZ target);
    }
 }

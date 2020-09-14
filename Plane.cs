@@ -48,7 +48,7 @@ namespace Geo
          CalcPlane();
       }
 
-      public Plane(ICoordinates pt1, ICoordinates pt2, ICoordinates pt3)
+      public Plane(IXYZ pt1, IXYZ pt2, IXYZ pt3)
       {
          Basis = new Point3d(pt1);
 
@@ -67,7 +67,7 @@ namespace Geo
 
       }
 
-      public Plane(ICoordinates pt1, ICoordinates pt2, ICoordinates pt3, ICoordinates bpt)
+      public Plane(IXYZ pt1, IXYZ pt2, IXYZ pt3, IXYZ bpt)
       {
          Basis = new Point3d(bpt);
 
@@ -190,7 +190,7 @@ namespace Geo
          }
       }
 
-      protected void CreatePlane(ICoordinates pt1, ICoordinates pt2, ICoordinates pt3)
+      protected void CreatePlane(IXYZ pt1, IXYZ pt2, IXYZ pt3)
       {
          Basis = new Point3d(pt1);
 

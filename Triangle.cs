@@ -11,19 +11,19 @@ namespace Geo
    {
       public int Id { get; set; }
 
-      private ICoordinates vertex1;
-      private ICoordinates vertex2;
-      private ICoordinates vertex3;
+      private IXYZ vertex1;
+      private IXYZ vertex2;
+      private IXYZ vertex3;
 
       public double Area { get; private set; }
       public double Xc { get; private set; }
       public double Yc { get; private set; }
       public double MaxAngleDeg { get; private set; }
-      public ICoordinates Vertex1 { get => vertex1; set { vertex1 = value; CalcTriangle(); } }
-      public ICoordinates Vertex2 { get => vertex2; set { vertex2 = value; CalcTriangle(); } }
-      public ICoordinates Vertex3 { get => vertex3; set { vertex3 = value; CalcTriangle(); } }
+      public IXYZ Vertex1 { get => vertex1; set { vertex1 = value; CalcTriangle(); } }
+      public IXYZ Vertex2 { get => vertex2; set { vertex2 = value; CalcTriangle(); } }
+      public IXYZ Vertex3 { get => vertex3; set { vertex3 = value; CalcTriangle(); } }
 
-      public Triangle(ICoordinates node1, ICoordinates node2, ICoordinates node3)
+      public Triangle(IXYZ node1, IXYZ node2, IXYZ node3)
       {
          vertex1 = node1;
          vertex2 = node2;
@@ -48,7 +48,7 @@ namespace Geo
             (vertex3.X - vertex1.X) * (vertex2.Y - vertex1.Y)));
       }
 
-      public bool IsPointIn(ICoordinates pt)
+      public bool IsPointIn(IXYZ pt)
       {
          if (pt.IsMatch(vertex1) || pt.IsMatch(vertex2) || pt.IsMatch(vertex3)) return true;
 
@@ -69,10 +69,10 @@ namespace Geo
          else return false;
       }
 
-      public bool Intersect(ICurve2d l, out ICoordinates[] pti)
+      public bool Intersect(ICurve2d l, out IXYZ[] pti)
       {
          bool res = false;
-         pti = new ICoordinates[] { null, null, null };
+         pti = new IXYZ[] { null, null, null };
          Line2d line = (Line2d)l;
          Line2d edg1 = new Line2d(new Point2d(vertex1.ToArray()), new Point2d(vertex2.ToArray()));
          Line2d edg2 = new Line2d(new Point2d(vertex2.ToArray()), new Point2d(vertex3.ToArray()));

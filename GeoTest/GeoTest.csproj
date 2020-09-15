@@ -54,6 +54,7 @@
     <Compile Include="LineTest.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="KdTreeTest.cs" />
+    <Compile Include="UnitTest1.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

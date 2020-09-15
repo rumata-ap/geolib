@@ -28,12 +28,29 @@ namespace GeoTest
          int c = 0;
          for (i = 0, j = npol - 1; i < npol; j = i++)
          {
-            if ((((yp[i] <= y) && (y < yp[j])) || ((yp[j] <= y) && (y < yp[i]))) && (x < (xp[j] - xp[i]) * (y - yp[i]) / (yp[j] - yp[i]) + xp[i]))
+            if ((((yp[i] <= y) && (y < yp[j])) || ((yp[j] <= y) && (y < yp[i]))) && 
+               (x < (xp[j] - xp[i]) * (y - yp[i]) / (yp[j] - yp[i]) + xp[i]))
             {
                c = 1;
             }
          }
          return c;
+      }
+
+      public static bool Contains(IXYZ[] points, IXYZ p)
+      {
+         bool result = false;
+
+         for (int i = 0; i < points.Length - 1; i++)
+         {
+            if ((((points[i + 1].Y <= p.Y) && (p.Y < points[i].Y)) || ((points[i].Y <= p.Y) && 
+               (p.Y < points[i + 1].Y))) && 
+               (p.X < (points[i].X - points[i + 1].X) * (p.Y - points[i + 1].Y) / (points[i].Y - points[i + 1].Y) + points[i + 1].X))
+            {
+               result = !result;
+            }
+         }
+         return result;
       }
 
       /*

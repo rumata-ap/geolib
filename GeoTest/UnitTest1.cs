@@ -9,6 +9,33 @@ namespace GeoTest
    [TestClass]
    public class UnitTest1
    {
+      /// <summary>
+      /// 
+      /// </summary>
+      /// <param name="npol"></param>
+      /// <param name="xp"></param>
+      /// <param name="yp"></param>
+      /// <param name="x"></param>
+      /// <param name="y"></param>
+      /// <returns></returns>
+      /// <remarks>
+      /// Следующий код написан Рэндольфом Франклином, 
+      /// он возвращает 1 для внутренних точек и 0 для внешних точек.
+      /// </remarks>
+      private int PointInPolygon(int npol, float[] xp, float[] yp, float x, float y)
+      {
+         int i, j;
+         int c = 0;
+         for (i = 0, j = npol - 1; i < npol; j = i++)
+         {
+            if ((((yp[i] <= y) && (y < yp[j])) || ((yp[j] <= y) && (y < yp[i]))) && (x < (xp[j] - xp[i]) * (y - yp[i]) / (yp[j] - yp[i]) + xp[i]))
+            {
+               c = 1;
+            }
+         }
+         return c;
+      }
+
       /*
          Determine whether or not the line segment p1,p2
          Intersects the 3 vertex facet bounded by pa,pb,pc
